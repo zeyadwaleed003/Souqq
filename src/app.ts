@@ -7,6 +7,7 @@ const app = express();
 // Global Middlewares
 app.use(express.json());
 
+// Using morgan for HTTP requests
 app.use(morgan(env.NODE_ENV === 'development' ? 'dev' : 'combined'));
 
 export default app;
