@@ -17,7 +17,8 @@
   "env-var": "^7.5.0",
   "express": "^5.1.0",
   "mongoose": "^8.14.1",
-  "morgan": "^1.10.0"
+  "morgan": "^1.10.0",
+  "winston": "^3.17.0"
  },
  "devDependencies": {
   "@types/express": "^5.0.1",
