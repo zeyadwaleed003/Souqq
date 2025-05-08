@@ -1,6 +1,7 @@
-import mongoose from 'mongoose';
+import mongoose, { Schema, model } from 'mongoose';
+import { IProduct } from '../interfaces/product.interface';
 
-const productSchema = new mongoose.Schema({
+const productSchema = new Schema<IProduct>({
   name: {
     type: String,
     required: [true, 'A product must have a name'],
@@ -30,6 +31,6 @@ const productSchema = new mongoose.Schema({
   // updated_at
 });
 
-const Product = mongoose.model('Product', productSchema);
+const Product = model<IProduct>('Product', productSchema);
 
 export default Product;
