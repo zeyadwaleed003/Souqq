@@ -1,14 +1,14 @@
-import { NextFunction, Request, Response } from 'express';
-import Product from '../models/product.model';
-import catchAsync from '../utils/catchAsync';
-import APIError from '../utils/APIError';
+import { NextFunction, Request, Response } from "express";
+import Product from "../models/product.model";
+import catchAsync from "../utils/catchAsync";
+import APIError from "../utils/APIError";
+import ProductService from "../services/product.service";
 
 export const getAllProducts = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const products = await Product.find();
-
+    const products = await ProductService.findAll();
     res.status(200).json({
-      status: 'success',
+      status: "success",
       results: products.length,
       data: {
         products,
@@ -19,12 +19,9 @@ export const getAllProducts = catchAsync(
 
 export const getProductById = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const product = await Product.findById(req.params.id);
-
-    if (!product) return next(new APIError('No tour found with that ID', 404));
-
+    const product = await ProductService.findById(req.params.id);
     res.status(200).json({
-      status: 'success',
+      status: "success",
       data: {
         product,
       },
@@ -34,10 +31,10 @@ export const getProductById = catchAsync(
 
 export const createProduct = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const newProduct = await Product.create(req.body);
+    const newProduct = await ProductService.create(req.body);
 
     res.status(201).json({
-      status: 'success',
+      status: "success",
       data: {
         tour: newProduct,
       },
