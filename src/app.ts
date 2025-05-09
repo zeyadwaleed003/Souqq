@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { NextFunction, Request, Response } from 'express';
 import morgan from 'morgan';
 
 import env from './config/env';
@@ -13,5 +13,13 @@ app.use(express.json());
 app.use(morgan(env.NODE_ENV === 'development' ? 'dev' : 'combined'));
 
 app.use('/api/v1/products', productRouter);
+
+// Handle Unhandled Routes
+app.all(/(.*)/, (req: Request, res: Response, next: NextFunction) => {
+  res.status(404).json({
+    status: 'fail',
+    message: `Can't find ${req.originalUrl} on this server`,
+  });
+});
 
 export default app;
