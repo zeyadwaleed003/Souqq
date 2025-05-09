@@ -1,37 +1,46 @@
-import { Request, Response } from "express";
-import ProductService from "../services/product.service";
+import { NextFunction, Request, Response } from 'express';
+import Product from '../models/product.model';
+import catchAsync from '../utils/catchAsync';
+import APIError from '../utils/APIError';
 
-export const getAllProducts = async (req: Request, res: Response) => {
-  try {
-    const products = await ProductService.getAllProducts();
+export const getAllProducts = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const products = await Product.find();
+
     res.status(200).json({
-      status: "success",
+      status: 'success',
       results: products.length,
       data: {
         products,
       },
     });
-  } catch (err) {
-    res.status(404).json({
-      status: "fail",
-      message: err,
+  }
+);
+
+export const getProductById = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const product = await Product.findById(req.params.id);
+
+    if (!product) return next(new APIError('No tour found with that ID', 404));
+
+    res.status(200).json({
+      status: 'success',
+      data: {
+        product,
+      },
     });
   }
-};
+);
 
-export const createProduct = async (req: Request, res: Response) => {
-  try {
-    const newProduct = await ProductService.createProduct(req.body);
+export const createProduct = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const newProduct = await Product.create(req.body);
+
     res.status(201).json({
-      status: "success",
+      status: 'success',
       data: {
         tour: newProduct,
       },
     });
-  } catch (err) {
-    res.status(400).json({
-      status: "fail",
-      message: err,
-    });
   }
-};
+);
