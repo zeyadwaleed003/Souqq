@@ -3,6 +3,8 @@ import morgan from 'morgan';
 
 import env from './config/env';
 import { productRouter } from './routes/product.routes';
+import APIError from './utils/APIError';
+import globalErrorHandler from './middlewares/globalErrorHandler';
 
 const app = express();
 
@@ -16,10 +18,9 @@ app.use('/api/v1/products', productRouter);
 
 // Handle Unhandled Routes
 app.all(/(.*)/, (req: Request, res: Response, next: NextFunction) => {
-  res.status(404).json({
-    status: 'fail',
-    message: `Can't find ${req.originalUrl} on this server`,
-  });
+  next(new APIError(`Can't find ${req.originalUrl} on this server`, 404));
 });
+
+app.use(globalErrorHandler);
 
 export default app;
