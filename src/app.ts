@@ -3,6 +3,7 @@ import morgan from 'morgan';
 
 import env from './config/env';
 import { productRouter } from './routes/product.routes';
+import { userRouter } from './routes/user.routes';
 import APIError from './utils/APIError';
 import globalErrorHandler from './middlewares/globalErrorHandler';
 
@@ -14,6 +15,7 @@ app.use(express.json());
 // Using morgan for HTTP requests
 app.use(morgan(env.NODE_ENV === 'development' ? 'dev' : 'combined'));
 
+app.use('/api/v1/users', userRouter);
 app.use('/api/v1/products', productRouter);
 
 // Handle Unhandled Routes
