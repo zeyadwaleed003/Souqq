@@ -1,4 +1,6 @@
 import { model, Schema } from 'mongoose';
+import bcrypt from 'bcryptjs';
+
 import IUser from '../interfaces/user.interface';
 
 const userSchema = new Schema<IUser>({
@@ -31,6 +33,16 @@ const userSchema = new Schema<IUser>({
       message: 'Passwords are not the same!',
     },
   },
+});
+
+// Encrypt the password using Bcrypt and delete the passwordConfirm field
+userSchema.pre('save', async function (next) {
+  if (!this.isModified('password')) return next();
+
+  this.password = await bcrypt.hash(this.password.toString(), 12);
+
+  this.passwordConfirm = undefined;
+  next();
 });
 
 export const User = model<IUser>('User', userSchema);
