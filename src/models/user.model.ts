@@ -22,6 +22,7 @@ const userSchema = new Schema<IUser>({
       8,
       'A user password must have a greater or equal than 8 characters',
     ],
+    select: false,
   },
   passwordConfirm: {
     type: String,
