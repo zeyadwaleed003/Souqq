@@ -5,10 +5,11 @@ import catchAsync from '../utils/catchAsync';
 import AuthService from '../services/auth.service';
 import APIError from '../utils/APIError';
 import { generateToken } from '../utils/token';
+import { ISignupBody } from '../interfaces/auth.interface';
 
 export const signup = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const newUser = await AuthService.create(req.body);
+    const newUser = await AuthService.signup(req.body as ISignupBody);
 
     const token = generateToken(newUser.id);
 

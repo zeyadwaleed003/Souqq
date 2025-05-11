@@ -1,9 +1,10 @@
+import { ISignupBody } from '../interfaces/auth.interface';
 import IUser from '../interfaces/user.interface';
 import { User } from '../models/user.model';
 import APIError from '../utils/APIError';
 
 class AuthService {
-  async create(body: object): Promise<IUser> {
+  async signup(body: ISignupBody): Promise<IUser> {
     const newUser = await User.create(body);
     return newUser;
   }
