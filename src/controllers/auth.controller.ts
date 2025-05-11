@@ -1,11 +1,10 @@
 import { NextFunction, Request, Response } from 'express';
-import bcrypt from 'bcryptjs';
 
 import catchAsync from '../utils/catchAsync';
 import AuthService from '../services/auth.service';
 import APIError from '../utils/APIError';
 import { generateToken } from '../utils/token';
-import { ISignupBody } from '../interfaces/auth.interface';
+import { ILogin, ISignupBody } from '../interfaces/auth.interface';
 
 export const signup = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -25,15 +24,7 @@ export const signup = catchAsync(
 
 export const login = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const { email, password } = req.body;
-
-    if (!email || !password)
-      return next(new APIError('Please provide email and password', 400));
-
-    const user = await AuthService.findOne({ email });
-
-    const isUser = await bcrypt.compare(password, user.password as string);
-    if (!isUser) return next(new APIError('Invalid email or password', 404));
+    const user = await AuthService.login(req.body as ILogin);
 
     const token = generateToken(user.id);
 
