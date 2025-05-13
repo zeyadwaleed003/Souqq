@@ -8,6 +8,11 @@ export default {
   DATABASE_URL: env.get('DATABASE_URL').required().asString(),
   DATABASE_PASSWORD: env.get('DATABASE_PASSWORD').required().asString(),
   LOG_LEVEL: env.get('LOG_LEVEL').asString(),
-  JWT_SECRET: env.get('JWT_SECRET').asString(),
-  JWT_EXPIRES_IN: env.get('JWT_EXPIRES_IN').asString(),
+  JWT_SECRET: env.get('JWT_SECRET').required().asString(),
+  JWT_EXPIRES_IN: env.get('JWT_EXPIRES_IN').required().asString(),
+  MAILTRAP_HOST: env.get('MAILTRAP_HOST').required().asString(),
+  MAILTRAP_PORT: env.get('MAILTRAP_PORT').required().asString(),
+  MAILTRAP_USERNAME: env.get('MAILTRAP_USERNAME').required().asString(),
+  MAILTRAP_PASSWORD: env.get('MAILTRAP_PASSWORD').required().asString(),
+  EMAIL_FROM: env.get('EMAIL_FROM').required().asString(),
 };
