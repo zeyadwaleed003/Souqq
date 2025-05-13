@@ -1,6 +1,6 @@
-import { IProduct } from "../interfaces/product.interface";
-import Product from "../models/product.model";
-import APIError from "../utils/APIError";
+import { IProduct } from '../interfaces/product.interface';
+import Product from '../models/product.model';
+import APIError from '../utils/APIError';
 
 class ProductService {
   async findAll(): Promise<IProduct[]> {
@@ -16,7 +16,7 @@ class ProductService {
   async findById(id: string): Promise<IProduct | null> {
     const product = await Product.findById(id);
 
-    if (!product) throw new APIError("No tour found with that ID", 404);
+    if (!product) throw new APIError('No product found with that ID', 404);
 
     return product;
   }

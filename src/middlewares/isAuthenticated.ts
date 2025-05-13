@@ -28,5 +28,6 @@ export default async (req: IRequest, res: Response, next: NextFunction) => {
     );
 
   // Check if the user changed his password after the token has been created
+  req.user = user;
   next();
 };
