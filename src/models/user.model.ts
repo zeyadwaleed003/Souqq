@@ -34,6 +34,11 @@ const userSchema = new Schema<IUser>({
       message: 'Passwords are not the same!',
     },
   },
+  role: {
+    type: String,
+    enum: ['admin', 'user'],
+    default: 'user',
+  },
 });
 
 // Encrypt the password using Bcrypt and delete the passwordConfirm field
