@@ -1,10 +1,11 @@
-import { NextFunction, Request, Response } from 'express';
+import { NextFunction, Response } from 'express';
 
 import APIError from '../utils/APIError';
 import { verifyToken } from '../utils/token';
 import { User } from '../models/user.model';
+import { IRequest } from '../types/types';
 
-export default async (req: Request, res: Response, next: NextFunction) => {
+export default async (req: IRequest, res: Response, next: NextFunction) => {
   if (
     !req.headers.authorization ||
     !req.headers.authorization.startsWith('Bearer')
@@ -17,7 +18,7 @@ export default async (req: Request, res: Response, next: NextFunction) => {
 
   const decoded = verifyToken(token);
 
-  const user = User.findById(decoded.id);
+  const user = await User.findById(decoded.id);
   if (!user)
     return next(
       new APIError(
