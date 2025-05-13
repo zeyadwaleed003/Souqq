@@ -1,3 +1,4 @@
+import crypto from 'crypto';
 import { model, Schema } from 'mongoose';
 import bcrypt from 'bcryptjs';
 
@@ -39,6 +40,8 @@ const userSchema = new Schema<IUser>({
     enum: ['admin', 'user'],
     default: 'user',
   },
+  passwordResetToken: String,
+  passwordResetExpires: Date,
 });
 
 // Encrypt the password using Bcrypt and delete the passwordConfirm field
@@ -50,5 +53,16 @@ userSchema.pre('save', async function (next) {
   this.passwordConfirm = undefined;
   next();
 });
+
+userSchema.methods.createPasswordResetToken = function (this: IUser): string {
+  const resetToken = crypto.randomBytes(32).toString('hex');
+  this.passwordResetToken = crypto
+    .createHash('sha256')
+    .update(resetToken)
+    .digest('hex');
+
+  this.passwordResetExpires = new Date(Date.now() + 10 * 60 * 100);
+  return resetToken;
+};
 
 export const User = model<IUser>('User', userSchema);

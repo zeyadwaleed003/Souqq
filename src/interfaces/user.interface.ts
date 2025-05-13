@@ -7,6 +7,9 @@ interface IUser extends Document {
   password: String;
   passwordConfirm: String | undefined;
   role: String;
+  passwordResetToken?: String;
+  passwordResetExpires?: Date;
+  createPasswordResetToken(): string;
 }
 
 export default IUser;

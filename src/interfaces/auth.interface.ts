@@ -1,9 +1,9 @@
-export interface ILogin {
+export interface ILoginBody {
   email: string;
   password: string;
 }
 
-export interface ISignupBody extends ILogin {
+export interface ISignupBody extends ILoginBody {
   name: string;
   passwordConfirm: string;
 }
