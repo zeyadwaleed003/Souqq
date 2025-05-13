@@ -6,6 +6,7 @@ interface IUser extends Document {
   photo?: String;
   password: String;
   passwordConfirm: String | undefined;
+  role: String;
 }
 
 export default IUser;
