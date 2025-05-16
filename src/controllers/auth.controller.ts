@@ -35,7 +35,7 @@ export const resetPassword = catchAsync(
     const data: IResetPasswordBody = {
       token: req.params.token,
       password: req.body.password,
-      passwordConfirm: req.body.passowrd,
+      passwordConfirm: req.body.passwordConfirm,
     };
     const result = await AuthService.resetPassword(data);
     sendReponse(result, res);

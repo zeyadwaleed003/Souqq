@@ -25,16 +25,6 @@ const userSchema = new Schema<IUser>({
     ],
     select: false,
   },
-  passwordConfirm: {
-    type: String,
-    required: [true, 'Please confirm your password'],
-    validate: {
-      validator: function (val) {
-        return val === this.password;
-      },
-      message: 'Passwords are not the same!',
-    },
-  },
   role: {
     type: String,
     enum: ['admin', 'user'],
@@ -44,13 +34,11 @@ const userSchema = new Schema<IUser>({
   passwordResetExpires: Date,
 });
 
-// Encrypt the password using Bcrypt and delete the passwordConfirm field
+// Encrypt the password using Bcrypt
 userSchema.pre('save', async function (next) {
   if (!this.isModified('password')) return next();
 
   this.password = await bcrypt.hash(this.password.toString(), 12);
-
-  this.passwordConfirm = undefined;
   next();
 });
 
