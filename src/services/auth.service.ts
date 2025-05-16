@@ -84,7 +84,7 @@ class AuthService {
     await user.save({ validateBeforeSave: false });
 
     try {
-      const resetURL = `${payload.protocol}://${payload.get('host')}/api/v1/users/resetPassword/${resetToken}`;
+      const resetURL = `${payload.protocol}://${payload.get('host')}/api/v1/auth/reset-password/${resetToken}`;
       new Email(user, resetURL).sendPasswordReset();
 
       return {
