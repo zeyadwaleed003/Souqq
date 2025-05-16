@@ -1,7 +1,12 @@
 import bcrypt from 'bcryptjs';
+import crypto from 'crypto';
 import { Request } from 'express';
 
-import { ILoginBody, ISignupBody } from '../interfaces/auth.interface';
+import {
+  ILoginBody,
+  ISignupBody,
+  IResetPasswordBody,
+} from '../interfaces/auth.interface';
 import { User } from '../models/user.model';
 import APIError from '../utils/APIError';
 import Email from '../utils/email';
@@ -40,9 +45,9 @@ class AuthService {
       status: 'success',
       statusCode: 201,
 
-      // Need to remove the password field from the response
+      // TODO: remove the password field from the response
       data: user,
-      token: token,
+      token,
     };
   }
 
@@ -64,7 +69,7 @@ class AuthService {
     return {
       status: 'success',
       statusCode: 201,
-      token: token,
+      token,
     };
   }
 
@@ -98,6 +103,39 @@ class AuthService {
         500
       );
     }
+  }
+
+  async resetPassword(payload: IResetPasswordBody): Promise<IResponse> {
+    // Hash the provided token to be able to compare it with the hashed token in the database
+    const hashedToken = crypto
+      .createHash('sha256')
+      .update(payload.token)
+      .digest('hex');
+
+    const user = await User.findOne({
+      passwordResetToken: hashedToken,
+      passwordResetExpires: { $gte: Date.now() },
+    });
+
+    // If the token is wrong or is expired then error happens
+    if (!user) {
+      throw new APIError('Your reset token is invalid or has expired.', 400);
+    }
+
+    user.password = payload.password;
+    user.passwordConfirm = payload.passwordConfirm;
+    user.passwordResetToken = undefined;
+    user.passwordResetExpires = undefined;
+    await user.save();
+
+    // TODO: update the passwordChangedAt property!!!
+
+    const token = generateToken(user._id as string);
+    return {
+      status: 'success',
+      statusCode: 200,
+      token,
+    };
   }
 }
 
