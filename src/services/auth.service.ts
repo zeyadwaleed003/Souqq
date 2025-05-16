@@ -2,7 +2,6 @@ import bcrypt from 'bcryptjs';
 import { Request } from 'express';
 
 import { ILoginBody, ISignupBody } from '../interfaces/auth.interface';
-import IUser from '../interfaces/user.interface';
 import { User } from '../models/user.model';
 import APIError from '../utils/APIError';
 import Email from '../utils/email';
