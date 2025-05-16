@@ -61,7 +61,7 @@ userSchema.methods.createPasswordResetToken = function (this: IUser): string {
     .update(resetToken)
     .digest('hex');
 
-  this.passwordResetExpires = new Date(Date.now() + 10 * 60 * 100);
+  this.passwordResetExpires = new Date(Date.now() + 10 * 60 * 1000);
   return resetToken;
 };
 
