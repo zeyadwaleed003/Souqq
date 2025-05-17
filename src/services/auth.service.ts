@@ -59,12 +59,37 @@ class AuthService {
     };
   }
 
+  async verifyEmail(payload: string): Promise<IResponse> {
+    const hashedToken = hashToken(payload);
+
+    const user = await User.findOne({
+      emailVerificationToken: hashedToken,
+      emailVerificationTokenExpiresAt: { $gte: Date.now() },
+    });
+
+    if (!user) {
+      throw new APIError(
+        'Your verification token is invalid or has expired.',
+        400
+      );
+    }
+
+    user.emailVerified = true;
+    user.emailVerificationToken = undefined;
+    user.emailVerificationTokenExpiresAt = undefined;
+    await user.save();
+
+    const jwt = generateJWT(user._id as string);
+
+    return {
+      status: 'success',
+      statusCode: 201,
+      token: jwt,
+    };
+  }
+
   async login(payload: ILoginBody): Promise<IResponse> {
     const { email, password } = payload;
-
-    // check if the email or password is not provided
-    if (!email || !password)
-      throw new APIError('Please provide email and password', 400);
 
     const user = await User.findOne({ email }).select('+password');
 

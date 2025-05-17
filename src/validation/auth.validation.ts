@@ -16,6 +16,22 @@ export const signupSchema = z.object({
   }),
 });
 
+export const verifyEmailSchema = z.object({
+  params: z.object({
+    token: z.string(),
+  }),
+});
+
+export const loginSchema = z.object({
+  body: z.object({
+    email: z.string().email({ message: 'Invalid email address' }).trim(),
+    password: z
+      .string()
+      .min(8, 'Password must be at least 8 characters long')
+      .trim(),
+  }),
+});
+
 export const forgotPasswordSchema = z.object({
   body: z.object({
     email: z.string().email({ message: 'Invalid email address' }).trim(),

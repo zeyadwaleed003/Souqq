@@ -17,6 +17,13 @@ export const signup = catchAsync(
   }
 );
 
+export const verifyEmail = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const result = await AuthService.verifyEmail(req.params.token as string);
+    sendReponse(result, res);
+  }
+);
+
 export const login = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const result = await AuthService.login(req.body as ILoginBody);
