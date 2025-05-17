@@ -42,15 +42,4 @@ userSchema.pre('save', async function (next) {
   next();
 });
 
-userSchema.methods.createPasswordResetToken = function (this: IUser): string {
-  const resetToken = crypto.randomBytes(32).toString('hex');
-  this.passwordResetToken = crypto
-    .createHash('sha256')
-    .update(resetToken)
-    .digest('hex');
-
-  this.passwordResetExpires = new Date(Date.now() + 10 * 60 * 1000);
-  return resetToken;
-};
-
 export const User = model<IUser>('User', userSchema);

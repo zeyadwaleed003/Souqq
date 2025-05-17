@@ -10,7 +10,7 @@ import {
 import { User } from '../models/user.model';
 import APIError from '../utils/APIError';
 import Email from '../utils/email';
-import { generateToken } from '../utils/token';
+import { generateJWT, hashToken, generateToken } from '../utils/token';
 import { IResponse } from '../types/types';
 import logger from '../config/logger';
 
@@ -62,12 +62,12 @@ class AuthService {
     if (!user || !(await bcrypt.compare(password, user.password as string)))
       throw new APIError('Invalid email or password', 401);
 
-    const token = generateToken(user.id);
+    const jwt = generateJWT(user.id);
 
     return {
       status: 'success',
       statusCode: 201,
-      token,
+      token: jwt,
     };
   }
 
@@ -78,11 +78,15 @@ class AuthService {
       throw new APIError('There is no user with this email address.', 404);
     }
 
-    const resetToken = user.createPasswordResetToken();
+    const { token, hashedToken } = generateToken();
+
+    user.passwordResetToken = hashedToken;
+    user.passwordResetExpires = new Date(Date.now() + 10 * 60 * 1000);
+
     await user.save({ validateBeforeSave: false });
 
     try {
-      const resetURL = `${payload.protocol}://${payload.get('host')}/api/v1/auth/reset-password/${resetToken}`;
+      const resetURL = `${payload.protocol}://${payload.get('host')}/api/v1/auth/reset-password/${token}`;
       new Email(user, resetURL).sendPasswordReset();
 
       return {
@@ -105,10 +109,7 @@ class AuthService {
 
   async resetPassword(payload: IResetPasswordBody): Promise<IResponse> {
     // Hash the provided token to be able to compare it with the hashed token in the database
-    const hashedToken = crypto
-      .createHash('sha256')
-      .update(payload.token)
-      .digest('hex');
+    const hashedToken = hashToken(payload.token);
 
     const user = await User.findOne({
       passwordResetToken: hashedToken,
@@ -127,11 +128,12 @@ class AuthService {
 
     // TODO: update the passwordChangedAt property!!!
 
-    const token = generateToken(user._id as string);
+    const jwt = generateJWT(user._id as string);
+
     return {
       status: 'success',
       statusCode: 200,
-      token,
+      token: jwt,
     };
   }
 }
