@@ -1,14 +1,16 @@
 import { Document } from 'mongoose';
 
 interface IUser extends Document {
-  name: String;
-  email: String;
-  photo?: String;
-  password: String;
-  passwordConfirm: String | undefined;
-  role: String;
-  passwordResetToken?: String;
-  passwordResetExpires?: Date;
+  name: string;
+  email: string;
+  photo?: string;
+  password: string;
+  role: string;
+  passwordResetToken?: string;
+  passwordResetExpiresAt?: Date;
+  emailVerificationToken?: string;
+  emailVerificationTokenExpiresAt?: Date;
+  emailVerified: boolean;
   createPasswordResetToken(): string;
 }
 

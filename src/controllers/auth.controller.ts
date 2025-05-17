@@ -6,12 +6,20 @@ import {
   ILoginBody,
   ISignupBody,
   IResetPasswordBody,
+  IForgotPasswordBody,
 } from '../interfaces/auth.interface';
 import sendReponse from '../utils/sendReponse';
 
 export const signup = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const result = await AuthService.signup(req.body as ISignupBody);
+    sendReponse(result, res);
+  }
+);
+
+export const verifyEmail = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const result = await AuthService.verifyEmail(req.params.token as string);
     sendReponse(result, res);
   }
 );
@@ -25,7 +33,9 @@ export const login = catchAsync(
 
 export const forgotPassword = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const result = await AuthService.forgotPassword(req);
+    const result = await AuthService.forgotPassword(
+      req.body as IForgotPasswordBody
+    );
     sendReponse(result, res);
   }
 );
