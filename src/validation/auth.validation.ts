@@ -7,6 +7,9 @@ export const forgotPasswordValidation = z.object({
 });
 
 export const resetPasswordValidation = z.object({
+  params: z.object({
+    token: z.string(),
+  }),
   body: z
     .object({
       password: z
