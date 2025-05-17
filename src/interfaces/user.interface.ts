@@ -9,7 +9,7 @@ interface IUser extends Document {
   passwordResetToken?: string;
   passwordResetExpiresAt?: Date;
   emailVerificationToken?: string;
-  emailVerificationTokenAt?: Date;
+  emailVerificationTokenExpiresAt?: Date;
   emailVerified: boolean;
   createPasswordResetToken(): string;
 }

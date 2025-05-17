@@ -37,7 +37,7 @@ const userSchema = new Schema<IUser>({
   passwordResetToken: String,
   passwordResetExpiresAt: Date,
   emailVerificationToken: String,
-  emailVerificationTokenAt: Date,
+  emailVerificationTokenExpiresAt: Date,
   emailVerified: {
     type: Boolean,
     default: false,

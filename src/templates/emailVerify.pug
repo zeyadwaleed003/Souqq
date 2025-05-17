@@ -1,0 +1,59 @@
+doctype html
+html
+  head
+    meta(charset='UTF-8')
+    meta(name='viewport' content='width=device-width, initial-scale=1.0')
+    title #{subject}
+    style.
+      body {
+        font-family: 'Helvetica Neue', Arial, sans-serif;
+        line-height: 1.6;
+        color: #d3d3d3;
+        background-color: #ffffff;
+        margin: 0;
+        padding: 0;
+      }
+      .container {
+        max-width: 800px; /* Wider container */
+        margin: 30px auto;
+        background: #2c2f33;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      }
+      .button {
+        display: inline-block;
+        padding: 12px 24px;
+        background-color: #1e90ff; /* Cool deep blue */
+        color: #ffffff;
+        text-decoration: none;
+        border-radius: 6px;
+        font-weight: bold;
+      }
+      .button:hover {
+        background-color: #104e8b; /* Darker blue on hover */
+      }
+      .footer {
+        margin-top: 30px;
+        font-size: 12px;
+        color: #4682b4; /* Cool blue-gray */
+        text-align: center;
+      }
+      h1 {
+        color: #ffffff; /* Bright for emphasis */
+      }
+      a {
+        color: #1e90ff;
+      }
+      a:hover {
+        color: #87ceeb;
+      }
+  body
+    .container
+      h1 Hi #{firstName}!
+      p Please verify your email address by clicking the button below.
+      p  
+        a.button(href=url) Verify your email
+      p If you didn't create an account, please ignore this email.
+      .footer
+        p © #{new Date().getFullYear()} Your E-Commerce Platform. All rights reserved.

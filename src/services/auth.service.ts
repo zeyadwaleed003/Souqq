@@ -1,6 +1,4 @@
 import bcrypt from 'bcryptjs';
-import crypto from 'crypto';
-import { Request } from 'express';
 
 import {
   ILoginBody,
@@ -14,6 +12,7 @@ import Email from '../utils/email';
 import { generateJWT, hashToken, generateToken } from '../utils/token';
 import { IResponse } from '../types/types';
 import logger from '../config/logger';
+import env from '../config/env';
 
 class AuthService {
   async signup(payload: ISignupBody): Promise<IResponse> {
@@ -39,11 +38,22 @@ class AuthService {
       'A new user has been created successfully. User Id: ' + user.id
     );
 
+    const { token, hashedToken } = generateToken();
+
+    user.emailVerificationToken = hashedToken;
+    user.emailVerificationTokenExpiresAt = new Date(
+      Date.now() + 10 * 60 * 1000
+    );
+    await user.save({ validateBeforeSave: false });
+
+    const verifyURL = `${env.BASE_URL}api/v1/auth/verify-email/${token}`;
+    await new Email(user, verifyURL).sendEmailVerify(); // Takes long time because of the await!
+
+    // TODO: handle email failed to send error
+
     return {
       status: 'success',
       statusCode: 201,
-
-      // TODO: remove the password field from the response
       message:
         'Account created successfully. Please check your email to verify your account.',
     };
@@ -82,29 +92,28 @@ class AuthService {
 
     user.passwordResetToken = hashedToken;
     user.passwordResetExpiresAt = new Date(Date.now() + 10 * 60 * 1000);
-
     await user.save({ validateBeforeSave: false });
 
-    try {
-      const resetURL = `http://127.0.0.1:3000/api/v1/auth/reset-password/${token}`;
-      new Email(user, resetURL).sendPasswordReset();
+    const resetURL = `${env.BASE_URL}api/v1/auth/reset-password/${token}`;
+    await new Email(user, resetURL).sendPasswordReset();
 
-      return {
-        status: 'success',
-        statusCode: 200,
-        message: 'Please check your email for the password reset link.',
-      };
-    } catch (err) {
-      user.passwordResetToken = undefined;
-      user.passwordResetExpiresAt = undefined;
+    return {
+      status: 'success',
+      statusCode: 200,
+      message: 'Please check your email for the password reset link.',
+    };
 
-      await user.save({ validateBeforeSave: false });
+    // TODO: handle email failed to send error
 
-      throw new APIError(
-        'There was an error sending the email. Try again later!',
-        500
-      );
-    }
+    // user.passwordResetToken = undefined;
+    // user.passwordResetExpiresAt = undefined;
+
+    // await user.save({ validateBeforeSave: false });
+
+    // throw new APIError(
+    //   'There was an error sending the email. Try again later!',
+    //   500
+    // );
   }
 
   async resetPassword(payload: IResetPasswordBody): Promise<IResponse> {
@@ -140,7 +149,7 @@ class AuthService {
 /*
   TODO:
   - logout functionality
-  - 
+  - change email 
 */
 
 export default new AuthService();

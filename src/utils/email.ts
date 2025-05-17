@@ -68,4 +68,11 @@ export default class Email {
       `Your password reset token (valid for 10 minutes)`
     );
   }
+
+  async sendEmailVerify() {
+    await this.send(
+      'emailVerify',
+      'Your email verification token (valid for 10 minutes)'
+    );
+  }
 }
