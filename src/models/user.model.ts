@@ -8,12 +8,14 @@ const userSchema = new Schema<IUser>({
   name: {
     type: String,
     required: [true, 'Please tell us your name'],
+    trim: true,
   },
   email: {
     type: String,
     required: [true, 'Please provide your email'],
     unique: true,
     lowercase: true,
+    trim: true,
   },
   photo: String,
   password: {
@@ -24,6 +26,7 @@ const userSchema = new Schema<IUser>({
       'A user password must have a greater or equal than 8 characters',
     ],
     select: false,
+    trim: true,
   },
   role: {
     type: String,
