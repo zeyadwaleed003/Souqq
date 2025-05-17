@@ -5,7 +5,6 @@ interface IUser extends Document {
   email: String;
   photo?: String;
   password: String;
-  passwordConfirm: String | undefined;
   role: String;
   passwordResetToken?: String;
   passwordResetExpires?: Date;

@@ -121,7 +121,6 @@ class AuthService {
     }
 
     user.password = payload.password;
-    user.passwordConfirm = payload.passwordConfirm;
     user.passwordResetToken = undefined;
     user.passwordResetExpires = undefined;
     await user.save();
