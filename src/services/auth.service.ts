@@ -109,8 +109,18 @@ class AuthService {
   async forgotPassword(payload: IForgotPasswordBody): Promise<IResponse> {
     // check if there is a user with the provided email address
     const user = await User.findOne({ email: payload.email });
+
+    const response = {
+      status: 'success',
+      statusCode: 200,
+      message: 'Please check your email for the password reset link.',
+    };
+
     if (!user) {
-      throw new APIError('There is no user with this email address.', 404);
+      logger.error(
+        `No user found with email: ${payload.email} for password reset request`
+      );
+      return response;
     }
 
     const { token, hashedToken } = generateToken();
@@ -122,11 +132,7 @@ class AuthService {
     const resetURL = `${env.BASE_URL}api/v1/auth/reset-password/${token}`;
     await new Email(user, resetURL).sendPasswordReset();
 
-    return {
-      status: 'success',
-      statusCode: 200,
-      message: 'Please check your email for the password reset link.',
-    };
+    return response;
 
     // TODO: handle email failed to send error
 
