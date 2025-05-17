@@ -9,11 +9,12 @@ import validate from '../middlewares/validate';
 import {
   forgotPasswordSchema,
   resetPasswordSchema,
+  signupSchema,
 } from '../validation/auth.validation';
 
 const router = express.Router();
 
-router.post('/signup', signup);
+router.post('/signup', validate(signupSchema), signup);
 router.post('/login', login);
 
 router.post('/forgot-password', validate(forgotPasswordSchema), forgotPassword);
