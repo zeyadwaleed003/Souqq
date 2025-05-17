@@ -3,6 +3,7 @@ import { model, Schema } from 'mongoose';
 import bcrypt from 'bcryptjs';
 
 import IUser from '../interfaces/user.interface';
+import { boolean } from 'zod';
 
 const userSchema = new Schema<IUser>({
   name: {
@@ -34,7 +35,13 @@ const userSchema = new Schema<IUser>({
     default: 'user',
   },
   passwordResetToken: String,
-  passwordResetExpires: Date,
+  passwordResetExpiresAt: Date,
+  emailVerificationToken: String,
+  emailVerificationTokenAt: Date,
+  emailVerified: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 // Encrypt the password using Bcrypt

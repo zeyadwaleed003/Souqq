@@ -1,5 +1,8 @@
-export interface ILoginBody {
+export interface IForgotPasswordBody {
   email: string;
+}
+
+export interface ILoginBody extends IForgotPasswordBody {
   password: string;
 }
 

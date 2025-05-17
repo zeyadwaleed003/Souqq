@@ -6,6 +6,7 @@ import {
   ILoginBody,
   ISignupBody,
   IResetPasswordBody,
+  IForgotPasswordBody,
 } from '../interfaces/auth.interface';
 import { User } from '../models/user.model';
 import APIError from '../utils/APIError';
@@ -43,7 +44,6 @@ class AuthService {
       statusCode: 201,
 
       // TODO: remove the password field from the response
-      data: user,
       message:
         'Account created successfully. Please check your email to verify your account.',
     };
@@ -71,9 +71,9 @@ class AuthService {
     };
   }
 
-  async forgotPassword(payload: Request): Promise<IResponse> {
+  async forgotPassword(payload: IForgotPasswordBody): Promise<IResponse> {
     // check if there is a user with the provided email address
-    const user = await User.findOne({ email: payload.body.email });
+    const user = await User.findOne({ email: payload.email });
     if (!user) {
       throw new APIError('There is no user with this email address.', 404);
     }
@@ -81,12 +81,12 @@ class AuthService {
     const { token, hashedToken } = generateToken();
 
     user.passwordResetToken = hashedToken;
-    user.passwordResetExpires = new Date(Date.now() + 10 * 60 * 1000);
+    user.passwordResetExpiresAt = new Date(Date.now() + 10 * 60 * 1000);
 
     await user.save({ validateBeforeSave: false });
 
     try {
-      const resetURL = `${payload.protocol}://${payload.get('host')}/api/v1/auth/reset-password/${token}`;
+      const resetURL = `http://127.0.0.1:3000/api/v1/auth/reset-password/${token}`;
       new Email(user, resetURL).sendPasswordReset();
 
       return {
@@ -96,7 +96,7 @@ class AuthService {
       };
     } catch (err) {
       user.passwordResetToken = undefined;
-      user.passwordResetExpires = undefined;
+      user.passwordResetExpiresAt = undefined;
 
       await user.save({ validateBeforeSave: false });
 
@@ -113,7 +113,7 @@ class AuthService {
 
     const user = await User.findOne({
       passwordResetToken: hashedToken,
-      passwordResetExpires: { $gte: Date.now() },
+      passwordResetExpiresAt: { $gte: Date.now() },
     });
 
     // If the token is wrong or is expired then error happens
@@ -123,10 +123,9 @@ class AuthService {
 
     user.password = payload.password;
     user.passwordResetToken = undefined;
-    user.passwordResetExpires = undefined;
-    await user.save();
-
+    user.passwordResetExpiresAt = undefined;
     // TODO: update the passwordChangedAt property!!!
+    await user.save();
 
     const jwt = generateJWT(user._id as string);
 

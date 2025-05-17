@@ -6,6 +6,7 @@ import {
   ILoginBody,
   ISignupBody,
   IResetPasswordBody,
+  IForgotPasswordBody,
 } from '../interfaces/auth.interface';
 import sendReponse from '../utils/sendReponse';
 
@@ -25,7 +26,9 @@ export const login = catchAsync(
 
 export const forgotPassword = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const result = await AuthService.forgotPassword(req);
+    const result = await AuthService.forgotPassword(
+      req.body as IForgotPasswordBody
+    );
     sendReponse(result, res);
   }
 );
