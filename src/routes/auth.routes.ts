@@ -7,8 +7,8 @@ import {
 } from '../controllers/auth.controller';
 import validate from '../middlewares/validate';
 import {
-  forgotPasswordValidation,
-  resetPasswordValidation,
+  forgotPasswordSchema,
+  resetPasswordSchema,
 } from '../validation/auth.validation';
 
 const router = express.Router();
@@ -16,14 +16,10 @@ const router = express.Router();
 router.post('/signup', signup);
 router.post('/login', login);
 
-router.post(
-  '/forgot-password',
-  validate(forgotPasswordValidation),
-  forgotPassword
-);
+router.post('/forgot-password', validate(forgotPasswordSchema), forgotPassword);
 router.patch(
   '/reset-password/:token',
-  validate(resetPasswordValidation),
+  validate(resetPasswordSchema),
   resetPassword
 );
 

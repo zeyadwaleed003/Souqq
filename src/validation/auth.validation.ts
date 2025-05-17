@@ -1,12 +1,12 @@
 import { z } from 'zod';
 
-export const forgotPasswordValidation = z.object({
+export const forgotPasswordSchema = z.object({
   body: z.object({
     email: z.string().email({ message: 'Invalid email address' }),
   }),
 });
 
-export const resetPasswordValidation = z.object({
+export const resetPasswordSchema = z.object({
   params: z.object({
     token: z.string(),
   }),
