@@ -38,16 +38,14 @@ class AuthService {
       'A new user has been created successfully. User Id: ' + user.id
     );
 
-    // create a new token
-    const token = generateToken(user.id);
-
     return {
       status: 'success',
       statusCode: 201,
 
       // TODO: remove the password field from the response
       data: user,
-      token,
+      message:
+        'Account created successfully. Please check your email to verify your account.',
     };
   }
 
