@@ -108,6 +108,7 @@ class AuthService {
     return {
       status: 'success',
       statusCode: 201,
+      message: 'Your email has been successfully verified.',
     };
   }
 
