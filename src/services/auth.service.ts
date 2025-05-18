@@ -1,21 +1,47 @@
 import bcrypt from 'bcryptjs';
-import crypto from 'crypto';
-import { Request } from 'express';
 
 import {
-  ILoginBody,
-  ISignupBody,
-  IResetPasswordBody,
-} from '../interfaces/auth.interface';
+  LoginBody,
+  SignupBody,
+  ResetPasswordBody,
+  ForgotPasswordBody,
+  VerifyEmailParams,
+  RefreshTokenBody,
+  ResetPasswordParams,
+} from '../types/auth.types';
 import { User } from '../models/user.model';
 import APIError from '../utils/APIError';
 import Email from '../utils/email';
-import { generateToken } from '../utils/token';
+import {
+  hashToken,
+  generateToken,
+  generateAccessToken,
+  generateRefreshToken,
+  verifyRefreshToken,
+} from '../utils/token';
 import { IResponse } from '../types/types';
 import logger from '../config/logger';
+import env from '../config/env';
+import { TUser } from '../types/user.types';
 
 class AuthService {
-  async signup(payload: ISignupBody): Promise<IResponse> {
+  private generateJWT(user: TUser) {
+    return {
+      accessToken: generateAccessToken({
+        _id: user._id,
+        email: user.email,
+        emailVerified: user.emailVerified,
+        name: user.name,
+        role: user.role,
+        photo: user.photo,
+      }),
+      refreshToken: generateRefreshToken({
+        _id: user._id,
+      }),
+    };
+  }
+
+  async signup(payload: SignupBody): Promise<IResponse> {
     // Check if the user already existed
     const existingUser = await User.findOne({ email: payload.email });
     if (existingUser) {
@@ -38,25 +64,59 @@ class AuthService {
       'A new user has been created successfully. User Id: ' + user.id
     );
 
-    // create a new token
-    const token = generateToken(user.id);
+    const { token, hashedToken } = generateToken();
+
+    user.emailVerificationToken = hashedToken;
+    user.emailVerificationTokenExpiresAt = new Date(
+      Date.now() + 10 * 60 * 1000
+    );
+    await user.save({ validateBeforeSave: false });
+
+    const verifyURL = `${env.BASE_URL}api/v1/auth/verify-email/${token}`;
+    await new Email(user, verifyURL).sendEmailVerify(); // Takes long time because of the await!
+
+    // TODO: handle email failed to send error
 
     return {
       status: 'success',
       statusCode: 201,
-
-      // TODO: remove the password field from the response
-      data: user,
-      token,
+      message:
+        'Account created successfully. Please check your email to verify your account.',
     };
   }
 
-  async login(payload: ILoginBody): Promise<IResponse> {
-    const { email, password } = payload;
+  async verifyEmail(payload: VerifyEmailParams): Promise<IResponse> {
+    const hashedToken = hashToken(payload.token);
 
-    // check if the email or password is not provided
-    if (!email || !password)
-      throw new APIError('Please provide email and password', 400);
+    const user = await User.findOne({
+      emailVerificationToken: hashedToken,
+      emailVerificationTokenExpiresAt: { $gte: Date.now() },
+    });
+
+    if (!user) {
+      throw new APIError(
+        'Your verification token is invalid or has expired.',
+        400
+      );
+    }
+
+    user.emailVerified = true;
+    user.emailVerificationToken = undefined;
+    user.emailVerificationTokenExpiresAt = undefined;
+    await user.save();
+
+    const { accessToken, refreshToken } = this.generateJWT(user);
+
+    return {
+      status: 'success',
+      statusCode: 201,
+      accessToken,
+      refreshToken,
+    };
+  }
+
+  async login(payload: LoginBody): Promise<IResponse> {
+    const { email, password } = payload;
 
     const user = await User.findOne({ email }).select('+password');
 
@@ -64,57 +124,89 @@ class AuthService {
     if (!user || !(await bcrypt.compare(password, user.password as string)))
       throw new APIError('Invalid email or password', 401);
 
-    const token = generateToken(user.id);
+    const { accessToken, refreshToken } = this.generateJWT(user);
 
     return {
       status: 'success',
       statusCode: 201,
-      token,
+      accessToken,
+      refreshToken,
     };
   }
 
-  async forgotPassword(payload: Request): Promise<IResponse> {
-    // check if there is a user with the provided email address
-    const user = await User.findOne({ email: payload.body.email });
-    if (!user) {
-      throw new APIError('There is no user with this email address.', 404);
+  async refreshToken(payload: RefreshTokenBody): Promise<IResponse> {
+    const tokenPayload = verifyRefreshToken(payload.refreshToken);
+    if (!tokenPayload) {
+      throw new APIError('Your refresh token is invalid or has expired.', 401);
     }
 
-    const resetToken = user.createPasswordResetToken();
-    await user.save({ validateBeforeSave: false });
-
-    try {
-      const resetURL = `${payload.protocol}://${payload.get('host')}/api/v1/auth/reset-password/${resetToken}`;
-      new Email(user, resetURL).sendPasswordReset();
-
-      return {
-        status: 'success',
-        statusCode: 200,
-        message: 'Please check your email for the password reset link.',
-      };
-    } catch (err) {
-      user.passwordResetToken = undefined;
-      user.passwordResetExpires = undefined;
-
-      await user.save({ validateBeforeSave: false });
-
+    const user = await User.findById(tokenPayload);
+    if (!user) {
       throw new APIError(
-        'There was an error sending the email. Try again later!',
-        500
+        'The account you are trying to access is no longer available',
+        401
       );
     }
+
+    const { accessToken } = this.generateJWT(user);
+
+    return {
+      status: 'success',
+      statusCode: 200,
+      accessToken,
+    };
   }
 
-  async resetPassword(payload: IResetPasswordBody): Promise<IResponse> {
+  async forgotPassword(payload: ForgotPasswordBody): Promise<IResponse> {
+    // check if there is a user with the provided email address
+    const user = await User.findOne({ email: payload.email });
+
+    const response = {
+      status: 'success',
+      statusCode: 200,
+      message: 'Please check your email for the password reset link.',
+    };
+
+    if (!user) {
+      logger.error(
+        `No user found with email: ${payload.email} for password reset request`
+      );
+      return response;
+    }
+
+    const { token, hashedToken } = generateToken();
+
+    user.passwordResetToken = hashedToken;
+    user.passwordResetExpiresAt = new Date(Date.now() + 10 * 60 * 1000);
+    await user.save({ validateBeforeSave: false });
+
+    const resetURL = `${env.BASE_URL}api/v1/auth/reset-password/${token}`;
+    await new Email(user, resetURL).sendPasswordReset();
+
+    return response;
+
+    // TODO: handle email failed to send error
+
+    // user.passwordResetToken = undefined;
+    // user.passwordResetExpiresAt = undefined;
+
+    // await user.save({ validateBeforeSave: false });
+
+    // throw new APIError(
+    //   'There was an error sending the email. Try again later!',
+    //   500
+    // );
+  }
+
+  async resetPassword(
+    payload: ResetPasswordBody & ResetPasswordParams
+  ): Promise<IResponse> {
     // Hash the provided token to be able to compare it with the hashed token in the database
-    const hashedToken = crypto
-      .createHash('sha256')
-      .update(payload.token)
-      .digest('hex');
+    const hashedToken = hashToken(payload.token);
 
     const user = await User.findOne({
       passwordResetToken: hashedToken,
-      passwordResetExpires: { $gte: Date.now() },
+      passwordResetExpiresAt: { $gte: Date.now() },
     });
 
     // If the token is wrong or is expired then error happens
@@ -123,26 +215,20 @@ class AuthService {
     }
 
     user.password = payload.password;
-    user.passwordConfirm = payload.passwordConfirm;
     user.passwordResetToken = undefined;
-    user.passwordResetExpires = undefined;
+    user.passwordResetExpiresAt = undefined;
+    // TODO: update the passwordChangedAt property!!!
     await user.save();
 
-    // TODO: update the passwordChangedAt property!!!
+    const { accessToken, refreshToken } = this.generateJWT(user);
 
-    const token = generateToken(user._id as string);
     return {
       status: 'success',
       statusCode: 200,
-      token,
+      accessToken,
+      refreshToken,
     };
   }
 }
-
-/*
-  TODO:
-  - logout functionality
-  - 
-*/
 
 export default new AuthService();

@@ -2,7 +2,6 @@ import express, { NextFunction, Request, Response } from 'express';
 import morgan from 'morgan';
 
 import env from './config/env';
-import { productRouter } from './routes/product.routes';
 import { userRouter } from './routes/user.routes';
 import { authRouter } from './routes/auth.routes';
 import APIError from './utils/APIError';
@@ -18,7 +17,6 @@ app.use(morgan(env.NODE_ENV === 'development' ? 'dev' : 'combined'));
 
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/users', userRouter);
-app.use('/api/v1/products', productRouter);
 
 // Handle Unhandled Routes
 app.all(/(.*)/, (req: Request, res: Response, next: NextFunction) => {

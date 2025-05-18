@@ -3,16 +3,16 @@ import pug from 'pug';
 import { convert } from 'html-to-text';
 
 import env from '../config/env';
-import IUser from '../interfaces/user.interface';
 import logger from '../config/logger';
+import { TUser } from '../types/user.types';
 
 export default class Email {
-  to: IUser;
+  to: TUser;
   from: string;
   url: string;
   firstName: string;
 
-  constructor(user: IUser, url: string) {
+  constructor(user: TUser, url: string) {
     this.to = user;
     this.from = env.EMAIL_FROM as string;
     this.url = url;
@@ -66,6 +66,13 @@ export default class Email {
     await this.send(
       'passwordReset',
       `Your password reset token (valid for 10 minutes)`
+    );
+  }
+
+  async sendEmailVerify() {
+    await this.send(
+      'emailVerify',
+      'Your email verification token (valid for 10 minutes)'
     );
   }
 }

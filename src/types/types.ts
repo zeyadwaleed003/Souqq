@@ -1,8 +1,8 @@
 import { Request } from 'express';
-import IUser from '../interfaces/user.interface';
+import { TUser } from '../types/user.types';
 
 export interface IRequest extends Request {
-  user?: IUser;
+  user?: TUser;
 }
 
 export interface IResponse {
@@ -10,6 +10,7 @@ export interface IResponse {
   statusCode: number;
   size?: number;
   message?: string;
-  token?: string;
+  accessToken?: string;
+  refreshToken?: string;
   data?: object;
 }
