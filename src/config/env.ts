@@ -18,8 +18,16 @@ export default {
 
   LOG_LEVEL: env.get('LOG_LEVEL').asString(),
 
-  JWT_SECRET: env.get('JWT_SECRET').required().asString(),
-  JWT_EXPIRES_IN: env.get('JWT_EXPIRES_IN').required().asString(),
+  ACCESS_TOKEN_SECRET: env.get('ACCESS_TOKEN_SECRET').required().asString(),
+  ACCESS_TOKEN_EXPIRES_IN: env
+    .get('ACCESS_TOKEN_EXPIRES_IN')
+    .required()
+    .asString(),
+  REFRESH_TOKEN_SECRET: env.get('REFRESH_TOKEN_SECRET').required().asString(),
+  REFRESH_TOKEN_EXPIRES_IN: env
+    .get('REFRESH_TOKEN_EXPIRES_IN')
+    .required()
+    .asString(),
 
   MAILTRAP_HOST: env.get('MAILTRAP_HOST').required().asString(),
   MAILTRAP_PORT: env.get('MAILTRAP_PORT').required().asString(),

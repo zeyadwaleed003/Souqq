@@ -5,7 +5,8 @@ export default (data: IResponse, res: Response) => {
   res.status(data.statusCode).json({
     status: data.status,
     size: data.size,
-    token: data.token,
+    accessToken: data.accessToken,
+    refreshToken: data.refreshToken,
     message: data.message,
     data: data.data,
   });

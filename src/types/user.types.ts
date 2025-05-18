@@ -1,6 +1,7 @@
-import { Document } from 'mongoose';
+import { Document, Types } from 'mongoose';
 
-interface IUser extends Document {
+export type TUser = Document & {
+  _id: Types.ObjectId;
   name: string;
   email: string;
   photo?: string;
@@ -12,6 +13,11 @@ interface IUser extends Document {
   emailVerificationTokenExpiresAt?: Date;
   emailVerified: boolean;
   createPasswordResetToken(): string;
-}
+};
 
-export default IUser;
+export type AccessTokenPayload = Pick<
+  TUser,
+  'name' | 'email' | 'photo' | 'role' | 'emailVerified' | '_id'
+>;
+
+export type RefreshTokenPayload = Pick<TUser, '_id'>;

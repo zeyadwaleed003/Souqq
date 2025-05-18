@@ -1,11 +1,9 @@
-import crypto from 'crypto';
 import { model, Schema } from 'mongoose';
 import bcrypt from 'bcryptjs';
 
-import IUser from '../interfaces/user.interface';
-import { boolean } from 'zod';
+import { TUser } from '../types/user.types';
 
-const userSchema = new Schema<IUser>({
+const userSchema = new Schema<TUser>({
   name: {
     type: String,
     required: [true, 'Please tell us your name'],
@@ -52,4 +50,4 @@ userSchema.pre('save', async function (next) {
   next();
 });
 
-export const User = model<IUser>('User', userSchema);
+export const User = model<TUser>('User', userSchema);
