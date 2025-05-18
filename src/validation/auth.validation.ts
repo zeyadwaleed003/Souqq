@@ -1,19 +1,24 @@
 import { z } from 'zod';
 
 export const signupSchema = z.object({
-  body: z.object({
-    name: z
-      .string()
-      .min(3, 'Name must be at least 3 characters long')
-      .max(30, 'Name must not be more than 30 characters long')
-      .trim(),
-    email: z.string().email({ message: 'Invalid email address' }).trim(),
-    password: z
-      .string()
-      .min(8, 'Password must be at least 8 characters long')
-      .trim(),
-    confirmPassword: z.string().trim(),
-  }),
+  body: z
+    .object({
+      name: z
+        .string()
+        .min(3, 'Name must be at least 3 characters long')
+        .max(30, 'Name must not be more than 30 characters long')
+        .trim(),
+      email: z.string().email({ message: 'Invalid email address' }).trim(),
+      password: z
+        .string()
+        .min(8, 'Password must be at least 8 characters long')
+        .trim(),
+      confirmPassword: z.string().trim(),
+    })
+    .refine((data) => data.password === data.confirmPassword, {
+      message: "Passwords don't match",
+      path: ['Password confirmation'],
+    }),
 });
 
 export const verifyEmailSchema = z.object({
@@ -29,6 +34,12 @@ export const loginSchema = z.object({
       .string()
       .min(8, 'Password must be at least 8 characters long')
       .trim(),
+  }),
+});
+
+export const refreshTokenSchema = z.object({
+  body: z.object({
+    refreshToken: z.string(),
   }),
 });
 

@@ -1,21 +1,47 @@
 import bcrypt from 'bcryptjs';
 
 import {
-  ILoginBody,
-  ISignupBody,
-  IResetPasswordBody,
-  IForgotPasswordBody,
-} from '../interfaces/auth.interface';
+  LoginBody,
+  SignupBody,
+  ResetPasswordBody,
+  ForgotPasswordBody,
+  VerifyEmailParams,
+  RefreshTokenBody,
+  ResetPasswordParams,
+} from '../types/auth.types';
 import { User } from '../models/user.model';
 import APIError from '../utils/APIError';
 import Email from '../utils/email';
-import { generateJWT, hashToken, generateToken } from '../utils/token';
+import {
+  hashToken,
+  generateToken,
+  generateAccessToken,
+  generateRefreshToken,
+  verifyRefreshToken,
+} from '../utils/token';
 import { IResponse } from '../types/types';
 import logger from '../config/logger';
 import env from '../config/env';
+import { TUser } from '../types/user.types';
 
 class AuthService {
-  async signup(payload: ISignupBody): Promise<IResponse> {
+  private generateJWT(user: TUser) {
+    return {
+      accessToken: generateAccessToken({
+        _id: user._id,
+        email: user.email,
+        emailVerified: user.emailVerified,
+        name: user.name,
+        role: user.role,
+        photo: user.photo,
+      }),
+      refreshToken: generateRefreshToken({
+        _id: user._id,
+      }),
+    };
+  }
+
+  async signup(payload: SignupBody): Promise<IResponse> {
     // Check if the user already existed
     const existingUser = await User.findOne({ email: payload.email });
     if (existingUser) {
@@ -59,8 +85,8 @@ class AuthService {
     };
   }
 
-  async verifyEmail(payload: string): Promise<IResponse> {
-    const hashedToken = hashToken(payload);
+  async verifyEmail(payload: VerifyEmailParams): Promise<IResponse> {
+    const hashedToken = hashToken(payload.token);
 
     const user = await User.findOne({
       emailVerificationToken: hashedToken,
@@ -79,16 +105,17 @@ class AuthService {
     user.emailVerificationTokenExpiresAt = undefined;
     await user.save();
 
-    const jwt = generateJWT(user._id as string);
+    const { accessToken, refreshToken } = this.generateJWT(user);
 
     return {
       status: 'success',
       statusCode: 201,
-      token: jwt,
+      accessToken,
+      refreshToken,
     };
   }
 
-  async login(payload: ILoginBody): Promise<IResponse> {
+  async login(payload: LoginBody): Promise<IResponse> {
     const { email, password } = payload;
 
     const user = await User.findOne({ email }).select('+password');
@@ -97,16 +124,40 @@ class AuthService {
     if (!user || !(await bcrypt.compare(password, user.password as string)))
       throw new APIError('Invalid email or password', 401);
 
-    const jwt = generateJWT(user.id);
+    const { accessToken, refreshToken } = this.generateJWT(user);
 
     return {
       status: 'success',
       statusCode: 201,
-      token: jwt,
+      accessToken,
+      refreshToken,
     };
   }
 
-  async forgotPassword(payload: IForgotPasswordBody): Promise<IResponse> {
+  async refreshToken(payload: RefreshTokenBody): Promise<IResponse> {
+    const tokenPayload = verifyRefreshToken(payload.refreshToken);
+    if (!tokenPayload) {
+      throw new APIError('Your refresh token is invalid or has expired.', 401);
+    }
+
+    const user = await User.findById(tokenPayload);
+    if (!user) {
+      throw new APIError(
+        'The account you are trying to access is no longer available',
+        401
+      );
+    }
+
+    const { accessToken } = this.generateJWT(user);
+
+    return {
+      status: 'success',
+      statusCode: 200,
+      accessToken,
+    };
+  }
+
+  async forgotPassword(payload: ForgotPasswordBody): Promise<IResponse> {
     // check if there is a user with the provided email address
     const user = await User.findOne({ email: payload.email });
 
@@ -147,7 +198,9 @@ class AuthService {
     // );
   }
 
-  async resetPassword(payload: IResetPasswordBody): Promise<IResponse> {
+  async resetPassword(
+    payload: ResetPasswordBody & ResetPasswordParams
+  ): Promise<IResponse> {
     // Hash the provided token to be able to compare it with the hashed token in the database
     const hashedToken = hashToken(payload.token);
 
@@ -167,20 +220,15 @@ class AuthService {
     // TODO: update the passwordChangedAt property!!!
     await user.save();
 
-    const jwt = generateJWT(user._id as string);
+    const { accessToken, refreshToken } = this.generateJWT(user);
 
     return {
       status: 'success',
       statusCode: 200,
-      token: jwt,
+      accessToken,
+      refreshToken,
     };
   }
 }
-
-/*
-  TODO:
-  - logout functionality
-  - change email 
-*/
 
 export default new AuthService();

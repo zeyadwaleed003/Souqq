@@ -1,8 +1,8 @@
-import IUser from '../interfaces/user.interface';
+import { TUser } from '../types/user.types';
 import { User } from '../models/user.model';
 
 class UserService {
-  async find(): Promise<IUser[]> {
+  async find(): Promise<TUser[]> {
     const users = await User.find();
     return users;
   }
