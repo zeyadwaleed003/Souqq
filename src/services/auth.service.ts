@@ -121,14 +121,25 @@ class AuthService {
     if (!user || !(await bcrypt.compare(password, user.password as string)))
       throw new APIError('Invalid email or password', 401);
 
-    const { accessToken, refreshToken } = this.generateJWT(user);
-
-    return {
+    const response: IResponse = {
       status: 'success',
       statusCode: 201,
-      accessToken,
-      refreshToken,
     };
+
+    if (!user.emailVerified) {
+      response.status = 'error';
+      response.statusCode = 403;
+      response.message =
+        'Your email is not verified, please check your email for the verification link.';
+
+      return response;
+    }
+
+    const { accessToken, refreshToken } = this.generateJWT(user);
+
+    response.accessToken = accessToken;
+    response.refreshToken = refreshToken;
+    return response;
   }
 
   async refreshToken(payload: RefreshTokenBody): Promise<IResponse> {
