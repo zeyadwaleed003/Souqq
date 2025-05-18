@@ -105,13 +105,9 @@ class AuthService {
     user.emailVerificationTokenExpiresAt = undefined;
     await user.save();
 
-    const { accessToken, refreshToken } = this.generateJWT(user);
-
     return {
       status: 'success',
       statusCode: 201,
-      accessToken,
-      refreshToken,
     };
   }
 
