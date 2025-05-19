@@ -42,7 +42,6 @@ class AuthService {
   }
 
   async signup(payload: SignupBody): Promise<IResponse> {
-    // Check if the user already existed
     const existingUser = await User.findOne({ email: payload.email });
     if (existingUser) {
       throw new APIError(
@@ -51,7 +50,6 @@ class AuthService {
       );
     }
 
-    // create the user based on his email and send an error message if failed
     const user = await User.create(payload);
     if (!user) {
       throw new APIError(
@@ -96,18 +94,15 @@ class AuthService {
     if (!user) {
       throw new APIError(
         'Your verification token is invalid or has expired.',
-        400
+        401
       );
     }
 
-    user.emailVerified = true;
-    user.emailVerificationToken = undefined;
-    user.emailVerificationTokenExpiresAt = undefined;
-    await user.save();
+    await user.setEmailVerified();
 
     return {
       status: 'success',
-      statusCode: 201,
+      statusCode: 200,
       message: 'Your email has been successfully verified.',
     };
   }
@@ -209,7 +204,6 @@ class AuthService {
   async resetPassword(
     payload: ResetPasswordBody & ResetPasswordParams
   ): Promise<IResponse> {
-    // Hash the provided token to be able to compare it with the hashed token in the database
     const hashedToken = hashToken(payload.token);
 
     const user = await User.findOne({
@@ -217,16 +211,11 @@ class AuthService {
       passwordResetExpiresAt: { $gte: Date.now() },
     });
 
-    // If the token is wrong or is expired then error happens
     if (!user) {
       throw new APIError('Your reset token is invalid or has expired.', 400);
     }
 
-    user.password = payload.password;
-    user.passwordResetToken = undefined;
-    user.passwordResetExpiresAt = undefined;
-    // TODO: update the passwordChangedAt property!!!
-    await user.save();
+    await user.setResetPassword(payload.password);
 
     const { accessToken, refreshToken } = this.generateJWT(user);
 

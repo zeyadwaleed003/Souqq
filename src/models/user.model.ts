@@ -27,6 +27,7 @@ const userSchema = new Schema<TUser>({
     select: false,
     trim: true,
   },
+  passwordChangedAt: Date,
   role: {
     type: String,
     enum: ['admin', 'user'],
@@ -50,4 +51,27 @@ userSchema.pre('save', async function (next) {
   next();
 });
 
+userSchema.pre('save', function (next) {
+  if (!this.isModified('password') || this.isNew) return next();
+
+  this.passwordChangedAt = new Date(Date.now() - 1000);
+  next();
+});
+
+userSchema.methods.setEmailVerified = async function (this: TUser) {
+  this.emailVerified = true;
+  this.emailVerificationToken = undefined;
+  this.emailVerificationTokenExpiresAt = undefined;
+  await this.save();
+};
+
+userSchema.methods.setResetPassword = async function (
+  this: TUser,
+  password: string
+) {
+  this.password = password;
+  this.passwordResetToken = undefined;
+  this.passwordResetExpiresAt = undefined;
+  await this.save();
+};
 export const User = model<TUser>('User', userSchema);
