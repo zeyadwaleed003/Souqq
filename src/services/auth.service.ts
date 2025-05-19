@@ -24,7 +24,8 @@ import {
 } from '../utils/token';
 import { IResponse } from '../types/types';
 import logger from '../config/logger';
-import { TUser } from '../types/user.types';
+import { AccessTokenPayload, TUser } from '../types/user.types';
+import { cleanUserData } from '../utils/functions';
 
 class AuthService {
   private generateJWT(user: TUser) {
@@ -133,6 +134,9 @@ class AuthService {
     const { accessToken, refreshToken } = this.generateJWT(user);
     response.accessToken = accessToken;
     response.refreshToken = refreshToken;
+
+    const data = cleanUserData(user);
+    response.data = data;
 
     return response;
   }
