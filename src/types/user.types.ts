@@ -6,13 +6,18 @@ export type TUser = Document & {
   email: string;
   photo?: string;
   password: string;
+  passwordChangedAt?: Date;
   role: string;
   passwordResetToken?: string;
   passwordResetExpiresAt?: Date;
   emailVerificationToken?: string;
   emailVerificationTokenExpiresAt?: Date;
   emailVerified: boolean;
-  createPasswordResetToken(): string;
+  setEmailVerified: () => Promise<void>;
+  setResetPassword: (password: string) => Promise<void>;
+  setPasswordResetToken: (hashedToken: string) => Promise<void>;
+  setEmailVerificationToken: (hashedToken: string) => Promise<void>;
+  correctPassword: (cadidatePassword: string) => Promise<boolean>;
 };
 
 export type AccessTokenPayload = Pick<

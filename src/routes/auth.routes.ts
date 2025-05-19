@@ -14,6 +14,7 @@ import {
   signupSchema,
   verifyEmailSchema,
   loginSchema,
+  refreshTokenSchema,
 } from '../validation/auth.validation';
 
 const router = express.Router();
@@ -21,7 +22,7 @@ const router = express.Router();
 router.post('/signup', validate(signupSchema), signup);
 router.post('/login', validate(loginSchema), login);
 
-router.post('/refresh-token', refreshToken);
+router.post('/refresh-token', validate(refreshTokenSchema), refreshToken);
 router.post('/forgot-password', validate(forgotPasswordSchema), forgotPassword);
 router.patch(
   '/reset-password/:token',

@@ -27,6 +27,7 @@ const userSchema = new Schema<TUser>({
     select: false,
     trim: true,
   },
+  passwordChangedAt: Date,
   role: {
     type: String,
     enum: ['admin', 'user'],
@@ -50,4 +51,52 @@ userSchema.pre('save', async function (next) {
   next();
 });
 
+userSchema.pre('save', function (next) {
+  if (!this.isModified('password') || this.isNew) return next();
+
+  this.passwordChangedAt = new Date(Date.now() - 1000);
+  next();
+});
+
+userSchema.methods.correctPassword = async function (
+  this: TUser,
+  candidatePassword: string
+) {
+  return await bcrypt.compare(candidatePassword, this.password);
+};
+
+userSchema.methods.setEmailVerified = async function (this: TUser) {
+  this.emailVerified = true;
+  this.emailVerificationToken = undefined;
+  this.emailVerificationTokenExpiresAt = undefined;
+  await this.save();
+};
+
+userSchema.methods.setEmailVerificationToken = async function (
+  this: TUser,
+  hashedToken: string
+) {
+  this.emailVerificationToken = hashedToken;
+  this.emailVerificationTokenExpiresAt = new Date(Date.now() + 10 * 60 * 1000);
+  await this.save({ validateBeforeSave: false });
+};
+
+userSchema.methods.setResetPassword = async function (
+  this: TUser,
+  password: string
+) {
+  this.password = password;
+  this.passwordResetToken = undefined;
+  this.passwordResetExpiresAt = undefined;
+  await this.save();
+};
+
+userSchema.methods.setPasswordResetToken = async function (
+  this: TUser,
+  hashedToken: string
+) {
+  this.passwordResetToken = hashedToken;
+  this.passwordResetExpiresAt = new Date(Date.now() + 10 * 60 * 1000);
+  await this.save({ validateBeforeSave: false });
+};
 export const User = model<TUser>('User', userSchema);
