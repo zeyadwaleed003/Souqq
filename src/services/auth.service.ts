@@ -11,7 +11,10 @@ import {
 } from '../types/auth.types';
 import { User } from '../models/user.model';
 import APIError from '../utils/APIError';
-import Email from '../utils/email';
+import {
+  sendEmailVerifyEmail,
+  sendPasswordResetEmail,
+} from '../utils/sendEmail';
 import {
   hashToken,
   generateToken,
@@ -71,8 +74,7 @@ class AuthService {
     await user.save({ validateBeforeSave: false });
 
     const verifyURL = `${env.BASE_URL}api/v1/auth/verify-email/${token}`;
-    await new Email(user, verifyURL).sendEmailVerify(); // Takes long time because of the await!
-
+    await sendEmailVerifyEmail(user.name, user.email, verifyURL);
     // TODO: handle email failed to send error
 
     return {
@@ -184,21 +186,9 @@ class AuthService {
     await user.save({ validateBeforeSave: false });
 
     const resetURL = `${env.BASE_URL}api/v1/auth/reset-password/${token}`;
-    await new Email(user, resetURL).sendPasswordReset();
+    await sendPasswordResetEmail(user.name, user.email, resetURL);
 
     return response;
-
-    // TODO: handle email failed to send error
-
-    // user.passwordResetToken = undefined;
-    // user.passwordResetExpiresAt = undefined;
-
-    // await user.save({ validateBeforeSave: false });
-
-    // throw new APIError(
-    //   'There was an error sending the email. Try again later!',
-    //   500
-    // );
   }
 
   async resetPassword(
