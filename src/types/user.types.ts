@@ -15,6 +15,9 @@ export type TUser = Document & {
   emailVerified: boolean;
   setEmailVerified: () => Promise<void>;
   setResetPassword: (password: string) => Promise<void>;
+  setPasswordResetToken: (hashedToken: string) => Promise<void>;
+  setEmailVerificationToken: (hashedToken: string) => Promise<void>;
+  correctPassword: (cadidatePassword: string) => Promise<boolean>;
 };
 
 export type AccessTokenPayload = Pick<

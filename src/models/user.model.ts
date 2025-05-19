@@ -58,11 +58,27 @@ userSchema.pre('save', function (next) {
   next();
 });
 
+userSchema.methods.correctPassword = async function (
+  this: TUser,
+  candidatePassword: string
+) {
+  return await bcrypt.compare(candidatePassword, this.password);
+};
+
 userSchema.methods.setEmailVerified = async function (this: TUser) {
   this.emailVerified = true;
   this.emailVerificationToken = undefined;
   this.emailVerificationTokenExpiresAt = undefined;
   await this.save();
+};
+
+userSchema.methods.setEmailVerificationToken = async function (
+  this: TUser,
+  hashedToken: string
+) {
+  this.emailVerificationToken = hashedToken;
+  this.emailVerificationTokenExpiresAt = new Date(Date.now() + 10 * 60 * 1000);
+  await this.save({ validateBeforeSave: false });
 };
 
 userSchema.methods.setResetPassword = async function (
@@ -73,5 +89,14 @@ userSchema.methods.setResetPassword = async function (
   this.passwordResetToken = undefined;
   this.passwordResetExpiresAt = undefined;
   await this.save();
+};
+
+userSchema.methods.setPasswordResetToken = async function (
+  this: TUser,
+  hashedToken: string
+) {
+  this.passwordResetToken = hashedToken;
+  this.passwordResetExpiresAt = new Date(Date.now() + 10 * 60 * 1000);
+  await this.save({ validateBeforeSave: false });
 };
 export const User = model<TUser>('User', userSchema);

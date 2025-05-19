@@ -34,12 +34,12 @@ const sendEmail = async (
 export const sendEmailVerifyEmail = async (
   name: string,
   email: string,
-  url: string
+  token: string
 ) => {
   await sendEmail(
     name,
     email,
-    url,
+    `${env.BASE_URL}api/v1/auth/verify-email/${token}`,
     'emailVerify',
     'Your email verification token (valid for 10 minutes)'
   );
@@ -48,12 +48,12 @@ export const sendEmailVerifyEmail = async (
 export const sendPasswordResetEmail = async (
   name: string,
   email: string,
-  url: string
+  token: string
 ) => {
   await sendEmail(
     name,
     email,
-    url,
+    `${env.BASE_URL}api/v1/auth/reset-password/${token}`,
     'passwordReset',
     `Your password reset token (valid for 10 minutes)`
   );

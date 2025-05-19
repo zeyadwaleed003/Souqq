@@ -24,7 +24,6 @@ import {
 } from '../utils/token';
 import { IResponse } from '../types/types';
 import logger from '../config/logger';
-import env from '../config/env';
 import { TUser } from '../types/user.types';
 
 class AuthService {
@@ -44,6 +43,13 @@ class AuthService {
     };
   }
 
+  private async initiateEmailVerification(user: TUser) {
+    const { token, hashedToken } = generateToken();
+    await sendEmailVerifyEmail(user.name, user.email, token);
+    await user.setEmailVerificationToken(hashedToken);
+  }
+
+  // FINISHED
   async signup(payload: SignupBody): Promise<IResponse> {
     const existingUser = await User.findOne({ email: payload.email });
     if (existingUser) {
@@ -65,17 +71,7 @@ class AuthService {
       'A new user has been created successfully. User Id: ' + user.id
     );
 
-    const { token, hashedToken } = generateToken();
-
-    user.emailVerificationToken = hashedToken;
-    user.emailVerificationTokenExpiresAt = new Date(
-      Date.now() + 10 * 60 * 1000
-    );
-    await user.save({ validateBeforeSave: false });
-
-    const verifyURL = `${env.BASE_URL}api/v1/auth/verify-email/${token}`;
-    await sendEmailVerifyEmail(user.name, user.email, verifyURL);
-    // TODO: handle email failed to send error
+    await this.initiateEmailVerification(user);
 
     return {
       status: 'success',
@@ -85,6 +81,7 @@ class AuthService {
     };
   }
 
+  // FINISHED
   async verifyEmail(payload: VerifyEmailParams): Promise<IResponse> {
     const hashedToken = hashToken(payload.token);
 
@@ -114,8 +111,7 @@ class AuthService {
 
     const user = await User.findOne({ email }).select('+password');
 
-    // check if the user actually exists. if so then check if the password is correct
-    if (!user || !(await bcrypt.compare(password, user.password as string)))
+    if (!user || !(await user.correctPassword(password)))
       throw new APIError('Invalid email or password', 401);
 
     const response: IResponse = {
@@ -129,16 +125,19 @@ class AuthService {
       response.message =
         'Your email is not verified, please check your email for the verification link.';
 
+      await this.initiateEmailVerification(user);
+
       return response;
     }
 
     const { accessToken, refreshToken } = this.generateJWT(user);
-
     response.accessToken = accessToken;
     response.refreshToken = refreshToken;
+
     return response;
   }
 
+  // FINISHED
   async refreshToken(payload: RefreshTokenBody): Promise<IResponse> {
     const tokenPayload = verifyRefreshToken(payload.refreshToken);
     if (!tokenPayload) {
@@ -162,8 +161,8 @@ class AuthService {
     };
   }
 
+  // FINISHED
   async forgotPassword(payload: ForgotPasswordBody): Promise<IResponse> {
-    // check if there is a user with the provided email address
     const user = await User.findOne({ email: payload.email });
 
     const response = {
@@ -180,17 +179,13 @@ class AuthService {
     }
 
     const { token, hashedToken } = generateToken();
-
-    user.passwordResetToken = hashedToken;
-    user.passwordResetExpiresAt = new Date(Date.now() + 10 * 60 * 1000);
-    await user.save({ validateBeforeSave: false });
-
-    const resetURL = `${env.BASE_URL}api/v1/auth/reset-password/${token}`;
-    await sendPasswordResetEmail(user.name, user.email, resetURL);
+    await sendPasswordResetEmail(user.name, user.email, token);
+    await user.setPasswordResetToken(hashedToken);
 
     return response;
   }
 
+  // FINISHED
   async resetPassword(
     payload: ResetPasswordBody & ResetPasswordParams
   ): Promise<IResponse> {
@@ -202,7 +197,7 @@ class AuthService {
     });
 
     if (!user) {
-      throw new APIError('Your reset token is invalid or has expired.', 400);
+      throw new APIError('Your reset token is invalid or has expired.', 401);
     }
 
     await user.setResetPassword(payload.password);
