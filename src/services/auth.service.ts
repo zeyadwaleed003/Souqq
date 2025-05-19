@@ -1,5 +1,3 @@
-import bcrypt from 'bcryptjs';
-
 import {
   LoginBody,
   SignupBody,
@@ -24,7 +22,7 @@ import {
 } from '../utils/token';
 import { IResponse } from '../types/types';
 import logger from '../config/logger';
-import { AccessTokenPayload, TUser } from '../types/user.types';
+import { TUser } from '../types/user.types';
 import { cleanUserData } from '../utils/functions';
 
 class AuthService {
@@ -50,7 +48,6 @@ class AuthService {
     await user.setEmailVerificationToken(hashedToken);
   }
 
-  // FINISHED
   async signup(payload: SignupBody): Promise<IResponse> {
     const existingUser = await User.findOne({ email: payload.email });
     if (existingUser) {
@@ -82,7 +79,6 @@ class AuthService {
     };
   }
 
-  // FINISHED
   async verifyEmail(payload: VerifyEmailParams): Promise<IResponse> {
     const hashedToken = hashToken(payload.token);
 
@@ -141,7 +137,6 @@ class AuthService {
     return response;
   }
 
-  // FINISHED
   async refreshToken(payload: RefreshTokenBody): Promise<IResponse> {
     const tokenPayload = verifyRefreshToken(payload.refreshToken);
     if (!tokenPayload) {
@@ -165,7 +160,6 @@ class AuthService {
     };
   }
 
-  // FINISHED
   async forgotPassword(payload: ForgotPasswordBody): Promise<IResponse> {
     const user = await User.findOne({ email: payload.email });
 
@@ -189,7 +183,6 @@ class AuthService {
     return response;
   }
 
-  // FINISHED
   async resetPassword(
     payload: ResetPasswordBody & ResetPasswordParams
   ): Promise<IResponse> {
