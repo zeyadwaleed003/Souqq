@@ -60,6 +60,8 @@ export default (err: any, req: Request, res: Response, next: NextFunction) => {
   if (env.NODE_ENV === 'development') sendErrorDev(err, res);
   else if (env.NODE_ENV === 'production') {
     let error = { ...err };
+    error.message = err.message;
+
     if (err.name === 'CastError') error = handleCastErrorDB(error);
     if (err.code === 11000) error = handleDuplicateFieldsDB(error);
     if (err.name === 'ValidationError') error = handleValidationErrorDB(error);
