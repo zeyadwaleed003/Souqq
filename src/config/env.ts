@@ -2,16 +2,18 @@ import dotenv from 'dotenv';
 dotenv.config();
 import env from 'env-var';
 
+const NODE_ENV = env.get('NODE_ENV').required().asString();
+
+const DEV_URL = env.get('DEV_URL').required().asString();
+const PROD_URL = env.get('PROD_URL').asString();
+
+const BASE_URL = NODE_ENV === 'development' ? DEV_URL : PROD_URL;
+
 export default {
   PORT: env.get('PORT').required().asPortNumber(),
-  NODE_ENV: env.get('NODE_ENV').required().asString(),
+  NODE_ENV,
 
-  DEV_URL: env.get('DEV_URL').required().asString(),
-  PROD_URL: env.get('PROD_URL').asString(),
-  BASE_URL:
-    process.env.NODE_ENV === 'development'
-      ? process.env.DEV_URL
-      : process.env.PROD_URL,
+  BASE_URL,
 
   DATABASE_URL: env.get('DATABASE_URL').required().asString(),
   DATABASE_PASSWORD: env.get('DATABASE_PASSWORD').required().asString(),
