@@ -2,6 +2,7 @@ import express, { NextFunction, Request, Response } from 'express';
 import morgan from 'morgan';
 
 import env from './config/env';
+import passport from './config/passport';
 import { userRouter } from './routes/user.routes';
 import { authRouter } from './routes/auth.routes';
 import APIError from './utils/APIError';
@@ -14,6 +15,8 @@ app.use(express.json());
 
 // Using morgan for HTTP requests
 app.use(morgan(env.NODE_ENV === 'development' ? 'dev' : 'combined'));
+
+app.use(passport.initialize());
 
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/users', userRouter);

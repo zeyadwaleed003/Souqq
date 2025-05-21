@@ -3,9 +3,9 @@ import { NextFunction, Response } from 'express';
 import APIError from '../utils/APIError';
 import { verifyAccessToken } from '../utils/token';
 import { User } from '../models/user.model';
-import { IRequest } from '../types/types';
+import { TRequest } from '../types/types';
 
-export default async (req: IRequest, res: Response, next: NextFunction) => {
+export default async (req: TRequest, res: Response, next: NextFunction) => {
   if (
     !req.headers.authorization ||
     !req.headers.authorization.startsWith('Bearer')

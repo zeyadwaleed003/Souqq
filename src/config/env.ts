@@ -31,6 +31,10 @@ export default {
     .required()
     .asString(),
 
+  GOOGLE_CLIENT_ID: env.get('GOOGLE_CLIENT_ID').required().asString(),
+  GOOGLE_CLIENT_SECRET: env.get('GOOGLE_CLIENT_SECRET').required().asString(),
+  GOOGLE_CALLBACK_URL: env.get('GOOGLE_CALLBACK_URL').required().asString(),
+
   MAILTRAP_HOST: env.get('MAILTRAP_HOST').required().asString(),
   MAILTRAP_PORT: env.get('MAILTRAP_PORT').required().asString(),
   MAILTRAP_USERNAME: env.get('MAILTRAP_USERNAME').required().asString(),
