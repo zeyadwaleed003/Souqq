@@ -2,10 +2,11 @@ import { Document, Types } from 'mongoose';
 
 export type TUser = Document & {
   _id: Types.ObjectId;
+  googleId?: string;
   name: string;
   email: string;
   photo?: string;
-  password: string;
+  password?: string;
   passwordChangedAt?: Date;
   role: string;
   passwordResetToken?: string;

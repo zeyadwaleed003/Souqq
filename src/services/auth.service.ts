@@ -20,7 +20,7 @@ import {
   generateRefreshToken,
   verifyRefreshToken,
 } from '../utils/token';
-import { IResponse } from '../types/types';
+import { TResponse } from '../types/types';
 import logger from '../config/logger';
 import { TUser } from '../types/user.types';
 import { cleanUserData } from '../utils/functions';
@@ -48,7 +48,7 @@ class AuthService {
     await user.setEmailVerificationToken(hashedToken);
   }
 
-  async signup(payload: SignupBody): Promise<IResponse> {
+  async signup(payload: SignupBody): Promise<TResponse> {
     const existingUser = await User.findOne({ email: payload.email });
     if (existingUser) {
       throw new APIError(
@@ -79,7 +79,7 @@ class AuthService {
     };
   }
 
-  async verifyEmail(payload: VerifyEmailParams): Promise<IResponse> {
+  async verifyEmail(payload: VerifyEmailParams): Promise<TResponse> {
     const hashedToken = hashToken(payload.token);
 
     const user = await User.findOne({
@@ -103,15 +103,15 @@ class AuthService {
     };
   }
 
-  async login(payload: LoginBody): Promise<IResponse> {
+  async login(payload: LoginBody): Promise<TResponse> {
     const { email, password } = payload;
 
     const user = await User.findOne({ email }).select('+password');
 
-    if (!user || !(await user.correctPassword(password)))
+    if (!user || !user.password || !(await user.correctPassword(password)))
       throw new APIError('Invalid email or password', 401);
 
-    const response: IResponse = {
+    const response: TResponse = {
       status: 'success',
       statusCode: 201,
     };
@@ -137,7 +137,7 @@ class AuthService {
     return response;
   }
 
-  async refreshToken(payload: RefreshTokenBody): Promise<IResponse> {
+  async refreshToken(payload: RefreshTokenBody): Promise<TResponse> {
     const tokenPayload = verifyRefreshToken(payload.refreshToken);
     if (!tokenPayload) {
       throw new APIError('Your refresh token is invalid or has expired.', 401);
@@ -160,8 +160,10 @@ class AuthService {
     };
   }
 
-  async forgotPassword(payload: ForgotPasswordBody): Promise<IResponse> {
-    const user = await User.findOne({ email: payload.email });
+  async forgotPassword(payload: ForgotPasswordBody): Promise<TResponse> {
+    const user = await User.findOne({ email: payload.email }).select(
+      '+password'
+    );
 
     const response = {
       status: 'success',
@@ -176,6 +178,13 @@ class AuthService {
       return response;
     }
 
+    if (!user.password) {
+      throw new APIError(
+        `Password reset is not available for Google login users. Please use Google's account recovery process.`,
+        400
+      );
+    }
+
     const { token, hashedToken } = generateToken();
     await sendPasswordResetEmail(user.name, user.email, token);
     await user.setPasswordResetToken(hashedToken);
@@ -185,7 +194,7 @@ class AuthService {
 
   async resetPassword(
     payload: ResetPasswordBody & ResetPasswordParams
-  ): Promise<IResponse> {
+  ): Promise<TResponse> {
     const hashedToken = hashToken(payload.token);
 
     const user = await User.findOne({
@@ -208,6 +217,25 @@ class AuthService {
       refreshToken,
     };
   }
+
+  async handleCallback(payload: TUser): Promise<TResponse> {
+    const { accessToken, refreshToken } = this.generateJWT(payload);
+
+    const data = cleanUserData(payload);
+    return {
+      statusCode: 200,
+      status: 'success',
+      data,
+      accessToken,
+      refreshToken,
+    };
+  }
 }
+
+/*
+  TODO:
+    - Change Password 
+    - Change Email
+*/
 
 export default new AuthService();

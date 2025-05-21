@@ -1,7 +1,7 @@
 import { Response } from 'express';
-import { IResponse } from '../types/types';
+import { TResponse } from '../types/types';
 
-export default (data: IResponse, res: Response) => {
+export default (data: TResponse, res: Response) => {
   res.status(data.statusCode).json({
     status: data.status,
     size: data.size,

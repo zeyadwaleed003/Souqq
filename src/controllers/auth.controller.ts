@@ -1,4 +1,4 @@
-import { RequestHandler } from 'express';
+import { NextFunction, RequestHandler, Response } from 'express';
 
 import AuthService from '../services/auth.service';
 import {
@@ -11,6 +11,8 @@ import {
   ResetPasswordParams,
 } from '../types/auth.types';
 import sendReponse from '../utils/sendReponse';
+import { TRequest } from '../types/types';
+import { TUser } from '../types/user.types';
 
 export const signup: RequestHandler<{}, {}, SignupBody> = async (
   req,
@@ -68,5 +70,10 @@ export const resetPassword: RequestHandler<
     confirmPassword: req.body.confirmPassword,
   };
   const result = await AuthService.resetPassword(data);
+  sendReponse(result, res);
+};
+
+export const callbackHandler: RequestHandler<{}> = async (req, res, next) => {
+  const result = await AuthService.handleCallback(req.user as TUser);
   sendReponse(result, res);
 };

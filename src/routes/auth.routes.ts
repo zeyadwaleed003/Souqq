@@ -1,4 +1,6 @@
-import express from 'express';
+import express, { NextFunction } from 'express';
+import passport from 'passport';
+
 import {
   signup,
   login,
@@ -6,6 +8,7 @@ import {
   resetPassword,
   verifyEmail,
   refreshToken,
+  callbackHandler,
 } from '../controllers/auth.controller';
 import validate from '../middlewares/validate';
 import {
@@ -30,5 +33,19 @@ router.patch(
   resetPassword
 );
 router.get('/verify-email/:token', validate(verifyEmailSchema), verifyEmail);
+
+router.get(
+  '/google',
+  passport.authenticate('google', { scope: ['profile', 'email'] })
+);
+
+router.get(
+  '/google/callback',
+  passport.authenticate('google', {
+    failureRedirect: '/login',
+    session: false,
+  }),
+  callbackHandler
+);
 
 export const authRouter = router;

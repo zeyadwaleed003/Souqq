@@ -16,10 +16,10 @@ const userSchema = new Schema<TUser>({
     lowercase: true,
     trim: true,
   },
+  googleId: String,
   photo: String,
   password: {
     type: String,
-    required: [true, 'Please provide a password'],
     minlength: [
       8,
       'A user password must have a greater or equal than 8 characters',
@@ -47,7 +47,8 @@ const userSchema = new Schema<TUser>({
 userSchema.pre('save', async function (next) {
   if (!this.isModified('password')) return next();
 
-  this.password = await bcrypt.hash(this.password.toString(), 12);
+  if (this.password)
+    this.password = await bcrypt.hash(this.password.toString(), 12);
   next();
 });
 
@@ -62,7 +63,8 @@ userSchema.methods.correctPassword = async function (
   this: TUser,
   candidatePassword: string
 ) {
-  return await bcrypt.compare(candidatePassword, this.password);
+  if (this.password)
+    return await bcrypt.compare(candidatePassword, this.password);
 };
 
 userSchema.methods.setEmailVerified = async function (this: TUser) {
