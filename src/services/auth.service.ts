@@ -248,9 +248,4 @@ class AuthService {
   }
 }
 
-/*
-  TODO:
-    - Change Password 
-*/
-
 export default new AuthService();
