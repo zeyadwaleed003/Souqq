@@ -9,12 +9,14 @@ export const signupSchema = z.object({
         .max(30, 'Name must not be more than 30 characters long')
         .trim(),
       email: z.string().email({ message: 'Invalid email address' }).trim(),
+      photo: z.string().optional(),
       password: z
         .string()
         .min(8, 'Password must be at least 8 characters long')
         .trim(),
       confirmPassword: z.string().trim(),
     })
+    .strict()
     .refine((data) => data.password === data.confirmPassword, {
       message: "Passwords don't match",
       path: ['Password confirmation'],
@@ -28,25 +30,31 @@ export const verifyEmailSchema = z.object({
 });
 
 export const loginSchema = z.object({
-  body: z.object({
-    email: z.string().email({ message: 'Invalid email address' }).trim(),
-    password: z
-      .string()
-      .min(8, 'Password must be at least 8 characters long')
-      .trim(),
-  }),
+  body: z
+    .object({
+      email: z.string().email({ message: 'Invalid email address' }).trim(),
+      password: z
+        .string()
+        .min(8, 'Password must be at least 8 characters long')
+        .trim(),
+    })
+    .strict(),
 });
 
 export const refreshAccessTokenSchema = z.object({
-  body: z.object({
-    refreshToken: z.string(),
-  }),
+  body: z
+    .object({
+      refreshToken: z.string(),
+    })
+    .strict(),
 });
 
 export const forgotPasswordSchema = z.object({
-  body: z.object({
-    email: z.string().email({ message: 'Invalid email address' }).trim(),
-  }),
+  body: z
+    .object({
+      email: z.string().email({ message: 'Invalid email address' }).trim(),
+    })
+    .strict(),
 });
 
 export const resetPasswordSchema = z.object({
@@ -61,6 +69,7 @@ export const resetPasswordSchema = z.object({
         .trim(),
       confirmPassword: z.string().trim(),
     })
+    .strict()
     .refine((data) => data.password === data.confirmPassword, {
       message: "Passwords don't match",
       path: ['Password confirmation'],
@@ -80,6 +89,7 @@ export const updatePasswordSchema = z.object({
         .trim(),
       confirmNewPassword: z.string().trim(),
     })
+    .strict()
     .refine((data) => data.newPassword === data.confirmNewPassword, {
       message: "Passwords don't match",
       path: ['Password confirmation'],
