@@ -48,7 +48,7 @@ userSchema.pre('save', async function (next) {
   if (!this.isModified('password')) return next();
 
   if (this.password)
-    this.password = await bcrypt.hash(this.password.toString(), 12);
+    this.password = await bcrypt.hash(this.password.toString(), 10);
   next();
 });
 
@@ -101,4 +101,28 @@ userSchema.methods.setPasswordResetToken = async function (
   this.passwordResetExpiresAt = new Date(Date.now() + 10 * 60 * 1000);
   await this.save({ validateBeforeSave: false });
 };
+
+userSchema.methods.updatePassword = async function (
+  this: TUser,
+  newPassword: string
+) {
+  this.password = newPassword;
+  await this.save();
+};
+
+userSchema.methods.changedPasswordAfterJWT = function (
+  this: TUser,
+  JWTTimestamp: number
+) {
+  if (this.passwordChangedAt) {
+    const passwordChangedTimestamp = Math.floor(
+      this.passwordChangedAt.getTime() / 1000
+    );
+
+    return JWTTimestamp < passwordChangedTimestamp;
+  }
+
+  return false;
+};
+
 export const User = model<TUser>('User', userSchema);

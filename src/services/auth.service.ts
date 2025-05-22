@@ -4,8 +4,9 @@ import {
   ResetPasswordBody,
   ForgotPasswordBody,
   VerifyEmailParams,
-  RefreshTokenBody,
+  RefreshAccessTokenBody,
   ResetPasswordParams,
+  updatePasswordBody,
 } from '../types/auth.types';
 import { User } from '../models/user.model';
 import APIError from '../utils/APIError';
@@ -20,7 +21,7 @@ import {
   generateRefreshToken,
   verifyRefreshToken,
 } from '../utils/token';
-import { TResponse } from '../types/types';
+import { TResponse } from '../types/api.types';
 import logger from '../config/logger';
 import { TUser } from '../types/user.types';
 import { cleanUserData } from '../utils/functions';
@@ -137,7 +138,7 @@ class AuthService {
     return response;
   }
 
-  async refreshToken(payload: RefreshTokenBody): Promise<TResponse> {
+  async refreshToken(payload: RefreshAccessTokenBody): Promise<TResponse> {
     const tokenPayload = verifyRefreshToken(payload.refreshToken);
     if (!tokenPayload) {
       throw new APIError('Your refresh token is invalid or has expired.', 401);
@@ -225,6 +226,24 @@ class AuthService {
       data,
       accessToken,
       refreshToken,
+    };
+  }
+
+  async updatePassword(payload: {
+    body: updatePasswordBody;
+    user: TUser;
+  }): Promise<TResponse> {
+    const user = await User.findById(payload.user._id).select('+password');
+
+    if (!user || !(await user.correctPassword(payload.body.oldPassword)))
+      throw new APIError('The provided password is wrong', 401);
+
+    await user.updatePassword(payload.body.newPassword);
+
+    return {
+      statusCode: 200,
+      status: 'success',
+      message: 'Your password has been updated successfully.',
     };
   }
 }
