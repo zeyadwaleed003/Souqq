@@ -37,7 +37,7 @@ export const loginSchema = z.object({
   }),
 });
 
-export const refreshTokenSchema = z.object({
+export const refreshAccessTokenSchema = z.object({
   body: z.object({
     refreshToken: z.string(),
   }),
@@ -62,6 +62,25 @@ export const resetPasswordSchema = z.object({
       confirmPassword: z.string().trim(),
     })
     .refine((data) => data.password === data.confirmPassword, {
+      message: "Passwords don't match",
+      path: ['Password confirmation'],
+    }),
+});
+
+export const updatePasswordSchema = z.object({
+  body: z
+    .object({
+      oldPassword: z
+        .string()
+        .min(8, 'Password must be at least 8 characters long')
+        .trim(),
+      newPassword: z
+        .string()
+        .min(8, 'Password must be at least 8 characters long')
+        .trim(),
+      confirmNewPassword: z.string().trim(),
+    })
+    .refine((data) => data.newPassword === data.confirmNewPassword, {
       message: "Passwords don't match",
       path: ['Password confirmation'],
     }),

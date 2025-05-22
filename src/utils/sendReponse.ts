@@ -1,5 +1,5 @@
 import { Response } from 'express';
-import { TResponse } from '../types/types';
+import { TResponse } from '../types/api.types';
 
 export default (data: TResponse, res: Response) => {
   res.status(data.statusCode).json({
