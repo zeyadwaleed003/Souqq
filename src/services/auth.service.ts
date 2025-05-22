@@ -208,13 +208,10 @@ class AuthService {
 
     await user.setResetPassword(payload.password);
 
-    const { accessToken, refreshToken } = this.generateJWT(user);
-
     return {
       status: 'success',
       statusCode: 200,
-      accessToken,
-      refreshToken,
+      message: 'Your password has been reset successfully, Please login again.',
     };
   }
 
@@ -235,7 +232,6 @@ class AuthService {
 /*
   TODO:
     - Change Password 
-    - Change Email
 */
 
 export default new AuthService();
