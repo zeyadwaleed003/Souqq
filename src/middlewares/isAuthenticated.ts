@@ -1,11 +1,10 @@
-import { NextFunction, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 
 import APIError from '../utils/APIError';
 import { verifyAccessToken } from '../utils/token';
 import { User } from '../models/user.model';
-import { TRequest } from '../types/types';
 
-export default async (req: TRequest, res: Response, next: NextFunction) => {
+export default async (req: Request, res: Response, next: NextFunction) => {
   if (
     !req.headers.authorization ||
     !req.headers.authorization.startsWith('Bearer')
@@ -32,7 +31,12 @@ export default async (req: TRequest, res: Response, next: NextFunction) => {
       401
     );
 
-  // Check if the user changed his password after the token has been created
+  if (user.changedPasswordAfterJWT(payload.iat as number))
+    throw new APIError(
+      'User recently changed password! Please log in again.',
+      401
+    );
+
   req.user = user;
   next();
 };

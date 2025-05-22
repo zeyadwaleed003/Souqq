@@ -19,6 +19,8 @@ export type TUser = Document & {
   setPasswordResetToken: (hashedToken: string) => Promise<void>;
   setEmailVerificationToken: (hashedToken: string) => Promise<void>;
   correctPassword: (cadidatePassword: string) => Promise<boolean>;
+  updatePassword: (newPassword: string) => Promise<void>;
+  changedPasswordAfterJWT: (iat: number) => boolean;
 };
 
 export type AccessTokenPayload = Pick<

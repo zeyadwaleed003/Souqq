@@ -9,6 +9,7 @@ import {
   verifyEmail,
   refreshToken,
   callbackHandler,
+  updatePassword,
 } from '../controllers/auth.controller';
 import validate from '../middlewares/validate';
 import {
@@ -17,15 +18,17 @@ import {
   signupSchema,
   verifyEmailSchema,
   loginSchema,
-  refreshTokenSchema,
+  refreshAccessTokenSchema,
+  updatePasswordSchema,
 } from '../validation/auth.validation';
+import isAuthenticated from '../middlewares/isAuthenticated';
 
 const router = express.Router();
 
 router.post('/signup', validate(signupSchema), signup);
 router.post('/login', validate(loginSchema), login);
 
-router.post('/refresh-token', validate(refreshTokenSchema), refreshToken);
+router.post('/refresh-token', validate(refreshAccessTokenSchema), refreshToken);
 router.post('/forgot-password', validate(forgotPasswordSchema), forgotPassword);
 router.patch(
   '/reset-password/:token',
@@ -33,6 +36,12 @@ router.patch(
   resetPassword
 );
 router.get('/verify-email/:token', validate(verifyEmailSchema), verifyEmail);
+router.patch(
+  '/update-password',
+  isAuthenticated,
+  validate(updatePasswordSchema),
+  updatePassword
+);
 
 router.get(
   '/google',

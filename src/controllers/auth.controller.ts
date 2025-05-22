@@ -1,18 +1,18 @@
-import { NextFunction, RequestHandler, Response } from 'express';
+import { RequestHandler } from 'express';
 
 import AuthService from '../services/auth.service';
 import {
   SignupBody,
-  RefreshTokenBody,
+  RefreshAccessTokenBody,
   VerifyEmailParams,
   LoginBody,
   ForgotPasswordBody,
   ResetPasswordBody,
   ResetPasswordParams,
+  updatePasswordBody,
 } from '../types/auth.types';
 import sendReponse from '../utils/sendReponse';
-import { TRequest } from '../types/types';
-import { TUser } from '../types/user.types';
+import APIError from '../utils/APIError';
 
 export const signup: RequestHandler<{}, {}, SignupBody> = async (
   req,
@@ -41,11 +41,11 @@ export const login: RequestHandler<{}, {}, LoginBody> = async (
   sendReponse(result, res);
 };
 
-export const refreshToken: RequestHandler<{}, {}, RefreshTokenBody> = async (
-  req,
-  res,
-  next
-) => {
+export const refreshToken: RequestHandler<
+  {},
+  {},
+  RefreshAccessTokenBody
+> = async (req, res, next) => {
   const result = await AuthService.refreshToken(req.body);
   sendReponse(result, res);
 };
@@ -74,6 +74,24 @@ export const resetPassword: RequestHandler<
 };
 
 export const callbackHandler: RequestHandler<{}> = async (req, res, next) => {
-  const result = await AuthService.handleCallback(req.user as TUser);
-  sendReponse(result, res);
+  if (req.user) {
+    const result = await AuthService.handleCallback(req.user);
+    sendReponse(result, res);
+  } else throw new APIError('Authentication failed', 401);
+};
+
+export const updatePassword: RequestHandler<
+  {},
+  {},
+  updatePasswordBody
+> = async (req, res, next) => {
+  if (req.user) {
+    const data = {
+      user: req.user,
+      body: req.body,
+    };
+
+    const result = await AuthService.updatePassword(data);
+    sendReponse(result, res);
+  } else throw new APIError('Authentication failed', 401);
 };
