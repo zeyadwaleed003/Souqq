@@ -1,9 +1,9 @@
 import { model, Schema } from 'mongoose';
 import bcrypt from 'bcryptjs';
 
-import { TUser } from '../types/user.types';
+import { UserDocument, UserModel } from '../types/user.types';
 
-const userSchema = new Schema<TUser>({
+const userSchema = new Schema<UserDocument>({
   name: {
     type: String,
     required: [true, 'Please tell us your name'],
@@ -60,14 +60,14 @@ userSchema.pre('save', function (next) {
 });
 
 userSchema.methods.correctPassword = async function (
-  this: TUser,
+  this: UserDocument,
   candidatePassword: string
 ) {
   if (this.password)
     return await bcrypt.compare(candidatePassword, this.password);
 };
 
-userSchema.methods.setEmailVerified = async function (this: TUser) {
+userSchema.methods.setEmailVerified = async function (this: UserDocument) {
   this.emailVerified = true;
   this.emailVerificationToken = undefined;
   this.emailVerificationTokenExpiresAt = undefined;
@@ -75,7 +75,7 @@ userSchema.methods.setEmailVerified = async function (this: TUser) {
 };
 
 userSchema.methods.setEmailVerificationToken = async function (
-  this: TUser,
+  this: UserDocument,
   hashedToken: string
 ) {
   this.emailVerificationToken = hashedToken;
@@ -84,7 +84,7 @@ userSchema.methods.setEmailVerificationToken = async function (
 };
 
 userSchema.methods.setResetPassword = async function (
-  this: TUser,
+  this: UserDocument,
   password: string
 ) {
   this.password = password;
@@ -94,7 +94,7 @@ userSchema.methods.setResetPassword = async function (
 };
 
 userSchema.methods.setPasswordResetToken = async function (
-  this: TUser,
+  this: UserDocument,
   hashedToken: string
 ) {
   this.passwordResetToken = hashedToken;
@@ -103,7 +103,7 @@ userSchema.methods.setPasswordResetToken = async function (
 };
 
 userSchema.methods.updatePassword = async function (
-  this: TUser,
+  this: UserDocument,
   newPassword: string
 ) {
   this.password = newPassword;
@@ -111,7 +111,7 @@ userSchema.methods.updatePassword = async function (
 };
 
 userSchema.methods.changedPasswordAfterJWT = function (
-  this: TUser,
+  this: UserDocument,
   JWTTimestamp: number
 ) {
   if (this.passwordChangedAt) {
@@ -125,4 +125,4 @@ userSchema.methods.changedPasswordAfterJWT = function (
   return false;
 };
 
-export const User = model<TUser>('User', userSchema);
+export const User = model<UserDocument, UserModel>('User', userSchema);

@@ -23,11 +23,11 @@ import {
 } from '../utils/token';
 import { TResponse } from '../types/api.types';
 import logger from '../config/logger';
-import { TUser } from '../types/user.types';
+import { UserDocument } from '../types/user.types';
 import { cleanUserData } from '../utils/functions';
 
 class AuthService {
-  private generateJWT(user: TUser) {
+  private generateJWT(user: UserDocument) {
     return {
       accessToken: generateAccessToken({
         _id: user._id,
@@ -43,7 +43,7 @@ class AuthService {
     };
   }
 
-  private async initiateEmailVerification(user: TUser) {
+  private async initiateEmailVerification(user: UserDocument) {
     const { token, hashedToken } = generateToken();
     await sendEmailVerifyEmail(user.name, user.email, token);
     await user.setEmailVerificationToken(hashedToken);
@@ -216,7 +216,7 @@ class AuthService {
     };
   }
 
-  async handleCallback(payload: TUser): Promise<TResponse> {
+  async handleCallback(payload: UserDocument): Promise<TResponse> {
     const { accessToken, refreshToken } = this.generateJWT(payload);
 
     const data = cleanUserData(payload);
@@ -231,7 +231,7 @@ class AuthService {
 
   async updatePassword(payload: {
     body: updatePasswordBody;
-    user: TUser;
+    user: UserDocument;
   }): Promise<TResponse> {
     const user = await User.findById(payload.user._id).select('+password');
 

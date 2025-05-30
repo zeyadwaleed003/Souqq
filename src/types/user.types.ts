@@ -1,6 +1,6 @@
-import { Document, Types } from 'mongoose';
+import { Document, Model, Types } from 'mongoose';
 
-export type TUser = Document & {
+export type UserDocument = Document & {
   _id: Types.ObjectId;
   googleId?: string;
   name: string;
@@ -23,9 +23,11 @@ export type TUser = Document & {
   changedPasswordAfterJWT: (iat: number) => boolean;
 };
 
+export type UserModel = Model<UserDocument>;
+
 export type AccessTokenPayload = Pick<
-  TUser,
+  UserDocument,
   'name' | 'email' | 'photo' | 'role' | 'emailVerified' | '_id'
 >;
 
-export type RefreshTokenPayload = Pick<TUser, '_id'>;
+export type RefreshTokenPayload = Pick<UserDocument, '_id'>;
