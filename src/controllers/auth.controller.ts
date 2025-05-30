@@ -11,7 +11,7 @@ import {
   ResetPasswordParams,
   updatePasswordBody,
 } from '../types/auth.types';
-import sendReponse from '../utils/sendReponse';
+import sendResponse from '../utils/sendResponse';
 import APIError from '../utils/APIError';
 
 export const signup: RequestHandler<{}, {}, SignupBody> = async (
@@ -20,7 +20,7 @@ export const signup: RequestHandler<{}, {}, SignupBody> = async (
   next
 ) => {
   const result = await AuthService.signup(req.body);
-  sendReponse(result, res);
+  sendResponse(result, res);
 };
 
 export const verifyEmail: RequestHandler<VerifyEmailParams> = async (
@@ -29,7 +29,7 @@ export const verifyEmail: RequestHandler<VerifyEmailParams> = async (
   next
 ) => {
   const result = await AuthService.verifyEmail(req.params);
-  sendReponse(result, res);
+  sendResponse(result, res);
 };
 
 export const login: RequestHandler<{}, {}, LoginBody> = async (
@@ -38,7 +38,7 @@ export const login: RequestHandler<{}, {}, LoginBody> = async (
   next
 ) => {
   const result = await AuthService.login(req.body);
-  sendReponse(result, res);
+  sendResponse(result, res);
 };
 
 export const refreshToken: RequestHandler<
@@ -47,7 +47,7 @@ export const refreshToken: RequestHandler<
   RefreshAccessTokenBody
 > = async (req, res, next) => {
   const result = await AuthService.refreshToken(req.body);
-  sendReponse(result, res);
+  sendResponse(result, res);
 };
 
 export const forgotPassword: RequestHandler<
@@ -56,7 +56,7 @@ export const forgotPassword: RequestHandler<
   ForgotPasswordBody
 > = async (req, res, next) => {
   const result = await AuthService.forgotPassword(req.body);
-  sendReponse(result, res);
+  sendResponse(result, res);
 };
 
 export const resetPassword: RequestHandler<
@@ -70,13 +70,13 @@ export const resetPassword: RequestHandler<
     confirmPassword: req.body.confirmPassword,
   };
   const result = await AuthService.resetPassword(data);
-  sendReponse(result, res);
+  sendResponse(result, res);
 };
 
 export const callbackHandler: RequestHandler<{}> = async (req, res, next) => {
   if (req.user) {
     const result = await AuthService.handleCallback(req.user);
-    sendReponse(result, res);
+    sendResponse(result, res);
   } else throw new APIError('Authentication failed', 401);
 };
 
@@ -92,6 +92,6 @@ export const updatePassword: RequestHandler<
     };
 
     const result = await AuthService.updatePassword(data);
-    sendReponse(result, res);
+    sendResponse(result, res);
   } else throw new APIError('Authentication failed', 401);
 };
