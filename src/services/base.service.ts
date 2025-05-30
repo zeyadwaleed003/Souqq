@@ -13,7 +13,7 @@ class BaseService {
     const result = {
       status: 'success',
       statusCode: 200,
-      results: docs.length,
+      size: docs.length,
       data: {
         data: docs,
       },

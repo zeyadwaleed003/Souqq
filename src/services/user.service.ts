@@ -29,4 +29,10 @@ class UserService {
   }
 }
 
+/*
+  TODO:
+    - updateMe: User can update himself
+    - deleteMe: User can delete himself
+*/
+
 export default new UserService();
