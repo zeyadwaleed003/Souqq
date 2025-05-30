@@ -1,10 +1,10 @@
-import { TUser } from './user.types';
+import { UserDocument } from './user.types';
 
 declare global {
   namespace Express {
-    export interface User extends TUser {}
+    export interface User extends UserDocument {}
     interface Request {
-      user?: TUser;
+      user?: UserDocument;
     }
   }
 }

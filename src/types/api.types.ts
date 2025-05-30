@@ -1,8 +1,15 @@
 import { Request } from 'express';
-import { TUser } from '../types/user.types';
+import { z } from 'zod';
+
+import { UserDocument, UserModel } from '../types/user.types';
+import {
+  createOneSchema,
+  idSchema,
+  updateOneSchema,
+} from '../validation/base.validation';
 
 export type TRequest = Request & {
-  user: TUser;
+  user: UserDocument;
 };
 
 export type TResponse = {
@@ -14,3 +21,10 @@ export type TResponse = {
   refreshToken?: string;
   data?: object;
 };
+
+export type TDocument = UserDocument; // UserDocument | ProductDocument | ...
+export type TModel = UserModel; // UserModel | ProductModel | ...
+
+export type IdParams = z.output<typeof idSchema>['params'];
+export type CreateOneBody = z.output<typeof createOneSchema>['body'];
+export type UpdateOneBody = z.output<typeof updateOneSchema>['body'];

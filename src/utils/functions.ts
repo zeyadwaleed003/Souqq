@@ -1,6 +1,6 @@
-import { TUser } from '../types/user.types';
+import { UserDocument } from '../types/user.types';
 
-export const cleanUserData = (user: TUser) => {
+export const cleanUserData = (user: UserDocument) => {
   return {
     _id: user._id,
     name: user.name,
