@@ -1,13 +1,10 @@
-import {
-  CreateOneBody,
-  TModel,
-  TResponse,
-  UpdateOneBody,
-} from '../types/api.types';
+import { Model } from 'mongoose';
+import { TResponse } from '../types/api.types';
 import APIError from '../utils/APIError';
+import { CreateUserBody, UpdateUserBody } from '../types/user.types';
 
 class BaseService {
-  async getAll(Model: TModel): Promise<TResponse> {
+  async getAll<T>(Model: Model<T>): Promise<TResponse> {
     const docs = await Model.find();
 
     const result = {
@@ -22,7 +19,7 @@ class BaseService {
     return result;
   }
 
-  async getOne(Model: TModel, id: string): Promise<TResponse> {
+  async getOne<T>(Model: Model<T>, id: string): Promise<TResponse> {
     const doc = await Model.findById(id);
 
     if (!doc) {
@@ -40,8 +37,9 @@ class BaseService {
     return result;
   }
 
-  async createOne(Model: TModel, data: CreateOneBody): Promise<TResponse> {
+  async createOne<T>(Model: Model<T>, data: object): Promise<TResponse> {
     const doc = await Model.create(data);
+    if (!doc) throw new APIError('Failed to create the document', 404);
 
     const result = {
       status: 'success',
@@ -54,10 +52,10 @@ class BaseService {
     return result;
   }
 
-  async updateOne(
-    Model: TModel,
+  async updateOne<T>(
+    Model: Model<T>,
     id: string,
-    data: UpdateOneBody
+    data: UpdateUserBody
   ): Promise<TResponse> {
     const doc = await Model.findByIdAndUpdate(id, data, {
       new: true,
@@ -79,7 +77,7 @@ class BaseService {
     return result;
   }
 
-  async deleteOne(Model: TModel, id: string): Promise<TResponse> {
+  async deleteOne<T>(Model: Model<T>, id: string): Promise<TResponse> {
     const doc = await Model.findByIdAndDelete(id);
 
     if (!doc) throw new APIError('No document found with that id', 404);

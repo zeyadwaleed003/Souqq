@@ -1,7 +1,12 @@
 import { Types } from 'mongoose';
 import { User } from '../models/user.model';
-import { TResponse, UpdateOneBody, CreateOneBody } from '../types/api.types';
-import { updateMeBody, UserDocument } from '../types/user.types';
+import { TResponse } from '../types/api.types';
+import {
+  CreateUserBody,
+  UpdateMeBody,
+  UpdateUserBody,
+  UserDocument,
+} from '../types/user.types';
 import APIError from '../utils/APIError';
 import { cleanUserData } from '../utils/functions';
 import BaseService from './base.service';
@@ -17,12 +22,12 @@ class UserService {
     return result;
   }
 
-  async createUser(data: CreateOneBody): Promise<TResponse> {
+  async createUser(data: CreateUserBody): Promise<TResponse> {
     const result = await BaseService.createOne(User, data);
     return result;
   }
 
-  async updateUser(id: string, data: UpdateOneBody): Promise<TResponse> {
+  async updateUser(id: string, data: UpdateUserBody): Promise<TResponse> {
     const result = await BaseService.updateOne(User, id, data);
     return result;
   }
@@ -43,7 +48,7 @@ class UserService {
     };
   }
 
-  async updateMe(id: Types.ObjectId, data: updateMeBody): Promise<TResponse> {
+  async updateMe(id: Types.ObjectId, data: UpdateMeBody): Promise<TResponse> {
     const userData = await User.findByIdAndUpdate(id, data, {
       new: true,
       runValidators: true,

@@ -12,6 +12,7 @@ import APIError from './utils/APIError';
 import globalErrorHandler from './middlewares/globalErrorHandler';
 import { userRouter } from './routes/user.routes';
 import { authRouter } from './routes/auth.routes';
+import { categoryRouter } from './routes/category.routes';
 
 const app = express();
 
@@ -29,13 +30,14 @@ app.use(helmet());
 app.use(morgan(env.NODE_ENV === 'development' ? 'dev' : 'combined'));
 app.use(limiter);
 app.use(express.json({ limit: '10mb' }));
-app.use(mongoSanitize());
+// app.use(mongoSanitize());
 app.use(passport.initialize());
 app.use(compression());
 
 // Routes
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/users', userRouter);
+app.use('/api/v1/categories', categoryRouter);
 
 // Handle Unhandled Routes
 app.all(/(.*)/, (req: Request, res: Response, next: NextFunction) => {

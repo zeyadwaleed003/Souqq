@@ -1,13 +1,16 @@
 import { z } from 'zod';
 import { createUserSchema, updateUserSchema } from './user.validation';
+import { createCategorySchema } from './category.validation';
+
+export const objectIdSchema = z
+  .string()
+  .regex(/^[0-9a-fA-F]{24}$/, { message: 'Invalid MongoDB ObjectID' });
 
 export const idSchema = z.object({
   params: z.object({
-    id: z
-      .string()
-      .regex(/^[0-9a-fA-F]{24}$/, { message: 'Invalid MongoDB ObjectID' }),
+    id: objectIdSchema,
   }),
 });
 
-export const createOneSchema = createUserSchema; // createUserSchema | createProductSchema | ...
-export const updateOneSchema = updateUserSchema; // updateUserSchema | updateProductSchema | ...
+export const createOneSchema = createUserSchema;
+export const updateOneSchema = updateUserSchema;

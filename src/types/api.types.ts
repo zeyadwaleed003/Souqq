@@ -22,9 +22,4 @@ export type TResponse = {
   data?: object;
 };
 
-export type TDocument = UserDocument; // UserDocument | ProductDocument | ...
-export type TModel = UserModel; // UserModel | ProductModel | ...
-
 export type IdParams = z.output<typeof idSchema>['params'];
-export type CreateOneBody = z.output<typeof createOneSchema>['body'];
-export type UpdateOneBody = z.output<typeof updateOneSchema>['body'];
