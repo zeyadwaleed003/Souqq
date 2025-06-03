@@ -36,6 +36,7 @@ class AuthService {
         name: user.name,
         role: user.role,
         photo: user.photo,
+        createdAt: user.createdAt,
       }),
       refreshToken: generateRefreshToken({
         _id: user._id,
@@ -50,7 +51,10 @@ class AuthService {
   }
 
   async signup(payload: SignupBody): Promise<TResponse> {
-    const existingUser = await User.findOne({ email: payload.email });
+    const existingUser = await User.findOne({
+      email: payload.email,
+      active: true,
+    });
     if (existingUser) {
       throw new APIError(
         'This email is already registered. Please use a different email or log in.',
@@ -107,7 +111,7 @@ class AuthService {
   async login(payload: LoginBody): Promise<TResponse> {
     const { email, password } = payload;
 
-    const user = await User.findOne({ email }).select('+password');
+    const user = await User.findOne({ email, active: true });
 
     if (!user || !user.password || !(await user.correctPassword(password)))
       throw new APIError('Invalid email or password', 401);
@@ -162,9 +166,10 @@ class AuthService {
   }
 
   async forgotPassword(payload: ForgotPasswordBody): Promise<TResponse> {
-    const user = await User.findOne({ email: payload.email }).select(
-      '+password'
-    );
+    const user = await User.findOne({
+      email: payload.email,
+      active: true,
+    });
 
     const response = {
       status: 'success',
@@ -233,7 +238,7 @@ class AuthService {
     body: updatePasswordBody;
     user: UserDocument;
   }): Promise<TResponse> {
-    const user = await User.findById(payload.user._id).select('+password');
+    const user = await User.findById(payload.user._id);
 
     if (!user || !(await user.correctPassword(payload.body.oldPassword)))
       throw new APIError('The provided password is wrong', 401);

@@ -21,6 +21,7 @@ const userFieldsSchema = z
     emailVerificationToken: z.string().optional(),
     emailVerificationTokenExpiresAt: z.date().optional(),
     emailVerified: z.boolean().default(true),
+    active: z.boolean().default(true),
   })
   .strict();
 
@@ -30,4 +31,13 @@ export const createUserSchema = z.object({
 
 export const updateUserSchema = z.object({
   body: userFieldsSchema.partial(),
+});
+
+export const updateMeSchema = z.object({
+  body: userFieldsSchema
+    .pick({
+      name: true,
+      photo: true,
+    })
+    .partial(),
 });
