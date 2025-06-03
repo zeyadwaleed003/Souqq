@@ -1,7 +1,11 @@
-import { Document, Model, Types } from 'mongoose';
 import { z } from 'zod';
+import { Document, Model, Types } from 'mongoose';
 
-import { updateMeSchema } from '../validation/user.validation';
+import {
+  createUserSchema,
+  updateMeSchema,
+  updateUserSchema,
+} from '../validation/user.validation';
 
 export type UserDocument = Document & {
   _id: Types.ObjectId;
@@ -36,5 +40,8 @@ export type AccessTokenPayload = Pick<
   'name' | 'email' | 'photo' | 'role' | 'emailVerified' | '_id' | 'createdAt'
 >;
 
+export type CreateUserBody = z.output<typeof createUserSchema>['body'];
+export type UpdateUserBody = z.output<typeof updateUserSchema>['body'];
+export type UpdateMeBody = z.output<typeof updateMeSchema>['body'];
+
 export type RefreshTokenPayload = Pick<UserDocument, '_id'>;
-export type updateMeBody = z.output<typeof updateMeSchema>['body'];

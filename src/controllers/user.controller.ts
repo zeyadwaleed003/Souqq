@@ -1,9 +1,13 @@
 import { RequestHandler } from 'express';
 import UserService from '../services/user.service';
 import sendResponse from '../utils/sendResponse';
-import { IdParams, CreateOneBody, UpdateOneBody } from '../types/api.types';
+import { IdParams } from '../types/api.types';
 import APIError from '../utils/APIError';
-import { updateMeBody } from '../types/user.types';
+import {
+  CreateUserBody,
+  UpdateMeBody,
+  UpdateUserBody,
+} from '../types/user.types';
 
 export const getAllUsers: RequestHandler<{}> = async (req, res, next) => {
   const result = await UserService.getAllUsers();
@@ -15,7 +19,7 @@ export const getUser: RequestHandler<IdParams> = async (req, res, next) => {
   sendResponse(result, res);
 };
 
-export const createUser: RequestHandler<{}, {}, CreateOneBody> = async (
+export const createUser: RequestHandler<{}, {}, CreateUserBody> = async (
   req,
   res,
   next
@@ -24,7 +28,7 @@ export const createUser: RequestHandler<{}, {}, CreateOneBody> = async (
   sendResponse(result, res);
 };
 
-export const updateUser: RequestHandler<IdParams, {}, UpdateOneBody> = async (
+export const updateUser: RequestHandler<IdParams, {}, UpdateUserBody> = async (
   req,
   res,
   next
@@ -45,7 +49,7 @@ export const getMe: RequestHandler<{}> = async (req, res, next) => {
   } else throw new APIError('Authentication failed', 401);
 };
 
-export const updateMe: RequestHandler<{}, {}, updateMeBody> = async (
+export const updateMe: RequestHandler<{}, {}, UpdateMeBody> = async (
   req,
   res,
   next
