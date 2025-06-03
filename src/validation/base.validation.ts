@@ -1,6 +1,5 @@
 import { z } from 'zod';
 import { createUserSchema, updateUserSchema } from './user.validation';
-import { createCategorySchema } from './category.validation';
 
 export const objectIdSchema = z
   .string()

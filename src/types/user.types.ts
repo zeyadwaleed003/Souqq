@@ -1,5 +1,5 @@
-import { Document, Model, Types } from 'mongoose';
 import { z } from 'zod';
+import { Document, Model, Types } from 'mongoose';
 
 import {
   createUserSchema,

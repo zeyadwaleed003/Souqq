@@ -1,5 +1,6 @@
 import { Document, Model, Types } from 'mongoose';
 import { z } from 'zod';
+
 import { createCategorySchema } from '../validation/category.validation';
 
 export type CategoryDocument = Document & {
