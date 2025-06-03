@@ -3,45 +3,49 @@ import bcrypt from 'bcryptjs';
 
 import { UserDocument, UserModel } from '../types/user.types';
 
-const userSchema = new Schema<UserDocument>({
-  name: {
-    type: String,
-    required: [true, 'Please tell us your name'],
-    trim: true,
+const userSchema = new Schema<UserDocument>(
+  {
+    name: {
+      type: String,
+      required: [true, 'Please tell us your name'],
+      trim: true,
+    },
+    email: {
+      type: String,
+      required: [true, 'Please provide your email'],
+      unique: true,
+      lowercase: true,
+      trim: true,
+    },
+    googleId: String,
+    photo: String,
+    password: {
+      type: String,
+      minlength: [
+        8,
+        'A user password must have a greater or equal than 8 characters',
+      ],
+      trim: true,
+    },
+    passwordChangedAt: Date,
+    role: {
+      type: String,
+      enum: ['admin', 'user'],
+      default: 'user',
+    },
+    passwordResetToken: String,
+    passwordResetExpiresAt: Date,
+    emailVerificationToken: String,
+    emailVerificationTokenExpiresAt: Date,
+    emailVerified: {
+      type: Boolean,
+      default: false,
+    },
   },
-  email: {
-    type: String,
-    required: [true, 'Please provide your email'],
-    unique: true,
-    lowercase: true,
-    trim: true,
-  },
-  googleId: String,
-  photo: String,
-  password: {
-    type: String,
-    minlength: [
-      8,
-      'A user password must have a greater or equal than 8 characters',
-    ],
-    select: false,
-    trim: true,
-  },
-  passwordChangedAt: Date,
-  role: {
-    type: String,
-    enum: ['admin', 'user'],
-    default: 'user',
-  },
-  passwordResetToken: String,
-  passwordResetExpiresAt: Date,
-  emailVerificationToken: String,
-  emailVerificationTokenExpiresAt: Date,
-  emailVerified: {
-    type: Boolean,
-    default: false,
-  },
-});
+  {
+    timestamps: true,
+  }
+);
 
 // Encrypt the password using Bcrypt
 userSchema.pre('save', async function (next) {
