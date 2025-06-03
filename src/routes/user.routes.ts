@@ -7,6 +7,7 @@ import {
   getUser,
   updateUser,
   updateMe,
+  deleteMe,
 } from '../controllers/user.controller';
 import isAuthenticated from '../middlewares/isAuthenticated';
 import isAuthorized from '../middlewares/isAuthorized';
@@ -22,7 +23,11 @@ const router = express.Router();
 
 router.use(isAuthenticated);
 
-router.route('/me').get(getMe).patch(validate(updateMeSchema), updateMe);
+router
+  .route('/me')
+  .get(getMe)
+  .patch(validate(updateMeSchema), updateMe)
+  .delete(deleteMe);
 
 router.use(isAuthorized('admin'));
 

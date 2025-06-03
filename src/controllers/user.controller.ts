@@ -55,3 +55,10 @@ export const updateMe: RequestHandler<{}, {}, updateMeBody> = async (
     sendResponse(result, res);
   } else throw new APIError('Authentication failed', 401);
 };
+
+export const deleteMe: RequestHandler<{}> = async (req, res, next) => {
+  if (req.user) {
+    const result = await UserService.deleteMe(req.user._id);
+    sendResponse(result, res);
+  } else throw new APIError('Authentication failed', 401);
+};

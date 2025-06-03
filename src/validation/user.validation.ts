@@ -21,6 +21,7 @@ const userFieldsSchema = z
     emailVerificationToken: z.string().optional(),
     emailVerificationTokenExpiresAt: z.date().optional(),
     emailVerified: z.boolean().default(true),
+    active: z.boolean().default(true),
   })
   .strict();
 

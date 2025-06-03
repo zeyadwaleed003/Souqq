@@ -13,7 +13,6 @@ const userSchema = new Schema<UserDocument>(
     email: {
       type: String,
       required: [true, 'Please provide your email'],
-      unique: true,
       lowercase: true,
       trim: true,
     },
@@ -40,6 +39,10 @@ const userSchema = new Schema<UserDocument>(
     emailVerified: {
       type: Boolean,
       default: false,
+    },
+    active: {
+      type: Boolean,
+      default: true,
     },
   },
   {

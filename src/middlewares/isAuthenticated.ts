@@ -24,7 +24,7 @@ export default async (req: Request, res: Response, next: NextFunction) => {
     throw new APIError('Your access token is invalid or has expired.', 401);
   }
 
-  const user = await User.findById(payload._id);
+  const user = await User.findOne({ _id: payload._id, active: true });
   if (!user)
     throw new APIError(
       'The user belonging to this token does no longer exist.',

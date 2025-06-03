@@ -51,7 +51,10 @@ class AuthService {
   }
 
   async signup(payload: SignupBody): Promise<TResponse> {
-    const existingUser = await User.findOne({ email: payload.email });
+    const existingUser = await User.findOne({
+      email: payload.email,
+      active: true,
+    });
     if (existingUser) {
       throw new APIError(
         'This email is already registered. Please use a different email or log in.',
@@ -108,7 +111,7 @@ class AuthService {
   async login(payload: LoginBody): Promise<TResponse> {
     const { email, password } = payload;
 
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email, active: true });
 
     if (!user || !user.password || !(await user.correctPassword(password)))
       throw new APIError('Invalid email or password', 401);
@@ -163,9 +166,10 @@ class AuthService {
   }
 
   async forgotPassword(payload: ForgotPasswordBody): Promise<TResponse> {
-    const user = await User.findOne({ email: payload.email }).select(
-      '+password'
-    );
+    const user = await User.findOne({
+      email: payload.email,
+      active: true,
+    });
 
     const response = {
       status: 'success',

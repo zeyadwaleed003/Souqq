@@ -60,11 +60,16 @@ class UserService {
       },
     };
   }
-}
 
-/*
-  TODO:
-    - deleteMe: User can delete himself
-*/
+  async deleteMe(id: Types.ObjectId): Promise<TResponse> {
+    await User.findByIdAndUpdate(id, { active: false });
+
+    return {
+      status: 'success',
+      statusCode: 204,
+      message: 'User has been deleted successfully.',
+    };
+  }
+}
 
 export default new UserService();

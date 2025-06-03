@@ -8,6 +8,7 @@ export type UserDocument = Document & {
   googleId?: string;
   name: string;
   email: string;
+  active: boolean;
   photo?: string;
   password?: string;
   passwordChangedAt?: Date;
