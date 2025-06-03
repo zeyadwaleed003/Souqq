@@ -1,23 +1,37 @@
 import express, { NextFunction, Request, Response } from 'express';
 import morgan from 'morgan';
+import helmet from 'helmet';
+import compression from 'compression';
+import mongoSanitize from 'express-mongo-sanitize';
+import rateLimit from 'express-rate-limit';
 
 import env from './config/env';
 import passport from './config/passport';
-import { userRouter } from './routes/user.routes';
-import { authRouter } from './routes/auth.routes';
 import APIError from './utils/APIError';
 import globalErrorHandler from './middlewares/globalErrorHandler';
+import { userRouter } from './routes/user.routes';
+import { authRouter } from './routes/auth.routes';
 
 const app = express();
 
+const limiter = rateLimit({
+  max: 1000,
+  windowMs: 60 * 60 * 1000,
+  standardHeaders: 'draft-8',
+  legacyHeaders: false,
+  message: 'Too many requests from this IP, please try again in one hour',
+});
+
 // Global Middlewares
-app.use(express.json());
-
-// Using morgan for HTTP requests
+app.use(helmet());
 app.use(morgan(env.NODE_ENV === 'development' ? 'dev' : 'combined'));
-
+app.use(limiter);
+app.use(express.json({ limit: '10mb' }));
+app.use(mongoSanitize());
 app.use(passport.initialize());
+app.use(compression());
 
+// Routes
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/users', userRouter);
 

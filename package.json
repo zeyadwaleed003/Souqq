@@ -14,9 +14,13 @@
  "license": "ISC",
  "dependencies": {
   "bcryptjs": "^3.0.2",
+  "compression": "^1.8.0",
   "dotenv": "^16.5.0",
   "env-var": "^7.5.0",
   "express": "^5.1.0",
+  "express-mongo-sanitize": "^2.2.0",
+  "express-rate-limit": "^7.5.0",
+  "helmet": "^8.1.0",
   "html-to-text": "^9.0.5",
   "jsonwebtoken": "^9.0.2",
   "mongoose": "^8.14.1",
@@ -30,6 +34,7 @@
   "zod-validation-error": "^3.4.1"
  },
  "devDependencies": {
+  "@types/compression": "^1.8.0",
   "@types/express": "^5.0.1",
   "@types/html-to-text": "^9.0.4",
   "@types/jsonwebtoken": "^9.0.9",
