@@ -31,3 +31,12 @@ export const createUserSchema = z.object({
 export const updateUserSchema = z.object({
   body: userFieldsSchema.partial(),
 });
+
+export const updateMeSchema = z.object({
+  body: userFieldsSchema
+    .pick({
+      name: true,
+      photo: true,
+    })
+    .partial(),
+});

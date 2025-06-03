@@ -3,8 +3,10 @@ import {
   createUser,
   deleteUser,
   getAllUsers,
+  getMe,
   getUser,
   updateUser,
+  updateMe,
 } from '../controllers/user.controller';
 import isAuthenticated from '../middlewares/isAuthenticated';
 import isAuthorized from '../middlewares/isAuthorized';
@@ -14,10 +16,14 @@ import {
   idSchema,
   updateOneSchema,
 } from '../validation/base.validation';
+import { updateMeSchema } from '../validation/user.validation';
 
 const router = express.Router();
 
 router.use(isAuthenticated);
+
+router.route('/me').get(getMe).patch(validate(updateMeSchema), updateMe);
+
 router.use(isAuthorized('admin'));
 
 router.route('/').get(getAllUsers).post(validate(createOneSchema), createUser);

@@ -36,6 +36,7 @@ class AuthService {
         name: user.name,
         role: user.role,
         photo: user.photo,
+        createdAt: user.createdAt,
       }),
       refreshToken: generateRefreshToken({
         _id: user._id,
