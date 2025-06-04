@@ -25,3 +25,30 @@ export const updateCategory: RequestHandler<
   const result = await CategoryService.updateCategory(req.params.id, req.body);
   sendResponse(result, res);
 };
+
+export const getCategoryById: RequestHandler<IdParams> = async (
+  req,
+  res,
+  next
+) => {
+  const result = await CategoryService.getCategoryById(req.params.id);
+  sendResponse(result, res);
+};
+
+export const getAllCategoriesAdmin: RequestHandler<IdParams> = async (
+  req,
+  res,
+  next
+) => {
+  const result = await CategoryService.getAllCategoriesAdmin();
+  sendResponse(result, res);
+};
+
+export const deleteCategory: RequestHandler<IdParams> = async (
+  req,
+  res,
+  next
+) => {
+  const result = await CategoryService.deleteCategory(req.params.id);
+  sendResponse(result, res);
+};

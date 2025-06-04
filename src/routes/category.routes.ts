@@ -6,6 +6,9 @@ import isAuthenticated from '../middlewares/isAuthenticated';
 import {
   createCategory,
   updateCategory,
+  deleteCategory,
+  getCategoryById,
+  getAllCategoriesAdmin,
 } from '../controllers/category.controller';
 import {
   createCategorySchema,
@@ -18,10 +21,16 @@ const router = express.Router();
 router.use(isAuthenticated);
 router.use(isAuthorized('admin'));
 
-router.route('/').post(validate(createCategorySchema), createCategory);
+router
+  .route('/')
+  .get(getAllCategoriesAdmin)
+  .post(validate(createCategorySchema), createCategory);
 
 router
   .route('/:id')
   .all(validate(idSchema))
-  .patch(validate(updateCategorySchema), updateCategory);
+  .get(getCategoryById)
+  .patch(validate(updateCategorySchema), updateCategory)
+  .delete(deleteCategory);
+
 export const categoryRouter = router;

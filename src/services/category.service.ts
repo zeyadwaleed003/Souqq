@@ -23,14 +23,27 @@ class CategoryService {
     const result = await BaseService.updateOne(Category, id, data);
     return result;
   }
+
+  async getCategoryById(id: string): Promise<TResponse> {
+    const result = await BaseService.getOne(Category, id);
+    return result;
+  }
+
+  async getAllCategoriesAdmin(): Promise<TResponse> {
+    const result = await BaseService.getAll(Category);
+    return result;
+  }
+
+  async deleteCategory(id: string): Promise<TResponse> {
+    const result = await BaseService.deleteOne(Category, id);
+    return result;
+  }
 }
 
 /*
   TODO:
-    - Delete Category
-    - Get All Categories
-    - Get One Category
-
+    - Get All Categories Public
+    - Get One Category By Slug
     - Get all the child categories of a category
 */
 
