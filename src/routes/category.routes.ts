@@ -14,7 +14,7 @@ import {
   createCategorySchema,
   updateCategorySchema,
 } from '../validation/category.validation';
-import { idSchema } from '../validation/base.validation';
+import { idSchema, querySchema } from '../validation/base.validation';
 
 const router = express.Router();
 
@@ -23,7 +23,7 @@ router.use(isAuthorized('admin'));
 
 router
   .route('/')
-  .get(getAllCategoriesAdmin)
+  .get(validate(querySchema), getAllCategoriesAdmin)
   .post(validate(createCategorySchema), createCategory);
 
 router

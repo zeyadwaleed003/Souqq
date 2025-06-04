@@ -1,5 +1,5 @@
 import { Category } from '../models/category.model';
-import { TResponse } from '../types/api.types';
+import { TQueryString, TResponse } from '../types/api.types';
 import {
   CreateCategoryBody,
   UpdateCategoryBody,
@@ -29,8 +29,8 @@ class CategoryService {
     return result;
   }
 
-  async getAllCategoriesAdmin(): Promise<TResponse> {
-    const result = await BaseService.getAll(Category);
+  async getAllCategoriesAdmin(queryString: TQueryString): Promise<TResponse> {
+    const result = await BaseService.getAll(Category, queryString);
     return result;
   }
 

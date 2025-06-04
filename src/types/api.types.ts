@@ -18,4 +18,11 @@ export type TResponse = {
   data?: object;
 };
 
+export type TQueryString = {
+  sort?: string;
+  limit?: string;
+  page?: string;
+  fields?: string;
+} & Record<string, any>; // Need to deal with the any type here!
+
 export type IdParams = z.output<typeof idSchema>['params'];

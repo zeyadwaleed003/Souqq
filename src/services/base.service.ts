@@ -1,11 +1,21 @@
 import { Model } from 'mongoose';
-import { TResponse } from '../types/api.types';
+
+import { TQueryString, TResponse } from '../types/api.types';
 import APIError from '../utils/APIError';
-import { CreateUserBody, UpdateUserBody } from '../types/user.types';
+import APIFeatures from '../utils/APIFeatures';
 
 class BaseService {
-  async getAll<T>(Model: Model<T>): Promise<TResponse> {
-    const docs = await Model.find();
+  async getAll<T>(
+    Model: Model<T>,
+    queryString: TQueryString
+  ): Promise<TResponse> {
+    const features = new APIFeatures(Model.find(), queryString)
+      .filter()
+      .sort()
+      .limitFields()
+      .paginate();
+
+    const docs = await features.query;
 
     const result = {
       status: 'success',
@@ -55,7 +65,7 @@ class BaseService {
   async updateOne<T>(
     Model: Model<T>,
     id: string,
-    data: UpdateUserBody
+    data: object
   ): Promise<TResponse> {
     const doc = await Model.findById(id);
 

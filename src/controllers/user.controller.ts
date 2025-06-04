@@ -10,7 +10,7 @@ import {
 } from '../types/user.types';
 
 export const getAllUsers: RequestHandler<{}> = async (req, res, next) => {
-  const result = await UserService.getAllUsers();
+  const result = await UserService.getAllUsers(req.query);
   sendResponse(result, res);
 };
 

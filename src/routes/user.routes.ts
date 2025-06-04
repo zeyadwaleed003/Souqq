@@ -12,12 +12,12 @@ import {
 import isAuthenticated from '../middlewares/isAuthenticated';
 import isAuthorized from '../middlewares/isAuthorized';
 import validate from '../middlewares/validate';
+import { idSchema } from '../validation/base.validation';
 import {
-  createOneSchema,
-  idSchema,
-  updateOneSchema,
-} from '../validation/base.validation';
-import { updateMeSchema } from '../validation/user.validation';
+  createUserSchema,
+  updateMeSchema,
+  updateUserSchema,
+} from '../validation/user.validation';
 
 const router = express.Router();
 
@@ -31,13 +31,13 @@ router
 
 router.use(isAuthorized('admin'));
 
-router.route('/').get(getAllUsers).post(validate(createOneSchema), createUser);
+router.route('/').get(getAllUsers).post(validate(createUserSchema), createUser);
 
 router
   .route('/:id')
   .all(validate(idSchema))
   .get(getUser)
-  .patch(validate(updateOneSchema), updateUser)
+  .patch(validate(updateUserSchema), updateUser)
   .delete(deleteUser);
 
 export const userRouter = router;
