@@ -29,7 +29,7 @@ const categorySchema = new Schema<CategoryDocument>(
 );
 
 categorySchema.pre('save', function (next) {
-  this.slug = slugify(this.name, { lower: true });
+  this.slug = slugify(this.name, { lower: true, strict: true });
   next();
 });
 

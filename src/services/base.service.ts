@@ -57,20 +57,20 @@ class BaseService {
     id: string,
     data: UpdateUserBody
   ): Promise<TResponse> {
-    const doc = await Model.findByIdAndUpdate(id, data, {
-      new: true,
-      runValidators: true,
-    });
+    const doc = await Model.findById(id);
 
     if (!doc) {
       throw new APIError('No document found with that id', 404);
     }
 
+    doc.set(data);
+    const newDoc = await doc.save();
+
     const result = {
       status: 'success',
       statusCode: 200,
       data: {
-        data: doc,
+        data: newDoc,
       },
     };
 
