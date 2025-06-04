@@ -5,6 +5,7 @@ import {
   UpdateCategoryBody,
 } from '../types/category.types';
 import APIError from '../utils/APIError';
+import APIFeatures from '../utils/APIFeatures';
 import BaseService from './base.service';
 
 class CategoryService {
@@ -29,7 +30,7 @@ class CategoryService {
     return result;
   }
 
-  async getAllCategoriesAdmin(queryString: TQueryString): Promise<TResponse> {
+  async getAllCategories(queryString: TQueryString): Promise<TResponse> {
     const result = await BaseService.getAll(Category, queryString);
     return result;
   }
@@ -38,12 +39,67 @@ class CategoryService {
     const result = await BaseService.deleteOne(Category, id);
     return result;
   }
+
+  async getCategoryBySlug(slug: string): Promise<TResponse> {
+    const category = await Category.findOne({ slug: slug });
+    if (!category) throw new APIError('No category found with this slug', 404);
+
+    return {
+      statusCode: 200,
+      status: 'success',
+      data: {
+        category,
+      },
+    };
+  }
+
+  async getTopLevelCategories(queryString: TQueryString): Promise<TResponse> {
+    const features = new APIFeatures(
+      Category.find({ parent: null }),
+      queryString
+    )
+      .filter()
+      .sort()
+      .limitFields()
+      .paginate();
+
+    const categories = await features.query;
+
+    return {
+      statusCode: 200,
+      status: 'success',
+      size: categories.length,
+      data: {
+        categories,
+      },
+    };
+  }
+
+  async getSubcategories(
+    id: string,
+    queryString: TQueryString
+  ): Promise<TResponse> {
+    const features = new APIFeatures(Category.find({ parent: id }), queryString)
+      .filter()
+      .sort()
+      .limitFields()
+      .paginate();
+
+    const categories = await features.query;
+
+    return {
+      statusCode: 200,
+      status: 'success',
+      size: categories.length,
+      data: {
+        categories,
+      },
+    };
+  }
 }
 
 /*
   TODO:
-    - Get All Categories Public
-    - Get One Category By Slug
     - Get all the child categories of a category
 */
 

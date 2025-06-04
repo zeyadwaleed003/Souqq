@@ -10,6 +10,12 @@ export const idSchema = z.object({
   }),
 });
 
+export const slugSchema = z.object({
+  params: z.object({
+    slug: z.string(),
+  }),
+});
+
 const sortSchema = z.string().trim().optional();
 const fieldsSchema = z.string().trim().optional();
 const pageSchema = z

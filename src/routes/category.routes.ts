@@ -8,7 +8,10 @@ import {
   updateCategory,
   deleteCategory,
   getCategoryById,
-  getAllCategoriesAdmin,
+  getAllCategories,
+  getSubcategories,
+  getCategoryBySlug,
+  getTopLevelCategories,
 } from '../controllers/category.controller';
 import {
   createCategorySchema,
@@ -18,19 +21,31 @@ import { idSchema, querySchema } from '../validation/base.validation';
 
 const router = express.Router();
 
-router.use(isAuthenticated);
-router.use(isAuthorized('admin'));
+router.get('/top-level', validate(querySchema), getTopLevelCategories);
+router.get('/slug/:slug', getCategoryBySlug);
 
 router
   .route('/')
-  .get(validate(querySchema), getAllCategoriesAdmin)
-  .post(validate(createCategorySchema), createCategory);
+  .get(validate(querySchema), getAllCategories)
+  .post(
+    isAuthenticated,
+    isAuthorized('admin'),
+    validate(createCategorySchema),
+    createCategory
+  );
 
 router
   .route('/:id')
   .all(validate(idSchema))
   .get(getCategoryById)
-  .patch(validate(updateCategorySchema), updateCategory)
-  .delete(deleteCategory);
+  .patch(
+    isAuthenticated,
+    isAuthorized('admin'),
+    validate(updateCategorySchema),
+    updateCategory
+  )
+  .delete(isAuthenticated, isAuthorized('admin'), deleteCategory);
+
+router.get('/:id/subcategories', validate(idSchema), getSubcategories);
 
 export const categoryRouter = router;
