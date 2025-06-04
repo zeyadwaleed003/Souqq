@@ -1,6 +1,9 @@
 import { Category } from '../models/category.model';
 import { TResponse } from '../types/api.types';
-import { CreateCategoryBody } from '../types/category.types';
+import {
+  CreateCategoryBody,
+  UpdateCategoryBody,
+} from '../types/category.types';
 import APIError from '../utils/APIError';
 import BaseService from './base.service';
 
@@ -12,6 +15,36 @@ class CategoryService {
     const result = await BaseService.createOne(Category, data);
     return result;
   }
+
+  async updateCategory(
+    id: string,
+    data: UpdateCategoryBody
+  ): Promise<TResponse> {
+    const result = await BaseService.updateOne(Category, id, data);
+    return result;
+  }
+
+  async getCategoryById(id: string): Promise<TResponse> {
+    const result = await BaseService.getOne(Category, id);
+    return result;
+  }
+
+  async getAllCategoriesAdmin(): Promise<TResponse> {
+    const result = await BaseService.getAll(Category);
+    return result;
+  }
+
+  async deleteCategory(id: string): Promise<TResponse> {
+    const result = await BaseService.deleteOne(Category, id);
+    return result;
+  }
 }
+
+/*
+  TODO:
+    - Get All Categories Public
+    - Get One Category By Slug
+    - Get all the child categories of a category
+*/
 
 export default new CategoryService();

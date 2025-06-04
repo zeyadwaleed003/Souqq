@@ -1,7 +1,10 @@
 import { Document, Model, Types } from 'mongoose';
 import { z } from 'zod';
 
-import { createCategorySchema } from '../validation/category.validation';
+import {
+  createCategorySchema,
+  updateCategorySchema,
+} from '../validation/category.validation';
 
 export type CategoryDocument = Document & {
   _id: Types.ObjectId;
@@ -17,3 +20,4 @@ export type CategoryDocument = Document & {
 export type CategoryModel = Model<CategoryDocument>;
 
 export type CreateCategoryBody = z.output<typeof createCategorySchema>['body'];
+export type UpdateCategoryBody = z.output<typeof updateCategorySchema>['body'];
