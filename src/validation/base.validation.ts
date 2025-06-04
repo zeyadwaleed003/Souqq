@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import { createUserSchema, updateUserSchema } from './user.validation';
 
 export const objectIdSchema = z
   .string()
@@ -11,5 +10,32 @@ export const idSchema = z.object({
   }),
 });
 
-export const createOneSchema = createUserSchema;
-export const updateOneSchema = updateUserSchema;
+const sortSchema = z.string().trim().optional();
+const fieldsSchema = z.string().trim().optional();
+const pageSchema = z
+  .string()
+  .trim()
+  .transform((val) => (val ? parseInt(val, 10) : 1))
+  .refine((n) => Number.isInteger(n) && n > 0, {
+    message: 'page must be a postive number',
+    path: ['page'],
+  })
+  .optional();
+const limitSchema = z
+  .string()
+  .trim()
+  .transform((val) => (val ? parseInt(val, 10) : 100))
+  .refine((n) => Number.isInteger(n) && n > 0 && n <= 100, {
+    message: 'limit must be between 1 and 100',
+    path: ['limit'],
+  })
+  .optional();
+
+export const querySchema = z.object({
+  query: z.object({
+    sort: sortSchema,
+    fields: fieldsSchema,
+    page: pageSchema,
+    limit: limitSchema,
+  }),
+});

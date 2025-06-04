@@ -40,7 +40,7 @@ export const getAllCategoriesAdmin: RequestHandler<IdParams> = async (
   res,
   next
 ) => {
-  const result = await CategoryService.getAllCategoriesAdmin();
+  const result = await CategoryService.getAllCategoriesAdmin(req.query);
   sendResponse(result, res);
 };
 

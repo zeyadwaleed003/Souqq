@@ -1,6 +1,6 @@
 import { Types } from 'mongoose';
 import { User } from '../models/user.model';
-import { TResponse } from '../types/api.types';
+import { TQueryString, TResponse } from '../types/api.types';
 import {
   CreateUserBody,
   UpdateMeBody,
@@ -12,8 +12,8 @@ import { cleanUserData } from '../utils/functions';
 import BaseService from './base.service';
 
 class UserService {
-  async getAllUsers(): Promise<TResponse> {
-    const result = await BaseService.getAll(User);
+  async getAllUsers(queryString: TQueryString): Promise<TResponse> {
+    const result = await BaseService.getAll(User, queryString);
     return result;
   }
 
