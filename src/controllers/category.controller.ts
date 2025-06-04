@@ -1,6 +1,6 @@
 import { RequestHandler } from 'express';
 
-import { IdParams } from '../types/api.types';
+import { IdParams, SlugParams } from '../types/api.types';
 import sendResponse from '../utils/sendResponse';
 import CategoryService from '../services/category.service';
 import {
@@ -35,12 +35,12 @@ export const getCategoryById: RequestHandler<IdParams> = async (
   sendResponse(result, res);
 };
 
-export const getAllCategoriesAdmin: RequestHandler<IdParams> = async (
+export const getAllCategories: RequestHandler<IdParams> = async (
   req,
   res,
   next
 ) => {
-  const result = await CategoryService.getAllCategoriesAdmin(req.query);
+  const result = await CategoryService.getAllCategories(req.query);
   sendResponse(result, res);
 };
 
@@ -50,5 +50,35 @@ export const deleteCategory: RequestHandler<IdParams> = async (
   next
 ) => {
   const result = await CategoryService.deleteCategory(req.params.id);
+  sendResponse(result, res);
+};
+
+export const getCategoryBySlug: RequestHandler<SlugParams> = async (
+  req,
+  res,
+  next
+) => {
+  const result = await CategoryService.getCategoryBySlug(req.params.slug);
+  sendResponse(result, res);
+};
+
+export const getTopLevelCategories: RequestHandler<{}> = async (
+  req,
+  res,
+  next
+) => {
+  const result = await CategoryService.getTopLevelCategories(req.query);
+  sendResponse(result, res);
+};
+
+export const getSubcategories: RequestHandler<IdParams> = async (
+  req,
+  res,
+  next
+) => {
+  const result = await CategoryService.getSubcategories(
+    req.params.id,
+    req.query
+  );
   sendResponse(result, res);
 };
