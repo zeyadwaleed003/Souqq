@@ -1,5 +1,5 @@
 import { Category } from '../models/category.model';
-import { Product } from '../models/products.model';
+import { Product } from '../models/product.model';
 import { TQueryString, TResponse } from '../types/api.types';
 import {
   CreateCategoryBody,

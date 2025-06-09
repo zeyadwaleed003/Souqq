@@ -16,7 +16,7 @@ import {
 import {
   createProductSchema,
   updateProductSchema,
-} from '../validation/products.validation';
+} from '../validation/product.validation';
 import validate from '../middlewares/validate';
 import { idSchema } from '../validation/base.validation';
 

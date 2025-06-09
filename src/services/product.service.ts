@@ -1,4 +1,4 @@
-import { Product } from '../models/products.model';
+import { Product } from '../models/product.model';
 import { TQueryString, TResponse } from '../types/api.types';
 import { CreateProductBody, UpdateProductBody } from '../types/product.types';
 import { UserDocument } from '../types/user.types';
@@ -6,19 +6,6 @@ import APIError from '../utils/APIError';
 import BaseService from './base.service';
 
 class ProductService {
-  private restrictSellerCreateFields(data: CreateProductBody) {
-    if (data.sellerId)
-      throw new APIError('Seller Not allowed to set product sellerId', 403);
-
-    const notAllowedVariantFields = ['status', 'oldPrice'];
-    data.variants.forEach((variant) => {
-      notAllowedVariantFields.forEach((f) => {
-        if (variant[f as keyof typeof variant])
-          throw new APIError(`Seller not allowed to set product ${f}`, 403);
-      });
-    });
-  }
-
   private restrictSellerUpdateFields(data: UpdateProductBody) {
     const allowedFields = ['name', 'brand', 'categories', 'description'];
 
@@ -36,7 +23,8 @@ class ProductService {
 
   restrictProductCreationFields(role: string, data: CreateProductBody) {
     if (role === 'seller') {
-      this.restrictSellerCreateFields(data);
+      if (data.sellerId)
+        throw new APIError('Seller Not allowed to set product sellerId', 403);
     }
   }
 
