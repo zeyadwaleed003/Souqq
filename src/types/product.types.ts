@@ -1,6 +1,9 @@
 import { Document, Model, Types } from 'mongoose';
 import { z } from 'zod';
-import { createProductSchema } from '../validation/products.validation';
+import {
+  createProductSchema,
+  updateProductSchema,
+} from '../validation/products.validation';
 
 export type VariantDocument = {
   price: number;
@@ -28,3 +31,4 @@ export type ProductDocument = Document & {
 export type ProductModel = Model<ProductDocument>;
 
 export type CreateProductBody = z.output<typeof createProductSchema>['body'];
+export type UpdateProductBody = z.output<typeof updateProductSchema>['body'];
