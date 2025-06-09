@@ -37,7 +37,7 @@ const productFieldsSchema = z
     brand: z
       .string()
       .min(3, 'Brand must be at least 3 characters long')
-      .max(20, 'Brand must not be more than 10 characters long')
+      .max(20, 'Brand must not be more than 20 characters long')
       .trim()
       .optional(),
     categories: z.array(objectIdSchema),
