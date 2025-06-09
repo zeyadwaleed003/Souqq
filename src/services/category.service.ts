@@ -1,11 +1,11 @@
 import { Category } from '../models/category.model';
+import { Product } from '../models/products.model';
 import { TQueryString, TResponse } from '../types/api.types';
 import {
   CreateCategoryBody,
   UpdateCategoryBody,
 } from '../types/category.types';
 import APIError from '../utils/APIError';
-import APIFeatures from '../utils/APIFeatures';
 import BaseService from './base.service';
 
 class CategoryService {
@@ -54,53 +54,25 @@ class CategoryService {
   }
 
   async getTopLevelCategories(queryString: TQueryString): Promise<TResponse> {
-    const features = new APIFeatures(
-      Category.find({ parent: null }),
-      queryString
-    )
-      .filter()
-      .sort()
-      .limitFields()
-      .paginate();
-
-    const categories = await features.query;
-
-    return {
-      statusCode: 200,
-      status: 'success',
-      size: categories.length,
-      data: {
-        categories,
-      },
-    };
+    const result = BaseService.getAll(Category, queryString, { parent: null });
+    return result;
   }
 
   async getSubcategories(
     id: string,
     queryString: TQueryString
   ): Promise<TResponse> {
-    const features = new APIFeatures(Category.find({ parent: id }), queryString)
-      .filter()
-      .sort()
-      .limitFields()
-      .paginate();
+    const result = BaseService.getAll(Category, queryString, { parent: id });
+    return result;
+  }
 
-    const categories = await features.query;
-
-    return {
-      statusCode: 200,
-      status: 'success',
-      size: categories.length,
-      data: {
-        categories,
-      },
-    };
+  async getCategoryProducts(
+    id: string,
+    queryString: TQueryString
+  ): Promise<TResponse> {
+    const result = BaseService.getAll(Product, queryString, { categories: id });
+    return result;
   }
 }
-
-/*
-  TODO:
-    - Get all the child categories of a category
-*/
 
 export default new CategoryService();

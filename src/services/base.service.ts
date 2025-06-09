@@ -7,9 +7,10 @@ import APIFeatures from '../utils/APIFeatures';
 class BaseService {
   async getAll<T>(
     Model: Model<T>,
-    queryString: TQueryString
+    queryString: TQueryString,
+    filter = {}
   ): Promise<TResponse> {
-    const features = new APIFeatures(Model.find(), queryString)
+    const features = new APIFeatures(Model.find(filter), queryString)
       .filter()
       .sort()
       .limitFields()
