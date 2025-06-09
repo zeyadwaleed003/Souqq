@@ -29,7 +29,7 @@ const userSchema = new Schema<UserDocument>(
     passwordChangedAt: Date,
     role: {
       type: String,
-      enum: ['admin', 'user'],
+      enum: ['admin', 'user', 'seller'],
       default: 'user',
     },
     passwordResetToken: String,

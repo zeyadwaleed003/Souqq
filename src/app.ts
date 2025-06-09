@@ -12,6 +12,7 @@ import APIError from './utils/APIError';
 import globalErrorHandler from './middlewares/globalErrorHandler';
 import { userRouter } from './routes/user.routes';
 import { authRouter } from './routes/auth.routes';
+import { productRouter } from './routes/product.routes';
 import { categoryRouter } from './routes/category.routes';
 
 const app = express();
@@ -37,6 +38,7 @@ app.use(compression());
 // Routes
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/users', userRouter);
+app.use('/api/v1/products', productRouter);
 app.use('/api/v1/categories', categoryRouter);
 
 // Handle Unhandled Routes

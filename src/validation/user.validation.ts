@@ -15,7 +15,7 @@ const userFieldsSchema = z
       .min(8, 'Password must be at least 8 characters long')
       .trim(),
     passwordChangedAt: z.date().optional(),
-    role: z.enum(['admin', 'user']).default('user'),
+    role: z.enum(['admin', 'user', 'seller']).default('user'),
     passwordResetToken: z.string().optional(),
     passwordResetExpiresAt: z.date().optional(),
     emailVerificationToken: z.string().optional(),
