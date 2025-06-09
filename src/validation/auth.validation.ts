@@ -10,6 +10,7 @@ export const signupSchema = z.object({
         .trim(),
       email: z.string().email({ message: 'Invalid email address' }).trim(),
       photo: z.string().optional(),
+      role: z.enum(['user', 'seller']).default('user'),
       password: z
         .string()
         .min(8, 'Password must be at least 8 characters long')
