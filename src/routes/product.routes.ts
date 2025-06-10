@@ -9,9 +9,8 @@ import {
   getProductById,
   deleteProduct,
   updateProduct,
-  restrictProductUpdateFields,
-  restrictProductCreationFields,
-  isProductSeller,
+  restrictSellerProductPermissions,
+  checkProductSellerP,
 } from '../controllers/product.controller';
 import {
   createProductSchema,
@@ -29,7 +28,7 @@ router
     isAuthenticated,
     isAuthorized('admin', 'seller'),
     validate(createProductSchema),
-    restrictProductCreationFields,
+    restrictSellerProductPermissions,
     defineProductSeller,
     createProduct
   );
@@ -42,8 +41,8 @@ router
     isAuthenticated,
     isAuthorized('admin', 'seller'),
     validate(updateProductSchema),
-    isProductSeller,
-    restrictProductUpdateFields,
+    checkProductSellerP,
+    restrictSellerProductPermissions,
     updateProduct
   )
   .delete(isAuthenticated, isAuthorized('admin'), deleteProduct);

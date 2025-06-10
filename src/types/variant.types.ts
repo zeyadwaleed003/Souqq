@@ -1,4 +1,6 @@
 import { Document, Model, Types } from 'mongoose';
+import { z } from 'zod';
+import { createVariantSchema } from '../validation/variant.validation';
 
 export type VariantDocument = Document & {
   _id: Types.ObjectId;
@@ -14,3 +16,5 @@ export type VariantDocument = Document & {
 };
 
 export type VariantModel = Model<VariantDocument>;
+
+export type CreateVariantBody = z.output<typeof createVariantSchema>['body'];

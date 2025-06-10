@@ -28,7 +28,7 @@ const productFieldsSchema = z
         return true;
       },
       {
-        message: 'No seller found with this seller id',
+        message: 'The provided seller id does not match any existing seller',
       }
     ),
   })

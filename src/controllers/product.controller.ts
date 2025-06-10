@@ -14,29 +14,19 @@ export const defineProductSeller: RequestHandler<{}> = (req, res, next) => {
   next();
 };
 
-export const restrictProductCreationFields: RequestHandler<
+export const restrictSellerProductPermissions: RequestHandler<
   {},
   {},
-  CreateProductBody
+  CreateProductBody | UpdateProductBody
 > = async (req, res, next) => {
   if (!req.user) throw new APIError('Authentication failed', 401);
 
-  ProductService.restrictProductCreationFields(req.user.role, req.body);
+  if (req.user.role === 'seller' && req.body.sellerId)
+    throw new APIError('Seller Not allowed to set product sellerId', 403);
   next();
 };
 
-export const restrictProductUpdateFields: RequestHandler<
-  {},
-  {},
-  UpdateProductBody
-> = (req, res, next) => {
-  if (!req.user) throw new APIError('Authentication failed', 401);
-
-  ProductService.restrictProductUpdateFields(req.user.role, req.body);
-  next();
-};
-
-export const isProductSeller: RequestHandler<IdParams> = async (
+export const checkProductSellerP: RequestHandler<IdParams> = async (
   req,
   res,
   next

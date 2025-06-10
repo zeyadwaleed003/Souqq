@@ -43,7 +43,9 @@ const variantSchema = new Schema<VariantDocument>(
   }
 );
 
-export const Product = model<VariantDocument, VariantModel>(
+variantSchema.index({ color: 1, size: 1 });
+
+export const Variant = model<VariantDocument, VariantModel>(
   'Variant',
   variantSchema
 );
