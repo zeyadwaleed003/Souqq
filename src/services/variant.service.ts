@@ -46,6 +46,13 @@ class VariantService {
       },
     };
   }
+
+  async getActiveVariants(queryString: TQueryString): Promise<TResponse> {
+    const result = await BaseService.getAll(Variant, queryString, {
+      status: 'active',
+    });
+    return result;
+  }
 }
 
 export default new VariantService();

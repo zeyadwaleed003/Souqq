@@ -45,6 +45,7 @@ const variantSchema = new Schema<VariantDocument>(
 );
 
 variantSchema.index({ status: 1 });
+variantSchema.index({ price: 1 });
 
 variantSchema.pre(
   /^find/,

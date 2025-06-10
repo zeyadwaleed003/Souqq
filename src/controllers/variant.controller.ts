@@ -79,3 +79,8 @@ export const deactivateVariant: RequestHandler<IdParams> = async (
   const result = await VariantService.deactivateVariant(req.params.id);
   sendResponse(result, res);
 };
+
+export const getActiveVariants: RequestHandler<{}> = async (req, res, next) => {
+  const result = await VariantService.getActiveVariants(req.query);
+  sendResponse(result, res);
+};
