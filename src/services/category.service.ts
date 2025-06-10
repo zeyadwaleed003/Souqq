@@ -45,6 +45,11 @@ class CategoryService {
     return result;
   }
 
+  async checkIfCategories(categoryIds: string[]): Promise<boolean> {
+    const exists = await Category.exists({ _id: { $in: categoryIds } });
+    return Boolean(exists);
+  }
+
   async deleteCategory(id: string): Promise<TResponse> {
     const subCategoriesIds = await this.getAllSubcategoryIds(id);
 

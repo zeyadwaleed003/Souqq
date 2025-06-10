@@ -28,6 +28,10 @@ class VariantService {
     const result = await BaseService.updateOne(Variant, id, data);
     return result;
   }
+
+  async deleteVariantsWithNoProduct(productId: string) {
+    await Variant.deleteMany({ product: productId });
+  }
 }
 
 export default new VariantService();

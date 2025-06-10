@@ -75,6 +75,11 @@ class UserService {
       message: 'User has been deleted successfully.',
     };
   }
+
+  async checkIfSeller(id: string): Promise<boolean> {
+    const user = await User.findById(id);
+    return Boolean(user && user.role === 'seller');
+  }
 }
 
 export default new UserService();

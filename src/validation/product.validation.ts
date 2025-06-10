@@ -1,7 +1,8 @@
 import { z } from 'zod';
 
 import { objectIdSchema } from './base.validation';
-import { User } from '../models/user.model';
+import UserService from '../services/user.service';
+import CategoryService from '../services/category.service';
 
 const productFieldsSchema = z
   .object({
@@ -16,14 +17,22 @@ const productFieldsSchema = z
       .max(20, 'Brand must not be more than 20 characters long')
       .trim()
       .optional(),
-    categories: z.array(objectIdSchema),
+    categories: z
+      .array(objectIdSchema)
+      .min(1)
+      .refine(
+        async (categoryIds) => {
+          return await CategoryService.checkIfCategories(categoryIds);
+        },
+        {
+          message:
+            'A provided category id does not match any existing category',
+        }
+      ),
     description: z.string().trim().optional(),
     sellerId: objectIdSchema.optional().refine(
       async (sellerId) => {
-        if (sellerId) {
-          const exists = await User.exists({ _id: sellerId });
-          return exists;
-        }
+        if (sellerId) return await UserService.checkIfSeller(sellerId);
 
         return true;
       },

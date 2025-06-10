@@ -4,6 +4,7 @@ import { CreateProductBody, UpdateProductBody } from '../types/product.types';
 import { UserDocument } from '../types/user.types';
 import APIError from '../utils/APIError';
 import BaseService from './base.service';
+import VariantService from './variant.service';
 
 class ProductService {
   async isProductSeller(id: string, user: UserDocument) {
@@ -35,6 +36,8 @@ class ProductService {
   }
 
   async deleteProduct(id: string): Promise<TResponse> {
+    await VariantService.deleteVariantsWithNoProduct(id);
+
     const result = await BaseService.deleteOne(Product, id);
     return result;
   }

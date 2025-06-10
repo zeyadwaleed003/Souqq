@@ -1,4 +1,4 @@
-import { model, Schema, Types } from 'mongoose';
+import { model, Query, Schema, Types } from 'mongoose';
 import { ProductDocument, ProductModel } from '../types/product.types';
 
 const productSchema = new Schema<ProductDocument>(
@@ -32,6 +32,18 @@ const productSchema = new Schema<ProductDocument>(
     timestamps: true,
     toJSON: { virtuals: true },
     toObject: { virtuals: true },
+  }
+);
+
+productSchema.pre(
+  /^find/,
+  function (this: Query<ProductDocument[], ProductDocument>, next) {
+    this.populate({
+      path: 'categories',
+      select: 'name',
+    });
+
+    next();
   }
 );
 

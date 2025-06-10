@@ -27,8 +27,8 @@ router
   .post(
     isAuthenticated,
     isAuthorized('admin', 'seller'),
-    validate(createProductSchema),
     restrictSellerProductPermissions,
+    validate(createProductSchema),
     defineProductSeller,
     createProduct
   );
@@ -40,9 +40,9 @@ router
   .patch(
     isAuthenticated,
     isAuthorized('admin', 'seller'),
+    restrictSellerProductPermissions,
     validate(updateProductSchema),
     checkProductSellerP,
-    restrictSellerProductPermissions,
     updateProduct
   )
   .delete(isAuthenticated, isAuthorized('admin'), deleteProduct);
