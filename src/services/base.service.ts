@@ -101,6 +101,11 @@ class BaseService {
 
     return result;
   }
+
+  async doesDocumentExist<T>(Model: Model<T>, docId: string): Promise<boolean> {
+    const exist = await Model.exists({ _id: docId });
+    return Boolean(exist);
+  }
 }
 
 export default new BaseService();

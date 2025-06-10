@@ -1,18 +1,19 @@
 import { z } from 'zod';
 
 import { objectIdSchema } from './base.validation';
+import BaseService from '../services/base.service';
 import { Category } from '../models/category.model';
 
 const parentIdSchema = objectIdSchema.optional().refine(
   async (parent) => {
     if (!parent) return true;
 
-    const exists = await Category.exists({ _id: parent });
-    return Boolean(exists);
+    const exist = await BaseService.doesDocumentExist(Category, parent);
+    return exist;
   },
   {
-    message: 'No category found with this parent Id',
-    path: ['pParent Category Id'],
+    message: 'No category found with this parent id',
+    path: ['Parent Category Id'],
   }
 );
 

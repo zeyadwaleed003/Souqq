@@ -43,6 +43,17 @@ class ProductService {
     const result = await BaseService.updateOne(Product, id, data);
     return result;
   }
+
+  async removeDeletedCategoriesFromProduct(categoryIds: string[]) {
+    await Product.updateMany(
+      { categories: { $in: categoryIds } },
+      { $pull: { categories: { $in: categoryIds } } }
+    );
+  }
+
+  async deleteProductsWithNoCategories() {
+    await Product.deleteMany({ categories: { $size: 0 } });
+  }
 }
 
 export default new ProductService();

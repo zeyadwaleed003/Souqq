@@ -44,7 +44,7 @@ const variantSchema = new Schema<VariantDocument>(
   }
 );
 
-variantSchema.pre('save', function (this) {
+variantSchema.pre('save', function (next) {
   if (!this.color && !this.size)
     throw new APIError('A variant must have a variant theme', 400);
 
@@ -53,6 +53,8 @@ variantSchema.pre('save', function (this) {
       'The old price must be greater than the current sale price',
       400
     );
+
+  next();
 });
 
 export const Variant = model<VariantDocument, VariantModel>(
