@@ -5,11 +5,16 @@ import isAuthorized from '../middlewares/isAuthorized';
 import {
   checkProductSellerV,
   createVariant,
+  deleteVariant,
   getAllVariants,
+  getVariantById,
   restrictSellerVariantPermissions,
+  updateVariant,
 } from '../controllers/variant.controller';
 import { createVariantSchema } from '../validation/variant.validation';
+import { updateVariantSchema } from '../validation/variant.validation';
 import validate from '../middlewares/validate';
+import { idSchema } from '../validation/base.validation';
 
 const router = express.Router();
 
@@ -19,10 +24,24 @@ router
   .post(
     isAuthenticated,
     isAuthorized('admin', 'seller'),
+    validate(createVariantSchema),
     checkProductSellerV,
     restrictSellerVariantPermissions,
-    validate(createVariantSchema),
     createVariant
   );
+
+router
+  .route('/:id')
+  .all(validate(idSchema))
+  .get(getVariantById)
+  .patch(
+    isAuthenticated,
+    isAuthorized('admin', 'seller'),
+    validate(updateVariantSchema),
+    checkProductSellerV,
+    restrictSellerVariantPermissions,
+    updateVariant
+  )
+  .delete(isAuthenticated, isAuthorized('admin'), deleteVariant);
 
 export const variantRouter = router;

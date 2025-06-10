@@ -15,17 +15,21 @@ const variantFieldsSchema = z
       .optional()
       .default('draft'),
   })
-  .strict()
-  .refine((data) => data.color || data.size, {
-    message: 'A variant must have a variant theme',
-  })
-  .refine(
-    (data) => !data.oldPrice || (data.oldPrice && data.oldPrice > data.price),
-    {
-      message: 'The old price must be greater than the current sale price',
-    }
-  );
+  .strict();
 
 export const createVariantSchema = z.object({
-  body: variantFieldsSchema,
+  body: variantFieldsSchema
+    .refine((data) => data.color || data.size, {
+      message: 'A variant must have a variant theme',
+    })
+    .refine(
+      (data) => !data.oldPrice || (data.oldPrice && data.oldPrice > data.price),
+      {
+        message: 'The old price must be greater than the current sale price',
+      }
+    ),
+});
+
+export const updateVariantSchema = z.object({
+  body: variantFieldsSchema.partial(),
 });

@@ -18,3 +18,4 @@ export type VariantDocument = Document & {
 export type VariantModel = Model<VariantDocument>;
 
 export type CreateVariantBody = z.output<typeof createVariantSchema>['body'];
+export type UpdateVariantBody = z.output<typeof createVariantSchema>['body'];

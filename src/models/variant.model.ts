@@ -1,6 +1,7 @@
 import { model, Schema } from 'mongoose';
 
 import { VariantDocument, VariantModel } from '../types/variant.types';
+import APIError from '../utils/APIError';
 
 const variantSchema = new Schema<VariantDocument>(
   {
@@ -43,7 +44,16 @@ const variantSchema = new Schema<VariantDocument>(
   }
 );
 
-variantSchema.index({ color: 1, size: 1 });
+variantSchema.pre('save', function (this) {
+  if (!this.color && !this.size)
+    throw new APIError('A variant must have a variant theme', 400);
+
+  if (this.oldPrice && this.oldPrice <= this.price)
+    throw new APIError(
+      'The old price must be greater than the current sale price',
+      400
+    );
+});
 
 export const Variant = model<VariantDocument, VariantModel>(
   'Variant',
