@@ -47,6 +47,8 @@ const userSchema = new Schema<UserDocument>(
   },
   {
     timestamps: true,
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true },
   }
 );
 

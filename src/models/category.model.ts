@@ -25,6 +25,8 @@ const categorySchema = new Schema<CategoryDocument>(
   },
   {
     timestamps: true,
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true },
   }
 );
 

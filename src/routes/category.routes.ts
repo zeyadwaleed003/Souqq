@@ -11,6 +11,7 @@ import {
   getAllCategories,
   getSubcategories,
   getCategoryBySlug,
+  getCategoryProducts,
   getTopLevelCategories,
 } from '../controllers/category.controller';
 import {
@@ -47,5 +48,6 @@ router
   .delete(isAuthenticated, isAuthorized('admin'), deleteCategory);
 
 router.get('/:id/subcategories', validate(idSchema), getSubcategories);
+router.get('/:id/products', validate(idSchema), getCategoryProducts);
 
 export const categoryRouter = router;

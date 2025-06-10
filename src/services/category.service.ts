@@ -1,14 +1,24 @@
 import { Category } from '../models/category.model';
+import { Product } from '../models/product.model';
 import { TQueryString, TResponse } from '../types/api.types';
 import {
   CreateCategoryBody,
   UpdateCategoryBody,
 } from '../types/category.types';
 import APIError from '../utils/APIError';
-import APIFeatures from '../utils/APIFeatures';
 import BaseService from './base.service';
+import ProductService from './product.service';
 
 class CategoryService {
+  private async getAllSubcategoryIds(categoryId: string): Promise<string[]> {
+    const subCategories = await Category.find({ parent: categoryId });
+    let ids = subCategories.map((cat) => cat._id.toString());
+    for (const sub of subCategories)
+      ids = ids.concat(await this.getAllSubcategoryIds(sub._id.toString()));
+
+    return ids;
+  }
+
   async createCategory(data: CreateCategoryBody): Promise<TResponse> {
     const exists = await Category.exists({ name: data.name });
     if (exists) throw new APIError('This category already exists', 409);
@@ -35,9 +45,25 @@ class CategoryService {
     return result;
   }
 
+  async checkIfCategories(categoryIds: string[]): Promise<boolean> {
+    const exists = await Category.exists({ _id: { $in: categoryIds } });
+    return Boolean(exists);
+  }
+
   async deleteCategory(id: string): Promise<TResponse> {
-    const result = await BaseService.deleteOne(Category, id);
-    return result;
+    const subCategoriesIds = await this.getAllSubcategoryIds(id);
+
+    const allCategoryIds = [id, ...subCategoriesIds];
+    await Category.deleteMany({ _id: { $in: allCategoryIds } });
+
+    await ProductService.removeDeletedCategoriesFromProduct(allCategoryIds);
+    await ProductService.deleteProductsWithNoCategories();
+
+    return {
+      status: 'success',
+      statusCode: 204,
+      message: `The category and it's subcategories have been deleted successfully`,
+    };
   }
 
   async getCategoryBySlug(slug: string): Promise<TResponse> {
@@ -54,53 +80,25 @@ class CategoryService {
   }
 
   async getTopLevelCategories(queryString: TQueryString): Promise<TResponse> {
-    const features = new APIFeatures(
-      Category.find({ parent: null }),
-      queryString
-    )
-      .filter()
-      .sort()
-      .limitFields()
-      .paginate();
-
-    const categories = await features.query;
-
-    return {
-      statusCode: 200,
-      status: 'success',
-      size: categories.length,
-      data: {
-        categories,
-      },
-    };
+    const result = BaseService.getAll(Category, queryString, { parent: null });
+    return result;
   }
 
   async getSubcategories(
     id: string,
     queryString: TQueryString
   ): Promise<TResponse> {
-    const features = new APIFeatures(Category.find({ parent: id }), queryString)
-      .filter()
-      .sort()
-      .limitFields()
-      .paginate();
+    const result = BaseService.getAll(Category, queryString, { parent: id });
+    return result;
+  }
 
-    const categories = await features.query;
-
-    return {
-      statusCode: 200,
-      status: 'success',
-      size: categories.length,
-      data: {
-        categories,
-      },
-    };
+  async getCategoryProducts(
+    id: string,
+    queryString: TQueryString
+  ): Promise<TResponse> {
+    const result = BaseService.getAll(Product, queryString, { categories: id });
+    return result;
   }
 }
-
-/*
-  TODO:
-    - Get all the child categories of a category
-*/
 
 export default new CategoryService();

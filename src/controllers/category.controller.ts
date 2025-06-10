@@ -82,3 +82,15 @@ export const getSubcategories: RequestHandler<IdParams> = async (
   );
   sendResponse(result, res);
 };
+
+export const getCategoryProducts: RequestHandler<IdParams> = async (
+  req,
+  res,
+  next
+) => {
+  const result = await CategoryService.getCategoryProducts(
+    req.params.id,
+    req.query
+  );
+  sendResponse(result, res);
+};

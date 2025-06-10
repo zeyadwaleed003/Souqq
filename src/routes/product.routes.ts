@@ -9,14 +9,13 @@ import {
   getProductById,
   deleteProduct,
   updateProduct,
-  restrictProductUpdateFields,
-  restrictProductCreationFields,
-  isProductSeller,
+  restrictSellerProductPermissions,
+  checkProductSellerP,
 } from '../controllers/product.controller';
 import {
   createProductSchema,
   updateProductSchema,
-} from '../validation/products.validation';
+} from '../validation/product.validation';
 import validate from '../middlewares/validate';
 import { idSchema } from '../validation/base.validation';
 
@@ -28,8 +27,8 @@ router
   .post(
     isAuthenticated,
     isAuthorized('admin', 'seller'),
+    restrictSellerProductPermissions,
     validate(createProductSchema),
-    restrictProductCreationFields,
     defineProductSeller,
     createProduct
   );
@@ -41,9 +40,9 @@ router
   .patch(
     isAuthenticated,
     isAuthorized('admin', 'seller'),
+    restrictSellerProductPermissions,
     validate(updateProductSchema),
-    isProductSeller,
-    restrictProductUpdateFields,
+    checkProductSellerP,
     updateProduct
   )
   .delete(isAuthenticated, isAuthorized('admin'), deleteProduct);
