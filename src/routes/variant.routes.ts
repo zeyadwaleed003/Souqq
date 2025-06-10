@@ -12,6 +12,7 @@ import {
   getActiveVariants,
   checkProductSellerV,
   restrictSellerVariantPermissions,
+  getCheapestVariantPerProduct,
 } from '../controllers/variant.controller';
 import { createVariantSchema } from '../validation/variant.validation';
 import { updateVariantSchema } from '../validation/variant.validation';
@@ -21,6 +22,7 @@ import { idSchema } from '../validation/base.validation';
 const router = express.Router();
 
 router.get('/active', getActiveVariants);
+router.get('/cheapest', getCheapestVariantPerProduct);
 
 router.patch(
   '/:id/deactivate',

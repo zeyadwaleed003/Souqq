@@ -84,3 +84,12 @@ export const getActiveVariants: RequestHandler<{}> = async (req, res, next) => {
   const result = await VariantService.getActiveVariants(req.query);
   sendResponse(result, res);
 };
+
+export const getCheapestVariantPerProduct: RequestHandler<{}> = async (
+  req,
+  res,
+  next
+) => {
+  const result = await VariantService.getCheapestVariantPerProduct();
+  sendResponse(result, res);
+};
