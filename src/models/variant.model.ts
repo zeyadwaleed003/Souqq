@@ -1,4 +1,4 @@
-import { model, Schema } from 'mongoose';
+import { model, Query, Schema } from 'mongoose';
 
 import { VariantDocument, VariantModel } from '../types/variant.types';
 import APIError from '../utils/APIError';
@@ -29,7 +29,7 @@ const variantSchema = new Schema<VariantDocument>(
     status: {
       type: String,
       enum: ['active', 'inactive', 'draft', 'out-of-stock'],
-      default: 'draft',
+      default: 'active',
     },
     product: {
       type: Schema.Types.ObjectId,
@@ -44,7 +44,21 @@ const variantSchema = new Schema<VariantDocument>(
   }
 );
 
-variantSchema.pre('save', function (next) {
+variantSchema.index({ status: 1 });
+
+variantSchema.pre(
+  /^find/,
+  function (this: Query<VariantDocument[], VariantDocument>, next) {
+    this.populate({
+      path: 'product',
+      select: '-__v',
+    });
+
+    next();
+  }
+);
+
+variantSchema.pre('save', async function (next) {
   if (!this.color && !this.size)
     throw new APIError('A variant must have a variant theme', 400);
 
@@ -52,6 +66,20 @@ variantSchema.pre('save', function (next) {
     throw new APIError(
       'The old price must be greater than the current sale price',
       400
+    );
+
+  const Model = this.constructor as VariantModel;
+  const exists = await Model.findOne({
+    product: this.product,
+    color: this.color,
+    size: this.size,
+    _id: { $ne: this._id },
+  });
+
+  if (exists)
+    throw new APIError(
+      'A variant with this product, color, and size already exists',
+      409
     );
 
   next();

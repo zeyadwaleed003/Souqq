@@ -32,6 +32,20 @@ class VariantService {
   async deleteVariantsWithNoProduct(productId: string) {
     await Variant.deleteMany({ product: productId });
   }
+
+  async deactivateVariant(id: string): Promise<TResponse> {
+    const variant = await BaseService.updateOne(Variant, id, {
+      status: 'inactive',
+    });
+
+    return {
+      status: 'success',
+      statusCode: 200,
+      data: {
+        variant,
+      },
+    };
+  }
 }
 
 export default new VariantService();

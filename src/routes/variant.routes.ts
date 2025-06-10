@@ -10,6 +10,7 @@ import {
   getVariantById,
   restrictSellerVariantPermissions,
   updateVariant,
+  deactivateVariant,
 } from '../controllers/variant.controller';
 import { createVariantSchema } from '../validation/variant.validation';
 import { updateVariantSchema } from '../validation/variant.validation';
@@ -17,6 +18,14 @@ import validate from '../middlewares/validate';
 import { idSchema } from '../validation/base.validation';
 
 const router = express.Router();
+
+router.patch(
+  '/:id/deactivate',
+  validate(idSchema),
+  isAuthenticated,
+  isAuthorized('admin'),
+  deactivateVariant
+);
 
 router
   .route('/')

@@ -1,9 +1,19 @@
 import { z } from 'zod';
+
 import { objectIdSchema } from './base.validation';
+import BaseService from '../services/base.service';
+import { Product } from '../models/product.model';
 
 const variantFieldsSchema = z
   .object({
-    product: objectIdSchema,
+    product: objectIdSchema.refine(
+      async (productId) => {
+        return await BaseService.doesDocumentExist(Product, productId);
+      },
+      {
+        message: 'The provided product id does not match any existing product',
+      }
+    ),
     price: z.number().positive(),
     oldPrice: z.number().positive().optional(),
     stock: z.number().positive(),
@@ -13,7 +23,7 @@ const variantFieldsSchema = z
     status: z
       .enum(['active', 'inactive', 'draft', 'out-of-stock'])
       .optional()
-      .default('draft'),
+      .default('active'),
   })
   .strict();
 

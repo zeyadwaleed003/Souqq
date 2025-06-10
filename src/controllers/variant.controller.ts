@@ -70,3 +70,12 @@ export const updateVariant: RequestHandler<
   const result = await VariantService.updateVariant(req.params.id, req.body);
   sendResponse(result, res);
 };
+
+export const deactivateVariant: RequestHandler<IdParams> = async (
+  req,
+  res,
+  next
+) => {
+  const result = await VariantService.deactivateVariant(req.params.id);
+  sendResponse(result, res);
+};
