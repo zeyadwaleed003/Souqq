@@ -3,14 +3,16 @@ import express from 'express';
 import isAuthenticated from '../middlewares/isAuthenticated';
 import isAuthorized from '../middlewares/isAuthorized';
 import {
-  checkProductSellerV,
+  updateVariant,
   createVariant,
   deleteVariant,
   getAllVariants,
   getVariantById,
-  restrictSellerVariantPermissions,
-  updateVariant,
   deactivateVariant,
+  getActiveVariants,
+  checkProductSellerV,
+  restrictSellerVariantPermissions,
+  getCheapestVariantPerProduct,
 } from '../controllers/variant.controller';
 import { createVariantSchema } from '../validation/variant.validation';
 import { updateVariantSchema } from '../validation/variant.validation';
@@ -18,6 +20,9 @@ import validate from '../middlewares/validate';
 import { idSchema } from '../validation/base.validation';
 
 const router = express.Router();
+
+router.get('/active', getActiveVariants);
+router.get('/cheapest', getCheapestVariantPerProduct);
 
 router.patch(
   '/:id/deactivate',

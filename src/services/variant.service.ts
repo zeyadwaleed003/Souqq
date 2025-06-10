@@ -46,6 +46,36 @@ class VariantService {
       },
     };
   }
+
+  async getActiveVariants(queryString: TQueryString): Promise<TResponse> {
+    const result = await BaseService.getAll(Variant, queryString, {
+      status: 'active',
+    });
+    return result;
+  }
+
+  async getCheapestVariantPerProduct(): Promise<TResponse> {
+    const variants = await Variant.aggregate([
+      {
+        $sort: { price: 1 },
+      },
+      {
+        $group: {
+          _id: '$product',
+          variant: { $first: '$$ROOT' },
+        },
+      },
+      {
+        $replaceRoot: { newRoot: '$variant' },
+      },
+    ]);
+
+    return {
+      status: 'success',
+      statusCode: 200,
+      data: variants,
+    };
+  }
 }
 
 export default new VariantService();
