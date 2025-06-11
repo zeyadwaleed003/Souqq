@@ -15,10 +15,18 @@ import {
   deleteReview,
   updateReview,
   getCurrentUserReviews,
+  markAsHelpful,
+  unmarkAsHelpful,
 } from '../controllers/review.controller';
 import { idSchema } from '../validation/base.validation';
 
 const router = express.Router({ mergeParams: true });
+
+router
+  .route('/:id/helpful')
+  .all(isAuthenticated, isAuthorized('admin', 'user'))
+  .patch(markAsHelpful)
+  .delete(unmarkAsHelpful);
 
 router.get(
   '/me',

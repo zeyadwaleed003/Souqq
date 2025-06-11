@@ -11,7 +11,8 @@ export type ReviewDocument = Document & {
   createdAt: Date;
   updatedAt: Date;
   isVerifiedPurchase?: boolean;
-  helpfulCount?: number;
+  helpfulCount: number;
+  helpfulBy: [Types.ObjectId];
 };
 
 export type ReviewModel = Model<ReviewDocument> & {

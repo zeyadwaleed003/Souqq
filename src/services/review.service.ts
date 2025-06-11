@@ -1,11 +1,40 @@
+import { Types } from 'mongoose';
+
 import { Review } from '../models/review.model';
 import { TQueryString, TResponse } from '../types/api.types';
-import { CreateReviewBody, UpdateReviewBody } from '../types/review.types';
+import {
+  CreateReviewBody,
+  ReviewDocument,
+  UpdateReviewBody,
+} from '../types/review.types';
 import { UserDocument } from '../types/user.types';
 import APIError from '../utils/APIError';
 import BaseService from './base.service';
 
 class ReviewService {
+  private validateHelpfulAction(
+    review: ReviewDocument,
+    userId: Types.ObjectId,
+    marking: boolean
+  ) {
+    if (marking && review.helpfulBy.includes(userId))
+      throw new APIError(
+        'You have already marked this review as helpful before',
+        400
+      );
+    else if (!marking && !review.helpfulBy.includes(userId))
+      throw new APIError(
+        'You have not marked this review as helpful before',
+        400
+      );
+
+    if (review.user._id.equals(userId))
+      throw new APIError(
+        `You can't mark/unmark your own review as helpful`,
+        403
+      );
+  }
+
   async createReview(data: CreateReviewBody): Promise<TResponse> {
     const result = await BaseService.createOne(Review, data);
     return result;
@@ -62,11 +91,21 @@ class ReviewService {
       );
 
     const review = await Review.findById(id);
-    if (review && user.role === 'user' && !user._id.equals(review.user._id))
+    if (!review) throw new APIError('No document found with that id', 404);
+
+    if (user.role === 'user' && !user._id.equals(review.user._id))
       throw new APIError('You are not allowed to update this review', 403);
 
-    const result = await BaseService.updateOne(Review, id, data);
-    return result;
+    review.set(data);
+    const newDoc = await review.save();
+
+    return {
+      status: 'success',
+      statusCode: 200,
+      data: {
+        data: newDoc,
+      },
+    };
   }
 
   async getCurrentUserReviews(
@@ -77,6 +116,49 @@ class ReviewService {
       user: userId,
     });
     return result;
+  }
+
+  async markAsHelpful(id: string, userId: Types.ObjectId): Promise<TResponse> {
+    const review = await Review.findById(id);
+    if (!review) throw new APIError('No document found with that id', 404);
+
+    this.validateHelpfulAction(review, userId, true);
+
+    review.helpfulCount = review.helpfulCount + 1;
+    review.helpfulBy.push(userId);
+    await review.save();
+
+    return {
+      status: 'success',
+      statusCode: 200,
+      data: {
+        review,
+      },
+    };
+  }
+
+  async unmarkAsHelpful(
+    id: string,
+    userId: Types.ObjectId
+  ): Promise<TResponse> {
+    const review = await Review.findById(id);
+    if (!review) throw new APIError('No document found with that id', 404);
+
+    this.validateHelpfulAction(review, userId, false);
+
+    const index = review.helpfulBy.indexOf(userId);
+
+    review.helpfulBy.splice(index, 1);
+    review.helpfulCount = review.helpfulCount - 1;
+    await review.save();
+
+    return {
+      status: 'success',
+      statusCode: 200,
+      data: {
+        review,
+      },
+    };
   }
 }
 
