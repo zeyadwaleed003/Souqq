@@ -17,9 +17,12 @@ import {
   updateProductSchema,
 } from '../validation/product.validation';
 import validate from '../middlewares/validate';
-import { idSchema } from '../validation/base.validation';
+import { idSchema, productIdSchema } from '../validation/base.validation';
+import { reviewRouter } from './review.routes';
 
 const router = express.Router();
+
+router.use('/:productId/reviews', validate(productIdSchema), reviewRouter);
 
 router
   .route('/')

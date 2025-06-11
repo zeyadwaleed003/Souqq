@@ -70,7 +70,7 @@ variantSchema.pre('save', async function (next) {
     );
 
   const Model = this.constructor as VariantModel;
-  const exists = await Model.findOne({
+  const exists = await Model.exists({
     product: this.product,
     color: this.color,
     size: this.size,

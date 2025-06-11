@@ -12,14 +12,17 @@ import {
 import isAuthenticated from '../middlewares/isAuthenticated';
 import isAuthorized from '../middlewares/isAuthorized';
 import validate from '../middlewares/validate';
-import { idSchema } from '../validation/base.validation';
+import { idSchema, userIdSchema } from '../validation/base.validation';
 import {
   createUserSchema,
   updateMeSchema,
   updateUserSchema,
 } from '../validation/user.validation';
+import { reviewRouter } from './review.routes';
 
 const router = express.Router();
+
+router.use('/:userId/reviews', validate(userIdSchema), reviewRouter);
 
 router.use(isAuthenticated);
 

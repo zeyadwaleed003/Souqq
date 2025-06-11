@@ -13,8 +13,8 @@ export type ProductDocument = Document & {
   brand?: string;
   categories: [Types.ObjectId];
   description: string;
-  //   averageRating: number;
-  //   reviewsNumber: number;
+  ratingsAverage: number;
+  ratingsQuantity: number;
 };
 
 export type ProductModel = Model<ProductDocument>;

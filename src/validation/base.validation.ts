@@ -10,6 +10,18 @@ export const idSchema = z.object({
   }),
 });
 
+export const userIdSchema = z.object({
+  params: z.object({
+    userId: objectIdSchema,
+  }),
+});
+
+export const productIdSchema = z.object({
+  params: z.object({
+    productId: objectIdSchema,
+  }),
+});
+
 export const slugSchema = z.object({
   params: z.object({
     slug: z.string(),

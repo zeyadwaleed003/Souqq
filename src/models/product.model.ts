@@ -25,8 +25,14 @@ const productSchema = new Schema<ProductDocument>(
       type: String,
       trim: true,
     },
-    //   averageRating: Number,
-    //   reviewsNumber: Number,
+    ratingsAverage: {
+      type: Number,
+      default: 0,
+    },
+    ratingsQuantity: {
+      type: Number,
+      default: 0,
+    },
   },
   {
     timestamps: true,
