@@ -40,7 +40,7 @@ reviewSchema.pre('save', async function (next) {
 
   if (exists)
     throw new APIError(
-      `You can't make a more than on review for the same product`,
+      `You can't make more than one review for the same product`,
       409
     );
 

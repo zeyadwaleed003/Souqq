@@ -70,7 +70,7 @@ class ReviewService {
 
     await Review.deleteOne({ _id: id });
 
-    Review.calcRatingStatistics(review.product);
+    await Review.calcRatingStatistics(review.product);
 
     return {
       status: 'success',

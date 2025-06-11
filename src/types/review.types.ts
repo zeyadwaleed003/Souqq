@@ -1,6 +1,10 @@
 import { Document, Model, Types } from 'mongoose';
 import { z } from 'zod';
-import { createReviewSchema } from '../validation/review.validation';
+
+import {
+  createReviewSchema,
+  updateReviewSchema,
+} from '../validation/review.validation';
 
 export type ReviewDocument = Document & {
   _id: Types.ObjectId;
@@ -12,7 +16,7 @@ export type ReviewDocument = Document & {
   updatedAt: Date;
   isVerifiedPurchase?: boolean;
   helpfulCount: number;
-  helpfulBy: [Types.ObjectId];
+  helpfulBy: Types.ObjectId[];
 };
 
 export type ReviewModel = Model<ReviewDocument> & {
@@ -20,4 +24,4 @@ export type ReviewModel = Model<ReviewDocument> & {
 };
 
 export type CreateReviewBody = z.output<typeof createReviewSchema>['body'];
-export type UpdateReviewBody = z.output<typeof createReviewSchema>['body'];
+export type UpdateReviewBody = z.output<typeof updateReviewSchema>['body'];
