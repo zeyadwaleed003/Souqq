@@ -2,15 +2,30 @@ import express from 'express';
 
 import isAuthenticated from '../middlewares/isAuthenticated';
 import validate from '../middlewares/validate';
-import { createReviewSchema } from '../validation/review.validation';
+import {
+  createReviewSchema,
+  updateReviewSchema,
+} from '../validation/review.validation';
 import isAuthorized from '../middlewares/isAuthorized';
 import {
   createReview,
   setProductUserIds,
   getReviews,
+  getReviewById,
+  deleteReview,
+  updateReview,
+  getCurrentUserReviews,
 } from '../controllers/review.controller';
+import { idSchema } from '../validation/base.validation';
 
 const router = express.Router({ mergeParams: true });
+
+router.get(
+  '/me',
+  isAuthenticated,
+  isAuthorized('admin', 'user'),
+  getCurrentUserReviews
+);
 
 router
   .route('/')
@@ -23,15 +38,16 @@ router
     createReview
   );
 
-// router
-//   .route('/:id')
-//   .all(validate(idSchema))
-//   .get(reviewController.getReviewById)
-//   .patch(
-//     isAuthenticated,
-//     validate(updateReviewSchema),
-//     reviewController.updateReview
-//   )
-//   .delete(isAuthenticated, reviewController.deleteReview);
+router
+  .route('/:id')
+  .all(validate(idSchema))
+  .get(getReviewById)
+  .patch(
+    isAuthenticated,
+    isAuthorized('admin', 'user'),
+    validate(updateReviewSchema),
+    updateReview
+  )
+  .delete(isAuthenticated, isAuthorized('admin', 'user'), deleteReview);
 
 export const reviewRouter = router;

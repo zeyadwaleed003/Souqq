@@ -1,7 +1,8 @@
-import { Schema, Query, model } from 'mongoose';
+import { Schema, Query, model, Types } from 'mongoose';
 
 import { ReviewDocument, ReviewModel } from '../types/review.types';
 import APIError from '../utils/APIError';
+import ProductService from '../services/product.service';
 
 const reviewSchema = new Schema<ReviewDocument>(
   {
@@ -38,7 +39,7 @@ reviewSchema.pre('save', async function (next) {
 
   if (exists)
     throw new APIError(
-      'A variant with this product, color, and size already exists',
+      `You can't make a more than on review for the same product`,
       409
     );
 
@@ -56,6 +57,36 @@ reviewSchema.pre(
     next();
   }
 );
+
+reviewSchema.statics.calcRatingStatistics = async function (productId: string) {
+  const stats: { _id: Types.ObjectId; num: number; avg: number }[] =
+    await this.aggregate([
+      {
+        $match: { product: productId },
+      },
+      {
+        $group: {
+          _id: '$product',
+          num: { $sum: 1 },
+          avg: { $avg: '$rating' },
+        },
+      },
+    ]);
+
+  let quantity = 0;
+  let average = 0;
+
+  if (stats.length) {
+    quantity = stats[0].num;
+    average = stats[0].avg;
+  }
+
+  await ProductService.updateRatingStats(productId, { quantity, average });
+};
+
+reviewSchema.post('save', async function () {
+  await (this.constructor as ReviewModel).calcRatingStatistics(this.product);
+});
 
 export const Review = model<ReviewDocument, ReviewModel>(
   'Review',

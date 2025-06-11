@@ -14,7 +14,9 @@ export type ReviewDocument = Document & {
   helpfulCount?: number;
 };
 
-export type ReviewModel = Model<ReviewDocument>;
+export type ReviewModel = Model<ReviewDocument> & {
+  calcRatingStatistics: (productId: Types.ObjectId) => Promise<void>;
+};
 
 export type CreateReviewBody = z.output<typeof createReviewSchema>['body'];
 export type UpdateReviewBody = z.output<typeof createReviewSchema>['body'];

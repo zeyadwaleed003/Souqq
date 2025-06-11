@@ -7,6 +7,16 @@ import BaseService from './base.service';
 import VariantService from './variant.service';
 
 class ProductService {
+  async updateRatingStats(
+    productId: string,
+    { quantity, average }: { quantity: number; average: number }
+  ) {
+    await Product.findByIdAndUpdate(productId, {
+      ratingsQuantity: quantity,
+      ratingsAverage: average,
+    });
+  }
+
   async isProductSeller(id: string, user: UserDocument) {
     if (user.role === 'seller') {
       const product = await Product.findById(id);
