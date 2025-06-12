@@ -10,6 +10,7 @@ import {
 import APIError from '../utils/APIError';
 import { cleanUserData } from '../utils/functions';
 import BaseService from './base.service';
+import CartService from './cart.service';
 
 class UserService {
   async getAllUsers(queryString: TQueryString): Promise<TResponse> {
@@ -23,8 +24,18 @@ class UserService {
   }
 
   async createUser(data: CreateUserBody): Promise<TResponse> {
-    const result = await BaseService.createOne(User, data);
-    return result;
+    const user = await User.create(data);
+    if (!user) throw new APIError('Failed to create the document', 404);
+
+    CartService.createCart(user._id);
+
+    return {
+      status: 'success',
+      statusCode: 201,
+      data: {
+        user,
+      },
+    };
   }
 
   async updateUser(id: string, data: UpdateUserBody): Promise<TResponse> {
@@ -33,8 +44,16 @@ class UserService {
   }
 
   async deleteUser(id: string): Promise<TResponse> {
-    const result = await BaseService.deleteOne(User, id);
-    return result;
+    const user = await User.findByIdAndDelete(id).lean();
+    if (!user) throw new APIError('No document found with that id', 404);
+
+    CartService.deleteCart(id);
+
+    return {
+      status: 'success',
+      statusCode: 204,
+      message: 'Document deleted successfully',
+    };
   }
 
   async getMe(userData: UserDocument): Promise<TResponse> {
