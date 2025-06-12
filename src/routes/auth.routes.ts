@@ -1,4 +1,4 @@
-import express, { NextFunction } from 'express';
+import { Router } from 'express';
 import passport from 'passport';
 
 import {
@@ -23,7 +23,7 @@ import {
 } from '../validation/auth.validation';
 import isAuthenticated from '../middlewares/isAuthenticated';
 
-const router = express.Router();
+const router = Router();
 
 router.post('/signup', validate(signupSchema), signup);
 router.post('/login', validate(loginSchema), login);

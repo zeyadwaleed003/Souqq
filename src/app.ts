@@ -16,6 +16,7 @@ import { productRouter } from './routes/product.routes';
 import { categoryRouter } from './routes/category.routes';
 import { variantRouter } from './routes/variant.routes';
 import { reviewRouter } from './routes/review.routes';
+import { cartRouter } from './routes/cart.routes';
 
 const app = express();
 
@@ -43,6 +44,7 @@ app.use('/api/v1/users', userRouter);
 app.use('/api/v1/products', productRouter);
 app.use('/api/v1/reviews', reviewRouter);
 app.use('/api/v1/variants', variantRouter);
+app.use('/api/v1/carts', cartRouter);
 app.use('/api/v1/categories', categoryRouter);
 
 // Handle Unhandled Routes

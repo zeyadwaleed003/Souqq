@@ -1,4 +1,4 @@
-import express from 'express';
+import { Router } from 'express';
 
 import validate from '../middlewares/validate';
 import isAuthorized from '../middlewares/isAuthorized';
@@ -20,7 +20,7 @@ import {
 } from '../validation/category.validation';
 import { idSchema, querySchema } from '../validation/base.validation';
 
-const router = express.Router();
+const router = Router();
 
 router.get('/top-level', validate(querySchema), getTopLevelCategories);
 router.get('/slug/:slug', getCategoryBySlug);

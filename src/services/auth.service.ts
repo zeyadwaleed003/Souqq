@@ -25,6 +25,7 @@ import { TResponse } from '../types/api.types';
 import logger from '../config/logger';
 import { UserDocument } from '../types/user.types';
 import { cleanUserData } from '../utils/functions';
+import CartService from './cart.service';
 
 class AuthService {
   private generateJWT(user: UserDocument) {
@@ -69,6 +70,8 @@ class AuthService {
         500
       );
     }
+
+    CartService.createCart(user._id);
 
     logger.info(
       'A new user has been created successfully. User Id: ' + user.id
