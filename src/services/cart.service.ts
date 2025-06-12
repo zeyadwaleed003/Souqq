@@ -21,6 +21,17 @@ class CartService {
   async deleteCart(userId: string) {
     await Cart.findOneAndDelete({ user: userId });
   }
+
+  async getCurrentUserCart(userId: Types.ObjectId): Promise<TResponse> {
+    const cart = await Cart.findOne({ user: userId }).lean();
+    return {
+      statusCode: 200,
+      status: 'success',
+      data: {
+        cart,
+      },
+    };
+  }
 }
 
 export default new CartService();
