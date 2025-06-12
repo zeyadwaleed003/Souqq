@@ -61,7 +61,7 @@ class ReviewService {
   }
 
   async deleteReview(id: string, user: UserDocument): Promise<TResponse> {
-    const review = await Review.findById(id);
+    const review = await Review.findById(id).lean();
 
     if (!review) throw new APIError('No document found with that id', 404);
 

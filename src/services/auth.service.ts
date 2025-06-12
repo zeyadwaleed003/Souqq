@@ -51,11 +51,11 @@ class AuthService {
   }
 
   async signup(payload: SignupBody): Promise<TResponse> {
-    const existingUser = await User.findOne({
+    const exist = await User.exists({
       email: payload.email,
       active: true,
     });
-    if (existingUser) {
+    if (exist) {
       throw new APIError(
         'This email is already registered. Please use a different email or log in.',
         409
@@ -148,7 +148,7 @@ class AuthService {
       throw new APIError('Your refresh token is invalid or has expired.', 401);
     }
 
-    const user = await User.findById(tokenPayload);
+    const user = await User.findById(tokenPayload).lean();
     if (!user) {
       throw new APIError(
         'The account you are trying to access is no longer available',
