@@ -1,4 +1,4 @@
-import express from 'express';
+import { Router } from 'express';
 import {
   createUser,
   deleteUser,
@@ -20,7 +20,7 @@ import {
 } from '../validation/user.validation';
 import { reviewRouter } from './review.routes';
 
-const router = express.Router();
+const router = Router();
 
 router.use('/:userId/reviews', validate(userIdSchema), reviewRouter);
 

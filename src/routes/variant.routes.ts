@@ -1,4 +1,4 @@
-import express from 'express';
+import { Router } from 'express';
 
 import isAuthenticated from '../middlewares/isAuthenticated';
 import isAuthorized from '../middlewares/isAuthorized';
@@ -20,7 +20,7 @@ import validate from '../middlewares/validate';
 import { idSchema, variantIdSchema } from '../validation/base.validation';
 import { cartRouter } from './cart.routes';
 
-const router = express.Router();
+const router = Router();
 
 router.use('/:variantId/carts', validate(variantIdSchema), cartRouter);
 

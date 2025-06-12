@@ -1,4 +1,4 @@
-import express from 'express';
+import { Router } from 'express';
 
 import isAuthenticated from '../middlewares/isAuthenticated';
 import validate from '../middlewares/validate';
@@ -20,7 +20,7 @@ import {
 } from '../controllers/review.controller';
 import { idSchema } from '../validation/base.validation';
 
-const router = express.Router({ mergeParams: true });
+const router = Router({ mergeParams: true });
 
 router
   .route('/:id/helpful')
