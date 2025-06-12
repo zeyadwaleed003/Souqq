@@ -6,16 +6,16 @@ import APIError from '../utils/APIError';
 
 export default (schema: AnyZodObject) =>
   async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      await schema.parseAsync({
-        body: req.body,
-        params: req.params,
-        query: req.query,
-      });
+    const result = await schema.safeParseAsync({
+      body: req.body,
+      params: req.params,
+      query: req.query,
+    });
 
-      next();
-    } catch (err) {
-      const error = fromError(err);
+    if (!result.success) {
+      const error = fromError(result.error);
       throw new APIError(error.message, 400);
     }
+
+    next();
   };
