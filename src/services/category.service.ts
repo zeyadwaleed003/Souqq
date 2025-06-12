@@ -11,7 +11,7 @@ import ProductService from './product.service';
 
 class CategoryService {
   private async getAllSubcategoryIds(categoryId: string): Promise<string[]> {
-    const subCategories = await Category.find({ parent: categoryId });
+    const subCategories = await Category.find({ parent: categoryId }).lean();
     let ids = subCategories.map((cat) => cat._id.toString());
     for (const sub of subCategories)
       ids = ids.concat(await this.getAllSubcategoryIds(sub._id.toString()));

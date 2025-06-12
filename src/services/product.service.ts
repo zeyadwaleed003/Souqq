@@ -19,7 +19,7 @@ class ProductService {
 
   async isProductSeller(id: string, user: UserDocument) {
     if (user.role === 'seller') {
-      const product = await Product.findById(id);
+      const product = await Product.findById(id).lean();
       if (!product) throw new APIError('No document found with that id', 404);
 
       if (!product.sellerId || !user._id.equals(product.sellerId))

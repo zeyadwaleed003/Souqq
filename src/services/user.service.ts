@@ -77,7 +77,7 @@ class UserService {
   }
 
   async checkIfSeller(id: string): Promise<boolean> {
-    const user = await User.findById(id);
+    const user = await User.findById(id).lean();
     return Boolean(user && user.role === 'seller');
   }
 }

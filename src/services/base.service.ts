@@ -16,7 +16,7 @@ class BaseService {
       .limitFields()
       .paginate();
 
-    const docs = await features.query;
+    const docs = await features.query.lean();
 
     const result = {
       status: 'success',
@@ -31,7 +31,7 @@ class BaseService {
   }
 
   async getOne<T>(Model: Model<T>, id: string): Promise<TResponse> {
-    const doc = await Model.findById(id);
+    const doc = await Model.findById(id).lean();
 
     if (!doc) {
       throw new APIError('No document found with that id', 404);
@@ -89,7 +89,7 @@ class BaseService {
   }
 
   async deleteOne<T>(Model: Model<T>, id: string): Promise<TResponse> {
-    const doc = await Model.findByIdAndDelete(id);
+    const doc = await Model.findByIdAndDelete(id).lean();
 
     if (!doc) throw new APIError('No document found with that id', 404);
 
