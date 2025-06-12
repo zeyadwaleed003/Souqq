@@ -2,7 +2,10 @@ import { Types } from 'mongoose';
 import { Cart } from '../models/cart.model';
 import { TQueryString, TResponse } from '../types/api.types';
 import BaseService from './base.service';
-import { AddItemToCartBody, CartDocument } from '../types/cart.types';
+import {
+  RemoveItemFromCartBody,
+  UpdateItemCartBody,
+} from '../types/cart.types';
 import VariantService from './variant.service';
 import APIError from '../utils/APIError';
 
@@ -44,7 +47,7 @@ class CartService {
     };
   }
 
-  async addItemToCart(data: AddItemToCartBody): Promise<TResponse> {
+  async addItemToCart(data: UpdateItemCartBody): Promise<TResponse> {
     const cart = await Cart.findOne({ user: data.user });
     if (!cart) throw new APIError('Failed to load cart', 404);
 
@@ -78,10 +81,7 @@ class CartService {
     };
   }
 
-  async removeItemFromCart(data: {
-    user: string;
-    variant: string;
-  }): Promise<TResponse> {
+  async removeItemFromCart(data: RemoveItemFromCartBody): Promise<TResponse> {
     const cart = await Cart.findOne({ user: data.user });
     if (!cart) throw new APIError('Failed to load cart', 404);
 
@@ -91,6 +91,46 @@ class CartService {
     if (idx === -1) throw new APIError('Item not found in cart', 404);
 
     cart.items.splice(idx, 1);
+    await cart.save();
+
+    return {
+      statusCode: 200,
+      status: 'success',
+      data: {
+        cart,
+      },
+    };
+  }
+
+  async clearCart(userId: Types.ObjectId): Promise<TResponse> {
+    const cart = await Cart.findOne({ user: userId });
+    if (!cart) throw new APIError('Failed to load cart', 404);
+
+    cart.items = [];
+    await cart.save();
+
+    return {
+      statusCode: 200,
+      status: 'success',
+      data: {
+        cart,
+      },
+    };
+  }
+
+  async updateItemQuantity(data: UpdateItemCartBody): Promise<TResponse> {
+    const cart = await Cart.findOne({ user: data.user });
+    if (!cart) throw new APIError('Failed to load cart', 404);
+
+    const idx = cart.items.findIndex(
+      (item) => item.variant.toString() === data.variant
+    );
+    if (idx === -1) throw new APIError('Item not found in cart', 404);
+
+    const variantDetails = await VariantService.getVariantDetails(data.variant);
+    this.checkQuantityAvailable(data.quantity, variantDetails.stock);
+
+    cart.items[idx].quantity = data.quantity;
     await cart.save();
 
     return {

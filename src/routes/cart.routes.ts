@@ -9,22 +9,32 @@ import {
   getCurrentUserCart,
   removeItemFromCart,
   setVariantUserIds,
+  clearCart,
+  updateItemQuantity,
 } from '../controllers/cart.controller';
 import validate from '../middlewares/validate';
 import { idSchema } from '../validation/base.validation';
 import {
-  addItemToCartSchema,
   removeItemFromCartSchema,
+  updateItemCartSchema,
 } from '../validation/cart.validation';
 
 const router = Router({ mergeParams: true });
 
 router.use(isAuthenticated);
 
+router.patch('/clear', clearCart);
+
+router.patch(
+  '/items/quantity',
+  validate(updateItemCartSchema),
+  updateItemQuantity
+);
+
 router
   .route('/items')
   .all(setVariantUserIds)
-  .patch(validate(addItemToCartSchema), addItemToCart)
+  .patch(validate(updateItemCartSchema), addItemToCart)
   .delete(validate(removeItemFromCartSchema), removeItemFromCart);
 
 router.get('/me', getCurrentUserCart);

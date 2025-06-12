@@ -7,7 +7,7 @@ const cartItemSchema = z.object({
   user: objectIdSchema,
 });
 
-export const addItemToCartSchema = z.object({
+export const updateItemCartSchema = z.object({
   body: cartItemSchema
     .extend({
       quantity: z.number().int().positive(),
