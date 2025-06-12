@@ -1,7 +1,10 @@
 import { z } from 'zod';
 import { Types, Document, Model } from 'mongoose';
 
-import { addItemToCartSchema } from '../validation/cart.validation';
+import {
+  removeItemFromCartSchema,
+  updateItemCartSchema,
+} from '../validation/cart.validation';
 
 export type CartItem = {
   product: Types.ObjectId;
@@ -22,4 +25,7 @@ export type CartDocument = Document & {
 
 export type CartModel = Model<CartDocument>;
 
-export type AddItemToCartBody = z.output<typeof addItemToCartSchema>['body'];
+export type UpdateItemCartBody = z.output<typeof updateItemCartSchema>['body'];
+export type RemoveItemFromCartBody = z.output<
+  typeof removeItemFromCartSchema
+>['body'];
