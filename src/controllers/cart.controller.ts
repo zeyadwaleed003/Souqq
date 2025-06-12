@@ -39,3 +39,8 @@ export const addItemToCart: RequestHandler = async (req, res, next) => {
   const result = await CartService.addItemToCart(req.body);
   sendResponse(result, res);
 };
+
+export const removeItemFromCart: RequestHandler = async (req, res, next) => {
+  const result = await CartService.removeItemFromCart(req.body);
+  sendResponse(result, res);
+};

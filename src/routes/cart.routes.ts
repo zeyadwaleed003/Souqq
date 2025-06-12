@@ -7,11 +7,15 @@ import {
   getAllCarts,
   getCartById,
   getCurrentUserCart,
+  removeItemFromCart,
   setVariantUserIds,
 } from '../controllers/cart.controller';
 import validate from '../middlewares/validate';
 import { idSchema } from '../validation/base.validation';
-import { addItemToCartSchema } from '../validation/cart.validation';
+import {
+  addItemToCartSchema,
+  removeItemFromCartSchema,
+} from '../validation/cart.validation';
 
 const router = Router({ mergeParams: true });
 
@@ -19,7 +23,9 @@ router.use(isAuthenticated);
 
 router
   .route('/items')
-  .patch(setVariantUserIds, validate(addItemToCartSchema), addItemToCart);
+  .all(setVariantUserIds)
+  .patch(validate(addItemToCartSchema), addItemToCart)
+  .delete(validate(removeItemFromCartSchema), removeItemFromCart);
 
 router.get('/me', getCurrentUserCart);
 

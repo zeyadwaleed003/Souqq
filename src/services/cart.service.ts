@@ -77,6 +77,30 @@ class CartService {
       },
     };
   }
+
+  async removeItemFromCart(data: {
+    user: string;
+    variant: string;
+  }): Promise<TResponse> {
+    const cart = await Cart.findOne({ user: data.user });
+    if (!cart) throw new APIError('Failed to load cart', 404);
+
+    const idx = cart.items.findIndex(
+      (item) => item.variant.toString() === data.variant
+    );
+    if (idx === -1) throw new APIError('Item not found in cart', 404);
+
+    cart.items.splice(idx, 1);
+    await cart.save();
+
+    return {
+      statusCode: 200,
+      status: 'success',
+      data: {
+        cart,
+      },
+    };
+  }
 }
 
 export default new CartService();
