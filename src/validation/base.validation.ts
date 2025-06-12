@@ -22,6 +22,12 @@ export const productIdSchema = z.object({
   }),
 });
 
+export const variantIdSchema = z.object({
+  params: z.object({
+    variantId: objectIdSchema,
+  }),
+});
+
 export const slugSchema = z.object({
   params: z.object({
     slug: z.string(),

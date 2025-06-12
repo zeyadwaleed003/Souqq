@@ -34,4 +34,17 @@ const cartSchema = new Schema<CartDocument>(
   { timestamps: true }
 );
 
+cartSchema.pre('save', function (next) {
+  let quantitySum = 0,
+    priceSum = 0;
+
+  this.items.forEach((item) => {
+    quantitySum += item.quantity;
+    priceSum += item.price * item.quantity;
+  });
+
+  this.set({ totalPrice: priceSum, totalQuantity: quantitySum });
+  next();
+});
+
 export const Cart = model<CartDocument, CartModel>('Cart', cartSchema);

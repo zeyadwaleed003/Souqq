@@ -26,7 +26,7 @@ const productFieldsSchema = z
         },
         {
           message:
-            'A provided category id does not match any existing category',
+            'The provided category id does not match any existing category',
         }
       ),
     description: z.string().trim().optional(),

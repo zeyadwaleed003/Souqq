@@ -1,9 +1,25 @@
 import { Variant } from '../models/variant.model';
 import { TQueryString, TResponse } from '../types/api.types';
-import { CreateVariantBody, UpdateVariantBody } from '../types/variant.types';
+import {
+  CreateVariantBody,
+  UpdateVariantBody,
+  VariantDocument,
+} from '../types/variant.types';
+import APIError from '../utils/APIError';
 import BaseService from './base.service';
 
 class VariantService {
+  async getVariantDetails(variantId: string): Promise<VariantDocument> {
+    const variant = await Variant.findById(variantId).lean();
+    if (!variant)
+      throw new APIError(
+        'The provided variant id does not match any existing variant',
+        400
+      );
+
+    return variant;
+  }
+
   async createVariant(data: CreateVariantBody): Promise<TResponse> {
     const result = await BaseService.createOne(Variant, data);
     return result;

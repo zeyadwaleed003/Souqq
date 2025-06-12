@@ -3,24 +3,29 @@ import { Router } from 'express';
 import isAuthenticated from '../middlewares/isAuthenticated';
 import isAuthorized from '../middlewares/isAuthorized';
 import {
+  addItemToCart,
   getAllCarts,
   getCartById,
   getCurrentUserCart,
+  setVariantUserIds,
 } from '../controllers/cart.controller';
 import validate from '../middlewares/validate';
 import { idSchema } from '../validation/base.validation';
+import { addItemToCartSchema } from '../validation/cart.validation';
 
-const router = Router();
+const router = Router({ mergeParams: true });
 
-router.get('/me', isAuthenticated, getCurrentUserCart);
+router.use(isAuthenticated);
 
-router.get('/', isAuthenticated, isAuthorized('admin'), getAllCarts);
+router
+  .route('/items')
+  .patch(setVariantUserIds, validate(addItemToCartSchema), addItemToCart);
 
-router.get(
-  '/:id',
-  isAuthenticated,
-  isAuthorized('admin'),
-  validate(idSchema),
-  getCartById
-);
+router.get('/me', getCurrentUserCart);
+
+router.use(isAuthorized('admin'));
+
+router.get('/', getAllCarts);
+router.get('/:id', validate(idSchema), getCartById);
+
 export const cartRouter = router;

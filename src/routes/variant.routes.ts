@@ -17,9 +17,12 @@ import {
 import { createVariantSchema } from '../validation/variant.validation';
 import { updateVariantSchema } from '../validation/variant.validation';
 import validate from '../middlewares/validate';
-import { idSchema } from '../validation/base.validation';
+import { idSchema, variantIdSchema } from '../validation/base.validation';
+import { cartRouter } from './cart.routes';
 
 const router = express.Router();
+
+router.use('/:variantId/carts', validate(variantIdSchema), cartRouter);
 
 router.get('/active', getActiveVariants);
 router.get('/cheapest', getCheapestVariantPerProduct);
