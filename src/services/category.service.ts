@@ -54,9 +54,7 @@ class CategoryService {
 
     if (!category) ResponseFormatter.notFound('No category found with that id');
 
-    category.set({
-      status: 'inactive',
-    });
+    category.set(data);
     const newCategory = await category.save();
 
     await RedisService.deleteKeys(this.CACHE_PATTERN);
