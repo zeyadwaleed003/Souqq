@@ -32,15 +32,17 @@ router
   .patch(validate(updateMeSchema), updateMe)
   .delete(deleteMe);
 
-router.use(isAuthorized('admin'));
-
-router.route('/').get(getAllUsers).post(validate(createUserSchema), createUser);
+router
+  .route('/')
+  .all(isAuthorized('admin'))
+  .get(getAllUsers)
+  .post(validate(createUserSchema), createUser);
 
 router
   .route('/:id')
   .all(validate(idSchema))
   .get(getUser)
-  .patch(validate(updateUserSchema), updateUser)
-  .delete(deleteUser);
+  .patch(isAuthorized('admin'), validate(updateUserSchema), updateUser)
+  .delete(isAuthorized('admin'), deleteUser);
 
 export const userRouter = router;

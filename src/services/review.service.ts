@@ -8,36 +8,48 @@ import {
   UpdateReviewBody,
 } from '../types/review.types';
 import { UserDocument } from '../types/user.types';
-import APIError from '../utils/APIError';
-import BaseService from './base.service';
+import ResponseFormatter from '../utils/responseFormatter';
+import APIFeatures from '../utils/APIFeatures';
+import RedisService from './redis.service';
+import stringify from 'fast-json-stable-stringify';
 
 class ReviewService {
+  readonly CACHE_PATTERN = 'reviews:*';
+
   private validateHelpfulAction(
     review: ReviewDocument,
     userId: Types.ObjectId,
     marking: boolean
   ) {
     if (marking && review.helpfulBy.includes(userId))
-      throw new APIError(
-        'You have already marked this review as helpful before',
-        400
+      ResponseFormatter.conflict(
+        'You have already marked this review as helpful before'
       );
     else if (!marking && !review.helpfulBy.includes(userId))
-      throw new APIError(
-        'You have not marked this review as helpful before',
-        400
+      ResponseFormatter.conflict(
+        'You have not marked this review as helpful before'
       );
 
     if (review.user._id.equals(userId))
-      throw new APIError(
-        `You can't mark/unmark your own review as helpful`,
-        403
+      ResponseFormatter.forbidden(
+        `You can't mark/unmark your own review as helpful`
       );
   }
 
   async createReview(data: CreateReviewBody): Promise<TResponse> {
-    const result = await BaseService.createOne(Review, data);
-    return result;
+    const review = await Review.create(data);
+    if (!review)
+      ResponseFormatter.internalError('Failed to create the document');
+
+    await RedisService.deleteKeys(this.CACHE_PATTERN);
+
+    return {
+      status: 'success',
+      statusCode: 201,
+      data: {
+        review,
+      },
+    };
   }
 
   async getReviews(
@@ -51,26 +63,60 @@ class ReviewService {
     if (params.productId) filter = { product: params.productId };
     else if (params.userId) filter = { user: params.userId };
 
-    const result = await BaseService.getAll(Review, queryString, filter);
+    const cacheKey = `reviews:${stringify(queryString)}:${stringify(filter)}`;
+    const cachedData = await RedisService.getJSON(cacheKey);
+
+    if (cachedData) return cachedData;
+
+    const features = new APIFeatures(Review.find(filter), queryString)
+      .filter()
+      .sort()
+      .limitFields()
+      .paginate();
+
+    const Reviews = await features.query.lean();
+
+    const result = {
+      status: 'success',
+      statusCode: 200,
+      size: Reviews.length,
+      data: {
+        Reviews,
+      },
+    };
+
+    await RedisService.setJSON(cacheKey, 3600, result);
+
     return result;
   }
 
   async getReviewById(id: string): Promise<TResponse> {
-    const result = await BaseService.getOne(Review, id);
-    return result;
+    const review = await Review.findById(id).lean();
+
+    if (!review) ResponseFormatter.notFound('No review found with that id');
+
+    return {
+      status: 'success',
+      statusCode: 200,
+      data: {
+        review,
+      },
+    };
   }
 
   async deleteReview(id: string, user: UserDocument): Promise<TResponse> {
     const review = await Review.findById(id).lean();
 
-    if (!review) throw new APIError('No document found with that id', 404);
+    if (!review) ResponseFormatter.notFound('No document found with that id');
 
     if (user.role === 'user' && !user._id.equals(review.user._id))
-      throw new APIError('You are not allowed to delete this review', 403);
+      ResponseFormatter.forbidden('You are not allowed to delete this review');
 
     await Review.deleteOne({ _id: id });
 
     await Review.calcRatingStatistics(review.product);
+
+    await RedisService.deleteKeys(this.CACHE_PATTERN);
 
     return {
       status: 'success',
@@ -85,25 +131,26 @@ class ReviewService {
     user: UserDocument
   ): Promise<TResponse> {
     if (user.role === 'user' && (data.product || data.user))
-      throw new APIError(
-        'You are not allowed to update the user or the product of the review',
-        403
+      ResponseFormatter.forbidden(
+        'You are not allowed to update the user or the product of the review'
       );
 
     const review = await Review.findById(id);
-    if (!review) throw new APIError('No document found with that id', 404);
+    if (!review) ResponseFormatter.notFound('No document found with that id');
 
     if (user.role === 'user' && !user._id.equals(review.user._id))
-      throw new APIError('You are not allowed to update this review', 403);
+      ResponseFormatter.forbidden('You are not allowed to update this review');
 
     review.set(data);
-    const newDoc = await review.save();
+    const newReview = await review.save();
+
+    await RedisService.deleteKeys(this.CACHE_PATTERN);
 
     return {
       status: 'success',
       statusCode: 200,
       data: {
-        data: newDoc,
+        review: newReview,
       },
     };
   }
@@ -112,21 +159,40 @@ class ReviewService {
     userId: string,
     queryString: TQueryString
   ): Promise<TResponse> {
-    const result = await BaseService.getAll(Review, queryString, {
-      user: userId,
-    });
-    return result;
+    const features = new APIFeatures(
+      Review.find({
+        user: userId,
+      }),
+      queryString
+    )
+      .filter()
+      .sort()
+      .limitFields()
+      .paginate();
+
+    const Reviews = await features.query.lean();
+
+    return {
+      status: 'success',
+      statusCode: 200,
+      size: Reviews.length,
+      data: {
+        Reviews,
+      },
+    };
   }
 
   async markAsHelpful(id: string, userId: Types.ObjectId): Promise<TResponse> {
     const review = await Review.findById(id);
-    if (!review) throw new APIError('No document found with that id', 404);
+    if (!review) ResponseFormatter.notFound('No document found with that id');
 
     this.validateHelpfulAction(review, userId, true);
 
     review.helpfulCount = review.helpfulCount + 1;
     review.helpfulBy.push(userId);
     await review.save();
+
+    await RedisService.deleteKeys(this.CACHE_PATTERN);
 
     return {
       status: 'success',
@@ -142,7 +208,7 @@ class ReviewService {
     userId: Types.ObjectId
   ): Promise<TResponse> {
     const review = await Review.findById(id);
-    if (!review) throw new APIError('No document found with that id', 404);
+    if (!review) ResponseFormatter.notFound('No document found with that id');
 
     this.validateHelpfulAction(review, userId, false);
 
@@ -151,6 +217,8 @@ class ReviewService {
     review.helpfulBy.splice(index, 1);
     review.helpfulCount = review.helpfulCount - 1;
     await review.save();
+
+    await RedisService.deleteKeys(this.CACHE_PATTERN);
 
     return {
       status: 'success',

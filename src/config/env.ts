@@ -41,4 +41,9 @@ export default {
   MAILTRAP_PASSWORD: env.get('MAILTRAP_PASSWORD').required().asString(),
 
   EMAIL_FROM: env.get('EMAIL_FROM').required().asString(),
+
+  REDIS_USERNAME: env.get('REDIS_USERNAME').required().asString(),
+  REDIS_PASSWORD: env.get('REDIS_PASSWORD').required().asString(),
+  REDIS_URL: env.get('REDIS_URL').required().asString(),
+  REDIS_PORT: env.get('REDIS_PORT').required().asPortNumber(),
 };
