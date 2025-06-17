@@ -31,7 +31,7 @@ class CartService {
       .limitFields()
       .paginate();
 
-    const carts = await features.query.select('-__v').lean();
+    const carts = await features.query.lean();
 
     return {
       status: 'success',
@@ -52,7 +52,7 @@ class CartService {
       status: 'success',
       statusCode: 200,
       data: {
-        data: cart,
+        cart,
       },
     };
   }

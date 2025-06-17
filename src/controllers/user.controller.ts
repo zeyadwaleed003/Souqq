@@ -15,7 +15,9 @@ export const getAllUsers: RequestHandler<{}> = async (req, res, next) => {
 };
 
 export const getUser: RequestHandler<IdParams> = async (req, res, next) => {
-  const result = await UserService.getUser(req.params.id);
+  if (!req.user) throw new APIError('Authentication failed', 401);
+
+  const result = await UserService.getUser(req.params.id, req.user);
   sendResponse(result, res);
 };
 

@@ -28,7 +28,7 @@ class UserService {
       .limitFields()
       .paginate();
 
-    const users = await features.query.select('-__v').lean();
+    const users = await features.query.lean();
 
     return {
       status: 'success',
@@ -40,16 +40,19 @@ class UserService {
     };
   }
 
-  async getUser(id: string): Promise<TResponse> {
+  async getUser(id: string, currUser: UserDocument): Promise<TResponse> {
     const user = await User.findById(id).lean();
 
     if (!user) ResponseFormatter.notFound('No user found with that id');
+
+    let userData: object = user;
+    if (currUser.role !== 'admin') userData = cleanUserData(user);
 
     return {
       status: 'success',
       statusCode: 200,
       data: {
-        data: user,
+        user: userData,
       },
     };
   }

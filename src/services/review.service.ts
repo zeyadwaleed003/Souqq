@@ -10,8 +10,12 @@ import {
 import { UserDocument } from '../types/user.types';
 import ResponseFormatter from '../utils/responseFormatter';
 import APIFeatures from '../utils/APIFeatures';
+import RedisService from './redis.service';
+import stringify from 'fast-json-stable-stringify';
 
 class ReviewService {
+  readonly CACHE_PATTERN = 'reviews:*';
+
   private validateHelpfulAction(
     review: ReviewDocument,
     userId: Types.ObjectId,
@@ -37,11 +41,13 @@ class ReviewService {
     if (!review)
       ResponseFormatter.internalError('Failed to create the document');
 
+    await RedisService.deleteKeys(this.CACHE_PATTERN);
+
     return {
       status: 'success',
       statusCode: 201,
       data: {
-        data: review,
+        review,
       },
     };
   }
@@ -57,15 +63,20 @@ class ReviewService {
     if (params.productId) filter = { product: params.productId };
     else if (params.userId) filter = { user: params.userId };
 
+    const cacheKey = `reviews:${stringify(queryString)}:${stringify(filter)}`;
+    const cachedData = await RedisService.getJSON(cacheKey);
+
+    if (cachedData) return cachedData;
+
     const features = new APIFeatures(Review.find(filter), queryString)
       .filter()
       .sort()
       .limitFields()
       .paginate();
 
-    const Reviews = await features.query.select('-__v').lean();
+    const Reviews = await features.query.lean();
 
-    return {
+    const result = {
       status: 'success',
       statusCode: 200,
       size: Reviews.length,
@@ -73,6 +84,10 @@ class ReviewService {
         Reviews,
       },
     };
+
+    await RedisService.setJSON(cacheKey, 3600, result);
+
+    return result;
   }
 
   async getReviewById(id: string): Promise<TResponse> {
@@ -84,7 +99,7 @@ class ReviewService {
       status: 'success',
       statusCode: 200,
       data: {
-        data: review,
+        review,
       },
     };
   }
@@ -100,6 +115,8 @@ class ReviewService {
     await Review.deleteOne({ _id: id });
 
     await Review.calcRatingStatistics(review.product);
+
+    await RedisService.deleteKeys(this.CACHE_PATTERN);
 
     return {
       status: 'success',
@@ -125,13 +142,15 @@ class ReviewService {
       ResponseFormatter.forbidden('You are not allowed to update this review');
 
     review.set(data);
-    const newDoc = await review.save();
+    const newReview = await review.save();
+
+    await RedisService.deleteKeys(this.CACHE_PATTERN);
 
     return {
       status: 'success',
       statusCode: 200,
       data: {
-        data: newDoc,
+        review: newReview,
       },
     };
   }
@@ -151,7 +170,7 @@ class ReviewService {
       .limitFields()
       .paginate();
 
-    const Reviews = await features.query.select('-__v').lean();
+    const Reviews = await features.query.lean();
 
     return {
       status: 'success',
@@ -172,6 +191,8 @@ class ReviewService {
     review.helpfulCount = review.helpfulCount + 1;
     review.helpfulBy.push(userId);
     await review.save();
+
+    await RedisService.deleteKeys(this.CACHE_PATTERN);
 
     return {
       status: 'success',
@@ -196,6 +217,8 @@ class ReviewService {
     review.helpfulBy.splice(index, 1);
     review.helpfulCount = review.helpfulCount - 1;
     await review.save();
+
+    await RedisService.deleteKeys(this.CACHE_PATTERN);
 
     return {
       status: 'success',

@@ -7,6 +7,7 @@ import rateLimit from 'express-rate-limit';
 import mongoSanitize from 'express-mongo-sanitize';
 
 import env from './config/env';
+import redis from './config/redis';
 import passport from './config/passport';
 import APIError from './utils/APIError';
 import globalErrorHandler from './middlewares/globalErrorHandler';

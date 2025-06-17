@@ -1,12 +1,17 @@
+import stringify from 'fast-json-stable-stringify';
+
 import { Product } from '../models/product.model';
 import { TQueryString, TResponse } from '../types/api.types';
 import { CreateProductBody, UpdateProductBody } from '../types/product.types';
 import { UserDocument } from '../types/user.types';
 import APIFeatures from '../utils/APIFeatures';
 import VariantService from './variant.service';
+import RedisService from './redis.service';
 import ResponseFormatter from '../utils/responseFormatter';
 
 class ProductService {
+  readonly CACHE_PATTERN = 'products:*';
+
   async doesProductExist(id: string) {
     const exist = await Product.exists({ _id: id });
     return Boolean(exist);
@@ -20,6 +25,8 @@ class ProductService {
       ratingsQuantity: quantity,
       ratingsAverage: average,
     });
+
+    await RedisService.deleteKeys(this.CACHE_PATTERN);
   }
 
   async isProductSeller(id: string, user: UserDocument) {
@@ -40,11 +47,13 @@ class ProductService {
     if (!product)
       ResponseFormatter.internalError('Failed to create the document');
 
+    await RedisService.deleteKeys(this.CACHE_PATTERN);
+
     return {
       status: 'success',
       statusCode: 201,
       data: {
-        data: product,
+        product,
       },
     };
   }
@@ -53,15 +62,20 @@ class ProductService {
     queryString: TQueryString,
     filter = {}
   ): Promise<TResponse> {
+    const cacheKey = `products:${stringify(queryString)}:${stringify(filter)}`;
+    const cachedResponse = await RedisService.getJSON(cacheKey);
+
+    if (cachedResponse) return cachedResponse;
+
     const features = new APIFeatures(Product.find(filter), queryString)
       .filter()
       .sort()
       .limitFields()
       .paginate();
 
-    const products = await features.query.select('-__v').lean();
+    const products = await features.query.lean();
 
-    return {
+    const result = {
       status: 'success',
       statusCode: 200,
       size: products.length,
@@ -69,28 +83,40 @@ class ProductService {
         products,
       },
     };
+
+    await RedisService.setJSON(cacheKey, 3600, result);
+    return result;
   }
 
   async getProductById(id: string): Promise<TResponse> {
+    const cacheKey = `products:${id}`;
+    const cachedResponse = await RedisService.getJSON(cacheKey);
+
+    if (cachedResponse) return cachedResponse;
+
     const product = await Product.findById(id).lean();
 
     if (!product) ResponseFormatter.notFound('No product found with that id');
 
-    return {
+    const result = {
       status: 'success',
       statusCode: 200,
       data: {
-        data: product,
+        product,
       },
     };
+
+    await RedisService.setJSON(cacheKey, 1800, result);
+    return result;
   }
 
   async deleteProduct(id: string): Promise<TResponse> {
     await VariantService.deleteVariantsWithNoProduct(id);
 
     const product = await Product.findByIdAndDelete(id).lean();
-
     if (!product) ResponseFormatter.notFound('No product found with that id');
+
+    await RedisService.deleteKeys(this.CACHE_PATTERN);
 
     return {
       status: 'success',
@@ -101,13 +127,12 @@ class ProductService {
 
   async updateProduct(id: string, data: UpdateProductBody): Promise<TResponse> {
     const product = await Product.findById(id);
-
     if (!product) ResponseFormatter.notFound('No product found with that id');
 
-    product.set({
-      status: 'inactive',
-    });
+    product.set(data);
     const newProduct = await product.save();
+
+    await RedisService.deleteKeys(this.CACHE_PATTERN);
 
     return {
       status: 'success',
@@ -123,10 +148,14 @@ class ProductService {
       { categories: { $in: categoryIds } },
       { $pull: { categories: { $in: categoryIds } } }
     );
+
+    await RedisService.deleteKeys(this.CACHE_PATTERN);
   }
 
   async deleteProductsWithNoCategories() {
     await Product.deleteMany({ categories: { $size: 0 } });
+
+    await RedisService.deleteKeys(this.CACHE_PATTERN);
   }
 }
 

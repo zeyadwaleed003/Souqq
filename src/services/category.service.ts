@@ -1,3 +1,4 @@
+import stringify from 'fast-json-stable-stringify';
 import { Category } from '../models/category.model';
 import { TQueryString, TResponse } from '../types/api.types';
 import {
@@ -7,8 +8,11 @@ import {
 import APIFeatures from '../utils/APIFeatures';
 import ResponseFormatter from '../utils/responseFormatter';
 import ProductService from './product.service';
+import RedisService from './redis.service';
 
 class CategoryService {
+  readonly CACHE_PATTERN = 'categories:*';
+
   private async getAllSubcategoryIds(categoryId: string): Promise<string[]> {
     const subCategories = await Category.find({ parent: categoryId }).lean();
     let ids = subCategories.map((cat) => cat._id.toString());
@@ -31,11 +35,13 @@ class CategoryService {
     if (!category)
       ResponseFormatter.internalError('Failed to create the document');
 
+    await RedisService.deleteKeys(this.CACHE_PATTERN);
+
     return {
       status: 'success',
       statusCode: 201,
       data: {
-        data: category,
+        category,
       },
     };
   }
@@ -53,6 +59,8 @@ class CategoryService {
     });
     const newCategory = await category.save();
 
+    await RedisService.deleteKeys(this.CACHE_PATTERN);
+
     return {
       status: 'success',
       statusCode: 200,
@@ -63,32 +71,46 @@ class CategoryService {
   }
 
   async getCategoryById(id: string): Promise<TResponse> {
+    const cacheKey = `categories:${id}`;
+    const cachedData = await RedisService.getJSON(cacheKey);
+
+    if (cachedData) return cachedData;
+
     const category = await Category.findById(id).lean();
 
     if (!category) ResponseFormatter.notFound('No category found with that id');
 
-    return {
+    const result = {
       status: 'success',
       statusCode: 200,
       data: {
-        data: category,
+        category,
       },
     };
+
+    await RedisService.setJSON(cacheKey, 1800, result);
+
+    return result;
   }
 
   async getAllCategories(
     queryString: TQueryString,
     filter = {}
   ): Promise<TResponse> {
+    const cacheKey = `categories:${stringify(queryString)}:${stringify(filter)}`;
+    const cachedData = await RedisService.getJSON(cacheKey);
+
+    if (cachedData) return cachedData;
+
     const features = new APIFeatures(Category.find(filter), queryString)
       .filter()
       .sort()
       .limitFields()
       .paginate();
 
-    const categories = await features.query.select('-__v').lean();
+    const categories = await features.query.lean();
 
-    return {
+    const result = {
       status: 'success',
       statusCode: 200,
       size: categories.length,
@@ -96,6 +118,10 @@ class CategoryService {
         categories,
       },
     };
+
+    await RedisService.setJSON(cacheKey, 3600, result);
+
+    return result;
   }
 
   async checkIfCategories(categoryIds: string[]): Promise<boolean> {
@@ -111,6 +137,8 @@ class CategoryService {
 
     await ProductService.removeDeletedCategoriesFromProduct(allCategoryIds);
     await ProductService.deleteProductsWithNoCategories();
+
+    await RedisService.deleteKeys(this.CACHE_PATTERN);
 
     return {
       status: 'success',
