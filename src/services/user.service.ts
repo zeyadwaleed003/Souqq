@@ -7,25 +7,56 @@ import {
   UpdateUserBody,
   UserDocument,
 } from '../types/user.types';
-import APIError from '../utils/APIError';
 import { cleanUserData } from '../utils/functions';
-import BaseService from './base.service';
 import CartService from './cart.service';
+import APIFeatures from '../utils/APIFeatures';
+import ResponseFormatter from '../utils/responseFormatter';
 
 class UserService {
-  async getAllUsers(queryString: TQueryString): Promise<TResponse> {
-    const result = await BaseService.getAll(User, queryString);
-    return result;
+  async doesUserExist(id: string) {
+    const exist = await User.exists({ _id: id });
+    return Boolean(exist);
+  }
+
+  async getAllUsers(
+    queryString: TQueryString,
+    filter = {}
+  ): Promise<TResponse> {
+    const features = new APIFeatures(User.find(filter), queryString)
+      .filter()
+      .sort()
+      .limitFields()
+      .paginate();
+
+    const users = await features.query.select('-__v').lean();
+
+    return {
+      status: 'success',
+      statusCode: 200,
+      size: users.length,
+      data: {
+        users,
+      },
+    };
   }
 
   async getUser(id: string): Promise<TResponse> {
-    const result = await BaseService.getOne(User, id);
-    return result;
+    const user = await User.findById(id).lean();
+
+    if (!user) ResponseFormatter.notFound('No user found with that id');
+
+    return {
+      status: 'success',
+      statusCode: 200,
+      data: {
+        data: user,
+      },
+    };
   }
 
   async createUser(data: CreateUserBody): Promise<TResponse> {
     const user = await User.create(data);
-    if (!user) throw new APIError('Failed to create the document', 404);
+    if (!user) ResponseFormatter.internalError('Failed to create the document');
 
     CartService.createCart(user._id);
 
@@ -39,13 +70,25 @@ class UserService {
   }
 
   async updateUser(id: string, data: UpdateUserBody): Promise<TResponse> {
-    const result = await BaseService.updateOne(User, id, data);
-    return result;
+    const user = await User.findById(id);
+
+    if (!user) ResponseFormatter.notFound('No user found with that id');
+
+    user.set(data);
+    const newUser = await user.save();
+
+    return {
+      status: 'success',
+      statusCode: 200,
+      data: {
+        user: newUser,
+      },
+    };
   }
 
   async deleteUser(id: string): Promise<TResponse> {
     const user = await User.findByIdAndDelete(id).lean();
-    if (!user) throw new APIError('No document found with that id', 404);
+    if (!user) ResponseFormatter.notFound('No document found with that id');
 
     CartService.deleteCart(id);
 
@@ -73,7 +116,8 @@ class UserService {
       runValidators: true,
     });
 
-    if (!userData) throw new APIError('Failed to update user data', 404);
+    if (!userData)
+      ResponseFormatter.internalError('Failed to update user data');
 
     const user = cleanUserData(userData);
     return {

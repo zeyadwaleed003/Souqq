@@ -1,14 +1,13 @@
 import { z } from 'zod';
 
 import { objectIdSchema } from './base.validation';
-import BaseService from '../services/base.service';
-import { Product } from '../models/product.model';
+import ProductService from '../services/product.service';
 
 const variantFieldsSchema = z
   .object({
     product: objectIdSchema.refine(
       async (productId) => {
-        return await BaseService.doesDocumentExist(Product, productId);
+        return await ProductService.doesProductExist(productId);
       },
       {
         message: 'The provided product id does not match any existing product',

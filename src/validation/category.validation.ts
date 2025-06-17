@@ -1,14 +1,13 @@
 import { z } from 'zod';
 
 import { objectIdSchema } from './base.validation';
-import BaseService from '../services/base.service';
-import { Category } from '../models/category.model';
+import CategoryService from '../services/category.service';
 
 const parentIdSchema = objectIdSchema.optional().refine(
   async (parent) => {
     if (!parent) return true;
 
-    const exist = await BaseService.doesDocumentExist(Category, parent);
+    const exist = await CategoryService.doesCategoryExist(parent);
     return exist;
   },
   {

@@ -1,14 +1,13 @@
 import { z } from 'zod';
 import { objectIdSchema } from './base.validation';
-import BaseService from '../services/base.service';
-import { Product } from '../models/product.model';
-import { User } from '../models/user.model';
+import ProductService from '../services/product.service';
+import UserService from '../services/user.service';
 
 export const reviewFieldsSchema = z
   .object({
     product: objectIdSchema.refine(
       async (productId) => {
-        return await BaseService.doesDocumentExist(Product, productId);
+        return await ProductService.doesProductExist(productId);
       },
       {
         message: 'The provided product id does not match any existing product',
@@ -16,7 +15,7 @@ export const reviewFieldsSchema = z
     ),
     user: objectIdSchema.refine(
       async (userId) => {
-        return await BaseService.doesDocumentExist(User, userId);
+        return await UserService.doesUserExist(userId);
       },
       {
         message: 'The provided user id does not match any existing user',

@@ -1,20 +1,19 @@
 import { Types } from 'mongoose';
 import { Cart } from '../models/cart.model';
 import { TQueryString, TResponse } from '../types/api.types';
-import BaseService from './base.service';
 import {
   RemoveItemFromCartBody,
   UpdateItemCartBody,
 } from '../types/cart.types';
 import VariantService from './variant.service';
-import APIError from '../utils/APIError';
+import APIFeatures from '../utils/APIFeatures';
+import ResponseFormatter from '../utils/responseFormatter';
 
 class CartService {
   private checkQuantityAvailable(quantity: number, stock: number) {
     if (quantity > stock)
-      throw new APIError(
-        'Requested quantity exceeds available stock for this variant',
-        400
+      ResponseFormatter.badRequest(
+        'Requested quantity exceeds available stock for this variant'
       );
   }
 
@@ -22,14 +21,40 @@ class CartService {
     await Cart.create({ user: userId });
   }
 
-  async getAllCarts(queryString: TQueryString): Promise<TResponse> {
-    const result = await BaseService.getAll(Cart, queryString);
-    return result;
+  async getAllCarts(
+    queryString: TQueryString,
+    filter = {}
+  ): Promise<TResponse> {
+    const features = new APIFeatures(Cart.find(filter), queryString)
+      .filter()
+      .sort()
+      .limitFields()
+      .paginate();
+
+    const carts = await features.query.select('-__v').lean();
+
+    return {
+      status: 'success',
+      statusCode: 200,
+      size: carts.length,
+      data: {
+        carts,
+      },
+    };
   }
 
   async getCartById(id: string): Promise<TResponse> {
-    const result = await BaseService.getOne(Cart, id);
-    return result;
+    const cart = await Cart.findById(id).lean();
+
+    if (!cart) ResponseFormatter.notFound('No cart found with that id');
+
+    return {
+      status: 'success',
+      statusCode: 200,
+      data: {
+        data: cart,
+      },
+    };
   }
 
   async deleteCart(userId: string) {
@@ -49,7 +74,7 @@ class CartService {
 
   async addItemToCart(data: UpdateItemCartBody): Promise<TResponse> {
     const cart = await Cart.findOne({ user: data.user });
-    if (!cart) throw new APIError('Failed to load cart', 404);
+    if (!cart) ResponseFormatter.notFound('Failed to load cart');
 
     const variantDetails = await VariantService.getVariantDetails(data.variant);
     this.checkQuantityAvailable(data.quantity, variantDetails.stock);
@@ -83,12 +108,12 @@ class CartService {
 
   async removeItemFromCart(data: RemoveItemFromCartBody): Promise<TResponse> {
     const cart = await Cart.findOne({ user: data.user });
-    if (!cart) throw new APIError('Failed to load cart', 404);
+    if (!cart) ResponseFormatter.notFound('Failed to load cart');
 
     const idx = cart.items.findIndex(
       (item) => item.variant.toString() === data.variant
     );
-    if (idx === -1) throw new APIError('Item not found in cart', 404);
+    if (idx === -1) ResponseFormatter.notFound('Item not found in cart');
 
     cart.items.splice(idx, 1);
     await cart.save();
@@ -104,7 +129,7 @@ class CartService {
 
   async clearCart(userId: Types.ObjectId): Promise<TResponse> {
     const cart = await Cart.findOne({ user: userId });
-    if (!cart) throw new APIError('Failed to load cart', 404);
+    if (!cart) ResponseFormatter.notFound('Failed to load cart');
 
     cart.items = [];
     await cart.save();
@@ -120,12 +145,12 @@ class CartService {
 
   async updateItemQuantity(data: UpdateItemCartBody): Promise<TResponse> {
     const cart = await Cart.findOne({ user: data.user });
-    if (!cart) throw new APIError('Failed to load cart', 404);
+    if (!cart) ResponseFormatter.notFound('Failed to load cart');
 
     const idx = cart.items.findIndex(
       (item) => item.variant.toString() === data.variant
     );
-    if (idx === -1) throw new APIError('Item not found in cart', 404);
+    if (idx === -1) ResponseFormatter.notFound('Item not found in cart');
 
     const variantDetails = await VariantService.getVariantDetails(data.variant);
     this.checkQuantityAvailable(data.quantity, variantDetails.stock);

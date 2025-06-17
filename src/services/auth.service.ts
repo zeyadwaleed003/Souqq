@@ -9,7 +9,6 @@ import {
   updatePasswordBody,
 } from '../types/auth.types';
 import { User } from '../models/user.model';
-import APIError from '../utils/APIError';
 import {
   sendEmailVerifyEmail,
   sendPasswordResetEmail,
@@ -26,6 +25,7 @@ import logger from '../config/logger';
 import { UserDocument } from '../types/user.types';
 import { cleanUserData } from '../utils/functions';
 import CartService from './cart.service';
+import ResponseFormatter from '../utils/responseFormatter';
 
 class AuthService {
   private generateJWT(user: UserDocument) {
@@ -57,19 +57,16 @@ class AuthService {
       active: true,
     });
     if (exist) {
-      throw new APIError(
-        'This email is already registered. Please use a different email or log in.',
-        409
+      ResponseFormatter.conflict(
+        'This email is already registered. Please use a different email or log in.'
       );
     }
 
     const user = await User.create(payload);
-    if (!user) {
-      throw new APIError(
-        'Failed to create your account. Please try again later.',
-        500
+    if (!user)
+      ResponseFormatter.internalError(
+        'Failed to create your account. Please try again later.'
       );
-    }
 
     CartService.createCart(user._id);
 
@@ -95,12 +92,10 @@ class AuthService {
       emailVerificationTokenExpiresAt: { $gte: Date.now() },
     });
 
-    if (!user) {
-      throw new APIError(
-        'Your verification token is invalid or has expired.',
-        401
+    if (!user)
+      ResponseFormatter.unauthorized(
+        'Your verification token is invalid or has expired.'
       );
-    }
 
     await user.setEmailVerified();
 
@@ -117,7 +112,7 @@ class AuthService {
     const user = await User.findOne({ email, active: true });
 
     if (!user || !user.password || !(await user.correctPassword(password)))
-      throw new APIError('Invalid email or password', 401);
+      ResponseFormatter.unauthorized('Invalid email or password');
 
     const response: TResponse = {
       status: 'success',
@@ -147,17 +142,16 @@ class AuthService {
 
   async refreshToken(payload: RefreshAccessTokenBody): Promise<TResponse> {
     const tokenPayload = verifyRefreshToken(payload.refreshToken);
-    if (!tokenPayload) {
-      throw new APIError('Your refresh token is invalid or has expired.', 401);
-    }
+    if (!tokenPayload)
+      ResponseFormatter.unauthorized(
+        'Your refresh token is invalid or has expired.'
+      );
 
     const user = await User.findById(tokenPayload).lean();
-    if (!user) {
-      throw new APIError(
-        'The account you are trying to access is no longer available',
-        401
+    if (!user)
+      ResponseFormatter.unauthorized(
+        'The account you are trying to access is no longer available'
       );
-    }
 
     const { accessToken } = this.generateJWT(user);
 
@@ -187,12 +181,10 @@ class AuthService {
       return response;
     }
 
-    if (!user.password) {
-      throw new APIError(
-        `Password reset is not available for Google login users. Please use Google's account recovery process.`,
-        400
+    if (!user.password)
+      ResponseFormatter.badRequest(
+        `Password reset is not available for Google login users. Please use Google's account recovery process.`
       );
-    }
 
     const { token, hashedToken } = generateToken();
     await sendPasswordResetEmail(user.name, user.email, token);
@@ -211,9 +203,10 @@ class AuthService {
       passwordResetExpiresAt: { $gte: Date.now() },
     });
 
-    if (!user) {
-      throw new APIError('Your reset token is invalid or has expired.', 401);
-    }
+    if (!user)
+      ResponseFormatter.unauthorized(
+        'Your reset token is invalid or has expired.'
+      );
 
     await user.setResetPassword(payload.password);
 
@@ -244,7 +237,7 @@ class AuthService {
     const user = await User.findById(payload.user._id);
 
     if (!user || !(await user.correctPassword(payload.body.oldPassword)))
-      throw new APIError('The provided password is wrong', 401);
+      ResponseFormatter.unauthorized('The provided password is wrong');
 
     await user.updatePassword(payload.body.newPassword);
 
