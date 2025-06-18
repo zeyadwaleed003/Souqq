@@ -23,11 +23,7 @@ const categorySchema = new Schema<CategoryDocument>(
     description: String,
     image: String,
   },
-  {
-    timestamps: true,
-    toJSON: { virtuals: true },
-    toObject: { virtuals: true },
-  }
+  { timestamps: true }
 );
 
 categorySchema.pre('save', function (next) {
