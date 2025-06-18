@@ -45,11 +45,7 @@ const userSchema = new Schema<UserDocument>(
       default: true,
     },
   },
-  {
-    timestamps: true,
-    toJSON: { virtuals: true },
-    toObject: { virtuals: true },
-  }
+  { timestamps: true }
 );
 
 // Encrypt the password using Bcrypt

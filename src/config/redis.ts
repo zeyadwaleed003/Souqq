@@ -18,10 +18,4 @@ client
   .then(() => logger.info('Redis Connected Successfully'))
   .catch((err) => logger.error('Redis Connection Failed', err));
 
-process.on('SIGINT', async () => {
-  await client.quit();
-  logger.info('Redis Connection Closed');
-  process.exit(0);
-});
-
 export default client;

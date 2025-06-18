@@ -37,11 +37,7 @@ const variantSchema = new Schema<VariantDocument>(
       required: [true, 'A variant must belong to a product'],
     },
   },
-  {
-    timestamps: true,
-    toJSON: { virtuals: true },
-    toObject: { virtuals: true },
-  }
+  { timestamps: true }
 );
 
 variantSchema.index({ status: 1 });

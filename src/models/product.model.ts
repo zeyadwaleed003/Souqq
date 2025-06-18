@@ -34,11 +34,7 @@ const productSchema = new Schema<ProductDocument>(
       default: 0,
     },
   },
-  {
-    timestamps: true,
-    toJSON: { virtuals: true },
-    toObject: { virtuals: true },
-  }
+  { timestamps: true }
 );
 
 productSchema.pre(

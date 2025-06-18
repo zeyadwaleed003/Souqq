@@ -74,14 +74,14 @@ class ReviewService {
       .limitFields()
       .paginate();
 
-    const Reviews = await features.query.lean();
+    const reviews = await features.query.lean();
 
     const result = {
       status: 'success',
       statusCode: 200,
-      size: Reviews.length,
+      size: reviews.length,
       data: {
-        Reviews,
+        reviews,
       },
     };
 
