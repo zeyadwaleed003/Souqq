@@ -1,7 +1,7 @@
 import { Schema, model } from 'mongoose';
 import { CartDocument, CartItem, CartModel } from '../types/cart.types';
 
-const cartItemSchema = new Schema<CartItem>(
+export const cartItemSchema = new Schema<CartItem>(
   {
     product: {
       type: Schema.Types.ObjectId,
