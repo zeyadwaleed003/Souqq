@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { Types, Document, Model } from 'mongoose';
+import { Types, Document, Model, Query } from 'mongoose';
 
 import {
   removeItemFromCartSchema,

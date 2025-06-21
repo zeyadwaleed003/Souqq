@@ -2,6 +2,7 @@ import { Types } from 'mongoose';
 import { Cart } from '../models/cart.model';
 import { TQueryString, TResponse } from '../types/api.types';
 import {
+  CartDocument,
   RemoveItemFromCartBody,
   UpdateItemCartBody,
 } from '../types/cart.types';
@@ -63,6 +64,7 @@ class CartService {
 
   async getCurrentUserCart(userId: Types.ObjectId): Promise<TResponse> {
     const cart = await Cart.findOne({ user: userId }).lean();
+
     return {
       statusCode: 200,
       status: 'success',
@@ -165,6 +167,11 @@ class CartService {
         cart,
       },
     };
+  }
+
+  async getCartByUserId(userId: string): Promise<CartDocument> {
+    const cart = await Cart.findOne({ user: userId }).lean();
+    return cart as CartDocument;
   }
 }
 

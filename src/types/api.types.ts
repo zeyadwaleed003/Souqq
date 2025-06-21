@@ -16,6 +16,7 @@ export type TResponse = {
   accessToken?: string;
   refreshToken?: string;
   data?: object;
+  session?: object;
 };
 
 export type TQueryString = {

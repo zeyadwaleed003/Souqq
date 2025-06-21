@@ -46,4 +46,6 @@ export default {
   REDIS_PASSWORD: env.get('REDIS_PASSWORD').required().asString(),
   REDIS_URL: env.get('REDIS_URL').required().asString(),
   REDIS_PORT: env.get('REDIS_PORT').required().asPortNumber(),
+
+  STRIPE_SECRET_KEY: env.get('STRIPE_SECRET_KEY').required().asString(),
 };

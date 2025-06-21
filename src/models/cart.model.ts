@@ -1,7 +1,7 @@
-import { Schema, model } from 'mongoose';
+import { Query, Schema, model } from 'mongoose';
 import { CartDocument, CartItem, CartModel } from '../types/cart.types';
 
-const cartItemSchema = new Schema<CartItem>(
+export const cartItemSchema = new Schema<CartItem>(
   {
     product: {
       type: Schema.Types.ObjectId,
@@ -46,5 +46,17 @@ cartSchema.pre('save', function (next) {
   this.set({ totalPrice: priceSum, totalQuantity: quantitySum });
   next();
 });
+
+cartSchema.pre(
+  /^find/,
+  function (this: Query<CartDocument[], CartDocument>, next) {
+    this.populate({
+      path: 'items.product',
+      select: 'name description',
+    });
+
+    next();
+  }
+);
 
 export const Cart = model<CartDocument, CartModel>('Cart', cartSchema);
