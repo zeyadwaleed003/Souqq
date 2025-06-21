@@ -9,5 +9,6 @@ export default (data: TResponse, res: Response) => {
     refreshToken: data.refreshToken,
     message: data.message,
     data: data.data,
+    session: data.session,
   });
 };

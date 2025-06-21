@@ -18,6 +18,7 @@ import { categoryRouter } from './routes/category.routes';
 import { variantRouter } from './routes/variant.routes';
 import { reviewRouter } from './routes/review.routes';
 import { cartRouter } from './routes/cart.routes';
+import { orderRouter } from './routes/order.routes';
 
 const app = express();
 
@@ -40,6 +41,7 @@ app.use(passport.initialize());
 app.use(compression());
 
 // Routes
+app.use('/api/v1/orders', orderRouter);
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/products', productRouter);

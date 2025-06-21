@@ -30,7 +30,7 @@ const orderSchema = new Schema<OrderDocument>(
     },
     paymentMethod: {
       type: String,
-      enum: ['cod', 'card', 'apple_pay', 'google_pay'],
+      enum: ['card', 'apple_pay', 'google_pay'],
       required: [true, 'An order must have a payment method'],
     },
     totalPrice: { type: Number, required: true },
