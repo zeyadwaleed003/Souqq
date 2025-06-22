@@ -5,7 +5,7 @@ import APIError from '../utils/APIError';
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    const isProfPic = req.baseUrl === '/api/v1/auth' || '/api/v1/users';
+    const isProfPic = req.baseUrl === '/api/v1/auth' || req.baseUrl === '/api/v1/users';
 
     cb(null, `${__dirname}/../uploads/${isProfPic ? 'users' : ''}`);
   },
