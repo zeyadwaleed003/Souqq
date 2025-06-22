@@ -9,7 +9,6 @@ export const signupSchema = z.object({
         .max(30, 'Name must not be more than 30 characters long')
         .trim(),
       email: z.string().email({ message: 'Invalid email address' }).trim(),
-      photo: z.string().optional(),
       role: z.enum(['user', 'seller']).default('user'),
       password: z
         .string()

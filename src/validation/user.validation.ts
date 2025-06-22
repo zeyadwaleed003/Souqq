@@ -9,7 +9,6 @@ const userFieldsSchema = z
       .trim(),
     email: z.string().email({ message: 'Invalid email address' }).trim(),
     googleId: z.string().optional(),
-    photo: z.string().optional(),
     password: z
       .string()
       .min(8, 'Password must be at least 8 characters long')
@@ -37,7 +36,6 @@ export const updateMeSchema = z.object({
   body: userFieldsSchema
     .pick({
       name: true,
-      photo: true,
     })
     .partial(),
 });

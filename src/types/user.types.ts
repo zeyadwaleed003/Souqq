@@ -40,8 +40,12 @@ export type AccessTokenPayload = Pick<
   'name' | 'email' | 'photo' | 'role' | 'emailVerified' | '_id' | 'createdAt'
 >;
 
-export type CreateUserBody = z.output<typeof createUserSchema>['body'];
-export type UpdateUserBody = z.output<typeof updateUserSchema>['body'];
-export type UpdateMeBody = z.output<typeof updateMeSchema>['body'];
+export type UserPhoto = { photo?: string };
+
+export type CreateUserBody = z.output<typeof createUserSchema>['body'] &
+  UserPhoto;
+export type UpdateUserBody = z.output<typeof updateUserSchema>['body'] &
+  UserPhoto;
+export type UpdateMeBody = z.output<typeof updateMeSchema>['body'] & UserPhoto;
 
 export type RefreshTokenPayload = Pick<UserDocument, '_id'>;

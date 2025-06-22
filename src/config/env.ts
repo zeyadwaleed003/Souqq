@@ -48,4 +48,8 @@ export default {
   REDIS_PORT: env.get('REDIS_PORT').required().asPortNumber(),
 
   STRIPE_SECRET_KEY: env.get('STRIPE_SECRET_KEY').required().asString(),
+
+  CLOUD_NAME: env.get('CLOUD_NAME').required().asString(),
+  CLOUD_KEY: env.get('CLOUD_KEY').required().asString(),
+  CLOUD_SECRET: env.get('CLOUD_SECRET').required().asString(),
 };
