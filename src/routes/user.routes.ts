@@ -19,6 +19,7 @@ import {
   updateUserSchema,
 } from '../validation/user.validation';
 import { reviewRouter } from './review.routes';
+import { uploadUserPhoto } from '../middlewares/upload';
 
 const router = Router();
 
@@ -29,20 +30,25 @@ router.use(isAuthenticated);
 router
   .route('/me')
   .get(getMe)
-  .patch(validate(updateMeSchema), updateMe)
+  .patch(uploadUserPhoto, validate(updateMeSchema), updateMe)
   .delete(deleteMe);
 
 router
   .route('/')
   .all(isAuthorized('admin'))
   .get(getAllUsers)
-  .post(validate(createUserSchema), createUser);
+  .post(uploadUserPhoto, validate(createUserSchema), createUser);
 
 router
   .route('/:id')
   .all(validate(idSchema))
   .get(getUser)
-  .patch(isAuthorized('admin'), validate(updateUserSchema), updateUser)
+  .patch(
+    uploadUserPhoto,
+    isAuthorized('admin'),
+    validate(updateUserSchema),
+    updateUser
+  )
   .delete(isAuthorized('admin'), deleteUser);
 
 export const userRouter = router;

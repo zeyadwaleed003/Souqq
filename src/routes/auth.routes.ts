@@ -22,10 +22,11 @@ import {
   updatePasswordSchema,
 } from '../validation/auth.validation';
 import isAuthenticated from '../middlewares/isAuthenticated';
+import { uploadUserPhoto } from '../middlewares/upload';
 
 const router = Router();
 
-router.post('/signup', validate(signupSchema), signup);
+router.post('/signup', uploadUserPhoto, validate(signupSchema), signup);
 router.post('/login', validate(loginSchema), login);
 
 router.post('/refresh-token', validate(refreshAccessTokenSchema), refreshToken);
