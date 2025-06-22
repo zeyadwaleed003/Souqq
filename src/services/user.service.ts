@@ -61,6 +61,8 @@ class UserService {
     const user = await User.create(data);
     if (!user) ResponseFormatter.internalError('Failed to create the document');
 
+    user.emailVerified = true;
+
     CartService.createCart(user._id);
 
     return {
