@@ -2,6 +2,7 @@ import { z } from 'zod';
 
 import { objectIdSchema } from './base.validation';
 import ProductService from '../services/product.service';
+import APIError from '../utils/APIError';
 
 const variantFieldsSchema = z
   .object({
@@ -13,9 +14,33 @@ const variantFieldsSchema = z
         message: 'The provided product id does not match any existing product',
       }
     ),
-    price: z.number().positive(),
-    oldPrice: z.number().positive().optional(),
-    stock: z.number().positive(),
+    price: z
+      .string()
+      .transform((val) => {
+        const parsed = Number(val);
+        if (isNaN(parsed))
+          throw new APIError('Price must be a valid number', 400);
+        return parsed;
+      })
+      .pipe(z.number().positive('Price must be a prositive number')),
+    oldPrice: z
+      .string()
+      .transform((val) => {
+        const parsed = Number(val);
+        if (isNaN(parsed))
+          throw new APIError('Old price must be a valid number', 400);
+        return parsed;
+      })
+      .pipe(z.number().positive('Old price must be a prositive number'))
+      .optional(),
+    stock: z
+      .string()
+      .transform((val) => {
+        const parsed = Number(val);
+        if (isNaN(parsed)) throw new Error('Stock must be a valid number');
+        return parsed;
+      })
+      .pipe(z.number().int().min(0, 'Stock cannot be negative')),
     sku: z.string().trim().optional(),
     size: z.string().trim().optional(),
     color: z.string().trim().optional(),

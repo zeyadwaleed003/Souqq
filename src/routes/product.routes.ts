@@ -21,7 +21,7 @@ import {
 } from '../validation/product.validation';
 import validate from '../middlewares/validate';
 import {
-  ImagesSchema,
+  imagesSchema,
   idSchema,
   productIdSchema,
 } from '../validation/base.validation';
@@ -66,6 +66,6 @@ router
   .route('/:id/images')
   .all(validate(idSchema), isAuthenticated, isAuthorized('admin', 'seller'))
   .post(uploadMultipleImages, checkProductSeller, addImagesToProduct)
-  .delete(validate(ImagesSchema), checkProductSeller, deleteProductImages);
+  .delete(validate(imagesSchema), checkProductSeller, deleteProductImages);
 
 export const productRouter = router;

@@ -9,10 +9,11 @@ const storage = multer.diskStorage({
       req.baseUrl === '/api/v1/auth' || req.baseUrl === '/api/v1/users';
     const isProductPic = req.baseUrl === '/api/v1/products';
     const isCategoryPic = req.baseUrl === '/api/v1/categories';
+    const isVariantPic = req.baseUrl === '/api/v1/variants';
 
     cb(
       null,
-      `${__dirname}/../uploads/${isProfPic ? 'users' : isProductPic ? 'products' : isCategoryPic ? 'categories' : ''}`
+      `${__dirname}/../uploads/${isProfPic ? 'users' : isProductPic ? 'products' : isCategoryPic ? 'categories' : isVariantPic ? 'variants' : ''}`
     );
   },
   filename: function (req, file, cb) {

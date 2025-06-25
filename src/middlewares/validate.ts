@@ -17,5 +17,6 @@ export default (schema: AnyZodObject) =>
       throw new APIError(error.message, 400);
     }
 
+    if (result.data.body) req.body = result.data.body;
     next();
   };

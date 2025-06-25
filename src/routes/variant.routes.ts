@@ -13,12 +13,19 @@ import {
   checkProductSellerV,
   restrictSellerVariantPermissions,
   getCheapestVariantPerProduct,
+  addImagesToVariant,
+  deleteVariantImages,
 } from '../controllers/variant.controller';
 import { createVariantSchema } from '../validation/variant.validation';
 import { updateVariantSchema } from '../validation/variant.validation';
 import validate from '../middlewares/validate';
-import { idSchema, variantIdSchema } from '../validation/base.validation';
+import {
+  idSchema,
+  imagesSchema,
+  variantIdSchema,
+} from '../validation/base.validation';
 import { cartRouter } from './cart.routes';
+import { uploadMultipleImages } from '../middlewares/upload';
 
 const router = Router();
 
@@ -41,6 +48,7 @@ router
   .post(
     isAuthenticated,
     isAuthorized('admin', 'seller'),
+    uploadMultipleImages,
     validate(createVariantSchema),
     checkProductSellerV,
     restrictSellerVariantPermissions,
@@ -54,11 +62,18 @@ router
   .patch(
     isAuthenticated,
     isAuthorized('admin', 'seller'),
+    uploadMultipleImages,
     validate(updateVariantSchema),
     checkProductSellerV,
     restrictSellerVariantPermissions,
     updateVariant
   )
   .delete(isAuthenticated, isAuthorized('admin'), deleteVariant);
+
+router
+  .route('/:id/images')
+  .all(validate(idSchema), isAuthenticated, isAuthorized('admin', 'seller'))
+  .post(uploadMultipleImages, checkProductSellerV, addImagesToVariant)
+  .delete(validate(imagesSchema), checkProductSellerV, deleteVariantImages);
 
 export const variantRouter = router;
