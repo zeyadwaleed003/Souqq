@@ -63,3 +63,7 @@ export const querySchema = z.object({
     limit: limitSchema,
   }),
 });
+
+export const deleteImagesSchema = z.object({
+  body: z.object({ images: z.array(z.string()) }).strict(),
+});

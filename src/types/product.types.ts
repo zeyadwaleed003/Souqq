@@ -24,7 +24,7 @@ export type TSellerId = {
   sellerId: Types.ObjectId;
 };
 
-type ProductImages = {
+export type ProductImages = {
   images: string[];
 };
 

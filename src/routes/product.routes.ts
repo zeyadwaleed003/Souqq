@@ -12,13 +12,18 @@ import {
   restrictSellerProductPermissions,
   checkProductSeller,
   normalizeCategoriesToArray,
+  deleteProductImages,
 } from '../controllers/product.controller';
 import {
   createProductSchema,
   updateProductSchema,
 } from '../validation/product.validation';
 import validate from '../middlewares/validate';
-import { idSchema, productIdSchema } from '../validation/base.validation';
+import {
+  deleteImagesSchema,
+  idSchema,
+  productIdSchema,
+} from '../validation/base.validation';
 import { reviewRouter } from './review.routes';
 import { uploadMultipleImages } from '../middlewares/upload';
 
@@ -55,5 +60,16 @@ router
     updateProduct
   )
   .delete(isAuthenticated, isAuthorized('admin'), deleteProduct);
+
+router
+  .route('/:id/images')
+  .delete(
+    isAuthenticated,
+    isAuthorized('admin', 'seller'),
+    validate(idSchema),
+    validate(deleteImagesSchema),
+    checkProductSeller,
+    deleteProductImages
+  );
 
 export const productRouter = router;

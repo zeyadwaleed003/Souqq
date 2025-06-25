@@ -1,6 +1,10 @@
 import { RequestHandler } from 'express';
 import ProductService from '../services/product.service';
-import { CreateProductBody, TSellerId } from '../types/product.types';
+import {
+  CreateProductBody,
+  ProductImages,
+  TSellerId,
+} from '../types/product.types';
 import sendResponse from '../utils/sendResponse';
 import { IdParams } from '../types/api.types';
 import APIError from '../utils/APIError';
@@ -94,5 +98,17 @@ export const updateProduct: RequestHandler<IdParams> = async (
     req.body.images = req.files.map((file) => file.originalname);
 
   const result = await ProductService.updateProduct(req.params.id, req.body);
+  sendResponse(result, res);
+};
+
+export const deleteProductImages: RequestHandler<
+  IdParams,
+  {},
+  ProductImages
+> = async (req, res, next) => {
+  const result = await ProductService.deleteProductImages(
+    req.params.id,
+    req.body.images
+  );
   sendResponse(result, res);
 };
