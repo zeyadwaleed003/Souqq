@@ -64,6 +64,6 @@ export const querySchema = z.object({
   }),
 });
 
-export const deleteImagesSchema = z.object({
+export const ImagesSchema = z.object({
   body: z.object({ images: z.array(z.string()) }).strict(),
 });

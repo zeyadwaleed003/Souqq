@@ -112,3 +112,18 @@ export const deleteProductImages: RequestHandler<
   );
   sendResponse(result, res);
 };
+
+export const addImagesToProduct: RequestHandler<
+  IdParams,
+  {},
+  ProductImages
+> = async (req, res, next) => {
+  if (req.files && Array.isArray(req.files))
+    req.body.images = req.files.map((file) => file.originalname);
+
+  const result = await ProductService.addImagesToProduct(
+    req.params.id,
+    req.body.images
+  );
+  sendResponse(result, res);
+};
