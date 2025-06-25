@@ -33,6 +33,16 @@ const productSchema = new Schema<ProductDocument>(
       type: Number,
       default: 0,
     },
+    images: {
+      type: [String],
+      required: [true, 'A product must have images describing it'],
+      validate: {
+        validator: function (val: string[]) {
+          return val.length > 0;
+        },
+        message: 'A product must have at least one image',
+      },
+    },
   },
   { timestamps: true }
 );

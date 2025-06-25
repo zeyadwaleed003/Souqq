@@ -17,7 +17,10 @@ const userSchema = new Schema<UserDocument>(
       trim: true,
     },
     googleId: String,
-    photo: String,
+    photo: {
+      type: String,
+      default: 'default.png',
+    },
     password: {
       type: String,
       minlength: [

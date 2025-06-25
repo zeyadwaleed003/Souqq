@@ -15,9 +15,20 @@ export type ProductDocument = Document & {
   description: string;
   ratingsAverage: number;
   ratingsQuantity: number;
+  images: string[];
 };
 
 export type ProductModel = Model<ProductDocument>;
 
-export type CreateProductBody = z.output<typeof createProductSchema>['body'];
-export type UpdateProductBody = z.output<typeof updateProductSchema>['body'];
+export type TSellerId = {
+  sellerId: Types.ObjectId;
+};
+
+type ProductImages = {
+  images: string[];
+};
+
+export type CreateProductBody = z.output<typeof createProductSchema>['body'] &
+  ProductImages;
+export type UpdateProductBody = z.output<typeof updateProductSchema>['body'] &
+  ProductImages;
