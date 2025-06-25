@@ -8,7 +8,7 @@ export type VariantDocument = Document & {
   oldPrice?: number;
   stock: number;
   sku?: string;
-  //   images: [string];
+  images?: string[];
   status: string;
   size: string;
   color: string;
@@ -17,5 +17,11 @@ export type VariantDocument = Document & {
 
 export type VariantModel = Model<VariantDocument>;
 
-export type CreateVariantBody = z.output<typeof createVariantSchema>['body'];
-export type UpdateVariantBody = z.output<typeof createVariantSchema>['body'];
+export type VariantImages = {
+  images: string[];
+};
+
+export type CreateVariantBody = z.output<typeof createVariantSchema>['body'] &
+  VariantImages;
+export type UpdateVariantBody = z.output<typeof createVariantSchema>['body'] &
+  VariantImages;

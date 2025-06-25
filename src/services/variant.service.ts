@@ -10,6 +10,7 @@ import {
 import APIFeatures from '../utils/APIFeatures';
 import ResponseFormatter from '../utils/responseFormatter';
 import RedisService from './redis.service';
+import APIError from '../utils/APIError';
 
 class VariantService {
   readonly CACHE_PATTERN = 'variants:*';
@@ -193,6 +194,68 @@ class VariantService {
     await RedisService.setJSON(cacheKey, 3600, result);
 
     return result;
+  }
+
+  async deleteVariantImages(
+    id: string,
+    imagesToDelete: string[]
+  ): Promise<TResponse> {
+    const variant = await Variant.findById(id);
+    if (!variant) ResponseFormatter.notFound('No variant found with that id');
+
+    if (!variant.images || !variant.images.length)
+      throw new APIError(
+        'This variant does not have any images to delete',
+        400
+      );
+
+    const updatedVariant = await Variant.findByIdAndUpdate(
+      id,
+      { $pullAll: { images: imagesToDelete } },
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedVariant)
+      ResponseFormatter.internalError('Failed to delete images from variant');
+
+    await RedisService.deleteKeys(this.CACHE_PATTERN);
+
+    return {
+      status: 'success',
+      statusCode: 200,
+      message: 'Images deleted successfully',
+      data: {
+        variant: updatedVariant,
+      },
+    };
+  }
+
+  async addImagesToVariant(
+    id: string,
+    imagesToAdd: string[]
+  ): Promise<TResponse> {
+    const variant = await Variant.findById(id);
+    if (!variant) ResponseFormatter.notFound('No variant found with that id');
+
+    const updatedVariant = await Variant.findByIdAndUpdate(
+      id,
+      { $addToSet: { images: { $each: imagesToAdd } } },
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedVariant)
+      ResponseFormatter.internalError('Failed to add images to variant');
+
+    await RedisService.deleteKeys(this.CACHE_PATTERN);
+
+    return {
+      status: 'success',
+      statusCode: 200,
+      message: 'Images added successfully',
+      data: {
+        variant: updatedVariant,
+      },
+    };
   }
 }
 

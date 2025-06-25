@@ -21,7 +21,7 @@ const categorySchema = new Schema<CategoryDocument>(
       default: null,
     },
     description: String,
-    image: String,
+    coverImage: String,
   },
   { timestamps: true }
 );

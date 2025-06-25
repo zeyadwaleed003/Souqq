@@ -1,6 +1,10 @@
 import { RequestHandler } from 'express';
 
-import { CreateVariantBody, UpdateVariantBody } from '../types/variant.types';
+import {
+  CreateVariantBody,
+  UpdateVariantBody,
+  VariantImages,
+} from '../types/variant.types';
 import sendResponse from '../utils/sendResponse';
 import VariantService from '../services/variant.service';
 import APIError from '../utils/APIError';
@@ -35,6 +39,9 @@ export const createVariant: RequestHandler<{}, {}, CreateVariantBody> = async (
   res,
   next
 ) => {
+  if (req.files && Array.isArray(req.files))
+    req.body.images = req.files.map((file) => file.originalname);
+
   const result = await VariantService.createVariant(req.body);
   sendResponse(result, res);
 };
@@ -67,6 +74,9 @@ export const updateVariant: RequestHandler<
   {},
   UpdateVariantBody
 > = async (req, res, next) => {
+  if (req.files && Array.isArray(req.files))
+    req.body.images = req.files.map((file) => file.originalname);
+
   const result = await VariantService.updateVariant(req.params.id, req.body);
   sendResponse(result, res);
 };
@@ -91,5 +101,32 @@ export const getCheapestVariantPerProduct: RequestHandler<{}> = async (
   next
 ) => {
   const result = await VariantService.getCheapestVariantPerProduct();
+  sendResponse(result, res);
+};
+
+export const deleteVariantImages: RequestHandler<
+  IdParams,
+  {},
+  VariantImages
+> = async (req, res, next) => {
+  const result = await VariantService.deleteVariantImages(
+    req.params.id,
+    req.body.images
+  );
+  sendResponse(result, res);
+};
+
+export const addImagesToVariant: RequestHandler<
+  IdParams,
+  {},
+  VariantImages
+> = async (req, res, next) => {
+  if (req.files && Array.isArray(req.files))
+    req.body.images = req.files.map((file) => file.originalname);
+
+  const result = await VariantService.addImagesToVariant(
+    req.params.id,
+    req.body.images
+  );
   sendResponse(result, res);
 };

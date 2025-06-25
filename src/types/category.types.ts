@@ -12,12 +12,18 @@ export type CategoryDocument = Document & {
   slug: string;
   parent: Types.ObjectId | null;
   description?: string;
-  image?: string;
+  coverImage: string;
   createdAt: Date;
   updatedAt: Date;
 };
 
 export type CategoryModel = Model<CategoryDocument>;
 
-export type CreateCategoryBody = z.output<typeof createCategorySchema>['body'];
-export type UpdateCategoryBody = z.output<typeof updateCategorySchema>['body'];
+type coverImage = {
+  coverImage: string;
+};
+
+export type CreateCategoryBody = z.output<typeof createCategorySchema>['body'] &
+  coverImage;
+export type UpdateCategoryBody = z.output<typeof updateCategorySchema>['body'] &
+  coverImage;

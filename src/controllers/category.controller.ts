@@ -8,20 +8,20 @@ import {
   UpdateCategoryBody,
 } from '../types/category.types';
 
-export const createCategory: RequestHandler<
-  {},
-  {},
-  CreateCategoryBody
-> = async (req, res, next) => {
+export const createCategory: RequestHandler = async (req, res, next) => {
+  if (req.file) req.body.coverImage = req.file.filename;
+
   const result = await CategoryService.createCategory(req.body);
   sendResponse(result, res);
 };
 
-export const updateCategory: RequestHandler<
-  IdParams,
-  {},
-  UpdateCategoryBody
-> = async (req, res, next) => {
+export const updateCategory: RequestHandler<IdParams> = async (
+  req,
+  res,
+  next
+) => {
+  if (req.file) req.body.coverImage = req.file.filename;
+
   const result = await CategoryService.updateCategory(req.params.id, req.body);
   sendResponse(result, res);
 };

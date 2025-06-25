@@ -1,23 +1,40 @@
 import { RequestHandler } from 'express';
 import ProductService from '../services/product.service';
-import { CreateProductBody, UpdateProductBody } from '../types/product.types';
+import {
+  CreateProductBody,
+  ProductImages,
+  TSellerId,
+} from '../types/product.types';
 import sendResponse from '../utils/sendResponse';
 import { IdParams } from '../types/api.types';
 import APIError from '../utils/APIError';
 
-export const defineProductSeller: RequestHandler<{}> = (req, res, next) => {
+export const normalizeCategoriesToArray: RequestHandler<
+  {},
+  {},
+  { categories: string | string[] }
+> = (req, res, next) => {
+  const categories = req.body.categories;
+  if (categories && !Array.isArray(categories))
+    req.body.categories = [categories];
+  next();
+};
+
+export const defineProductSeller: RequestHandler<{}, {}, TSellerId> = (
+  req,
+  res,
+  next
+) => {
   if (!req.user) throw new APIError('Authentication failed', 401);
 
-  if (req.user.role === 'seller') {
-    req.body.sellerId = req.user._id;
-  }
+  if (req.user.role === 'seller') req.body.sellerId = req.user._id;
   next();
 };
 
 export const restrictSellerProductPermissions: RequestHandler<
   {},
   {},
-  CreateProductBody | UpdateProductBody
+  TSellerId
 > = async (req, res, next) => {
   if (!req.user) throw new APIError('Authentication failed', 401);
 
@@ -26,7 +43,7 @@ export const restrictSellerProductPermissions: RequestHandler<
   next();
 };
 
-export const checkProductSellerP: RequestHandler<IdParams> = async (
+export const checkProductSeller: RequestHandler<IdParams> = async (
   req,
   res,
   next
@@ -42,6 +59,9 @@ export const createProduct: RequestHandler<{}, {}, CreateProductBody> = async (
   res,
   next
 ) => {
+  if (req.files && Array.isArray(req.files))
+    req.body.images = req.files.map((file) => file.originalname);
+
   const result = await ProductService.createProduct(req.body);
   sendResponse(result, res);
 };
@@ -69,11 +89,41 @@ export const deleteProduct: RequestHandler<IdParams> = async (
   sendResponse(result, res);
 };
 
-export const updateProduct: RequestHandler<
+export const updateProduct: RequestHandler<IdParams> = async (
+  req,
+  res,
+  next
+) => {
+  if (req.files && Array.isArray(req.files))
+    req.body.images = req.files.map((file) => file.originalname);
+
+  const result = await ProductService.updateProduct(req.params.id, req.body);
+  sendResponse(result, res);
+};
+
+export const deleteProductImages: RequestHandler<
   IdParams,
   {},
-  UpdateProductBody
+  ProductImages
 > = async (req, res, next) => {
-  const result = await ProductService.updateProduct(req.params.id, req.body);
+  const result = await ProductService.deleteProductImages(
+    req.params.id,
+    req.body.images
+  );
+  sendResponse(result, res);
+};
+
+export const addImagesToProduct: RequestHandler<
+  IdParams,
+  {},
+  ProductImages
+> = async (req, res, next) => {
+  if (req.files && Array.isArray(req.files))
+    req.body.images = req.files.map((file) => file.originalname);
+
+  const result = await ProductService.addImagesToProduct(
+    req.params.id,
+    req.body.images
+  );
   sendResponse(result, res);
 };

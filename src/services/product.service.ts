@@ -157,6 +157,64 @@ class ProductService {
 
     await RedisService.deleteKeys(this.CACHE_PATTERN);
   }
+
+  async deleteProductImages(
+    id: string,
+    imagesToDelete: string[]
+  ): Promise<TResponse> {
+    const product = await Product.findById(id);
+    if (!product) ResponseFormatter.notFound('No product found with that id');
+
+    const remainingImages = product.images.filter(
+      (img) => !imagesToDelete.includes(img)
+    );
+    if (!remainingImages.length)
+      ResponseFormatter.badRequest(
+        'Cannot delete all images. A product must have at least one image'
+      );
+
+    product.images = remainingImages;
+    await product.save();
+
+    await RedisService.deleteKeys(this.CACHE_PATTERN);
+
+    return {
+      status: 'success',
+      statusCode: 200,
+      message: 'Images deleted successfully',
+      data: {
+        product,
+      },
+    };
+  }
+
+  async addImagesToProduct(
+    id: string,
+    imagesToAdd: string[]
+  ): Promise<TResponse> {
+    const product = await Product.findById(id);
+    if (!product) ResponseFormatter.notFound('No product found with that id');
+
+    const updatedProduct = await Product.findByIdAndUpdate(
+      id,
+      { $addToSet: { images: { $each: imagesToAdd } } },
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedProduct)
+      ResponseFormatter.internalError('Failed to add images to product');
+
+    await RedisService.deleteKeys(this.CACHE_PATTERN);
+
+    return {
+      status: 'success',
+      statusCode: 200,
+      message: 'Images added successfully',
+      data: {
+        product: updatedProduct,
+      },
+    };
+  }
 }
 
 export default new ProductService();
