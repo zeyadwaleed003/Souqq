@@ -19,6 +19,7 @@ import {
   updateCategorySchema,
 } from '../validation/category.validation';
 import { idSchema, querySchema } from '../validation/base.validation';
+import { uploadCoverImage } from '../middlewares/upload';
 
 const router = Router();
 
@@ -31,6 +32,7 @@ router
   .post(
     isAuthenticated,
     isAuthorized('admin'),
+    uploadCoverImage,
     validate(createCategorySchema),
     createCategory
   );
@@ -42,6 +44,7 @@ router
   .patch(
     isAuthenticated,
     isAuthorized('admin'),
+    uploadCoverImage,
     validate(updateCategorySchema),
     updateCategory
   )
