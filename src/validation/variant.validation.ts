@@ -22,7 +22,7 @@ const variantFieldsSchema = z
           throw new APIError('Price must be a valid number', 400);
         return parsed;
       })
-      .pipe(z.number().positive('Price must be a prositive number')),
+      .pipe(z.number().positive('Price must be a positive number')),
     oldPrice: z
       .string()
       .transform((val) => {
@@ -31,13 +31,14 @@ const variantFieldsSchema = z
           throw new APIError('Old price must be a valid number', 400);
         return parsed;
       })
-      .pipe(z.number().positive('Old price must be a prositive number'))
+      .pipe(z.number().positive('Old price must be a positive number'))
       .optional(),
     stock: z
       .string()
       .transform((val) => {
         const parsed = Number(val);
-        if (isNaN(parsed)) throw new Error('Stock must be a valid number');
+        if (isNaN(parsed))
+          throw new APIError('Stock must be a valid number', 400);
         return parsed;
       })
       .pipe(z.number().int().min(0, 'Stock cannot be negative')),
