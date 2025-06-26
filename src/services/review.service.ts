@@ -237,6 +237,9 @@ class ReviewService {
     if (cachedData) return cachedData;
 
     const reviews = await Review.find({ product: productId }).lean();
+    if (!reviews)
+      ResponseFormatter.badRequest('This product has no reviews yet');
+
     const response = await GeminiService.summarizeReviews(reviews);
 
     const result = {
