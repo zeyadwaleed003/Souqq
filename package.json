@@ -13,6 +13,7 @@
  "author": "Zeyad Waleed",
  "license": "ISC",
  "dependencies": {
+  "@google/genai": "^1.6.0",
   "bcrypt": "^6.0.0",
   "cloudinary": "^2.7.0",
   "compression": "^1.8.0",
