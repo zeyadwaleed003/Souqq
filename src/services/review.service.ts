@@ -236,7 +236,10 @@ class ReviewService {
 
     if (cachedData) return cachedData;
 
-    const reviews = await Review.find({ product: productId }).lean();
+    const reviews = await Review.find({ product: productId })
+      .select('comment')
+      .lean();
+
     if (!reviews)
       ResponseFormatter.badRequest('This product has no reviews yet');
 
