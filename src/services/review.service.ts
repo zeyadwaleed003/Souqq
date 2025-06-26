@@ -12,6 +12,7 @@ import ResponseFormatter from '../utils/responseFormatter';
 import APIFeatures from '../utils/APIFeatures';
 import RedisService from './redis.service';
 import stringify from 'fast-json-stable-stringify';
+import GeminiService from './gemini.service';
 
 class ReviewService {
   readonly CACHE_PATTERN = 'reviews:*';
@@ -227,6 +228,33 @@ class ReviewService {
         review,
       },
     };
+  }
+
+  async getAiReviewsSummary(productId: string): Promise<TResponse> {
+    const cacheKey = `reviews:${productId}:summary`;
+    const cachedData = await RedisService.getJSON(cacheKey);
+
+    if (cachedData) return cachedData;
+
+    const reviews = await Review.find({ product: productId })
+      .select('comment')
+      .lean();
+
+    if (!reviews)
+      ResponseFormatter.badRequest('This product has no reviews yet');
+
+    const response = await GeminiService.summarizeReviews(reviews);
+
+    const result = {
+      status: 'success',
+      statusCode: 200,
+      data: {
+        response,
+      },
+    };
+
+    await RedisService.setJSON(cacheKey, 3600, result);
+    return result;
   }
 }
 

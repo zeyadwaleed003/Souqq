@@ -103,3 +103,14 @@ export const unmarkAsHelpful: RequestHandler<IdParams> = async (
   );
   sendResponse(result, res);
 };
+
+export const getAiReviewsSummary: RequestHandler<
+  { productId: string },
+  {},
+  { product: string }
+> = async (req, res, next) => {
+  if (req.params.productId) req.body.product = req.params.productId;
+
+  const result = await ReviewService.getAiReviewsSummary(req.body.product);
+  sendResponse(result, res);
+};

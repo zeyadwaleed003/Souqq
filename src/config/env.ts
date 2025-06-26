@@ -52,4 +52,6 @@ export default {
   CLOUD_NAME: env.get('CLOUD_NAME').required().asString(),
   CLOUD_KEY: env.get('CLOUD_KEY').required().asString(),
   CLOUD_SECRET: env.get('CLOUD_SECRET').required().asString(),
+
+  GOOGLE_AI_API_KEY: env.get('GOOGLE_AI_API_KEY').required().asString(),
 };

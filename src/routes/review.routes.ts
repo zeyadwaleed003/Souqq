@@ -17,10 +17,13 @@ import {
   getCurrentUserReviews,
   markAsHelpful,
   unmarkAsHelpful,
+  getAiReviewsSummary,
 } from '../controllers/review.controller';
-import { idSchema } from '../validation/base.validation';
+import { idSchema, productIdBodySchema } from '../validation/base.validation';
 
 const router = Router({ mergeParams: true });
+
+router.get('/summary', validate(productIdBodySchema), getAiReviewsSummary);
 
 router
   .route('/:id/helpful')

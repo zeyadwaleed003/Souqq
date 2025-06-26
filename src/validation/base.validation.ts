@@ -22,6 +22,15 @@ export const productIdSchema = z.object({
   }),
 });
 
+export const productIdBodySchema = z.object({
+  body: z
+    .object({
+      product: objectIdSchema.optional(),
+    })
+    .strict()
+    .optional(),
+});
+
 export const variantIdSchema = z.object({
   params: z.object({
     variantId: objectIdSchema,
