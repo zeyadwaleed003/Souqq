@@ -4,7 +4,6 @@ import morgan from 'morgan';
 import helmet from 'helmet';
 import compression from 'compression';
 import rateLimit from 'express-rate-limit';
-import mongoSanitize from 'express-mongo-sanitize';
 
 import env from './config/env';
 import passport from './config/passport';
@@ -21,7 +20,7 @@ import { orderRouter } from './routes/order.routes';
 
 const app = express();
 
-const apilimiter = rateLimit({
+const apiLimiter = rateLimit({
   max: 1000,
   windowMs: 60 * 60 * 1000,
   standardHeaders: 'draft-8',
@@ -38,9 +37,8 @@ const authLimiter = rateLimit({
 app.use(cors());
 app.use(helmet());
 app.use(morgan(env.NODE_ENV === 'development' ? 'dev' : 'combined'));
-app.use(apilimiter);
+app.use(apiLimiter);
 app.use(express.json({ limit: '10mb' }));
-// app.use(mongoSanitize());
 app.use(passport.initialize());
 app.use(compression());
 
