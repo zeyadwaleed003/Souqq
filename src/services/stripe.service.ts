@@ -25,7 +25,7 @@ class StripeService {
     if (cart.items.length === 0) ResponseFormatter.badRequest('Cart is empty');
 
     const line_items: LineItem[] = cart.items.map((item) => {
-      const product: { name: string; description: string } =
+      const product: { name: string; description: string; images: string[] } =
         item.product as any;
 
       return {
@@ -36,6 +36,7 @@ class StripeService {
           product_data: {
             name: product.name,
             description: product.description,
+            images: product.images,
           },
         },
       };

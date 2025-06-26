@@ -52,7 +52,7 @@ cartSchema.pre(
   function (this: Query<CartDocument[], CartDocument>, next) {
     this.populate({
       path: 'items.product',
-      select: 'name description',
+      select: 'name description images',
     });
 
     next();
