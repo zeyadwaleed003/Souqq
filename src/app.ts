@@ -21,7 +21,7 @@ import { orderRouter } from './routes/order.routes';
 
 const app = express();
 
-const limiter = rateLimit({
+const apilimiter = rateLimit({
   max: 1000,
   windowMs: 60 * 60 * 1000,
   standardHeaders: 'draft-8',
@@ -29,11 +29,16 @@ const limiter = rateLimit({
   message: 'Too many requests from this IP, please try again in one hour',
 });
 
+const authLimiter = rateLimit({
+  max: 5,
+  windowMs: 15 * 60 * 1000,
+  message: 'Too many attempts, please try again later',
+});
+
 app.use(cors());
-// app.options('*', cors());
 app.use(helmet());
 app.use(morgan(env.NODE_ENV === 'development' ? 'dev' : 'combined'));
-app.use(limiter);
+app.use(apilimiter);
 app.use(express.json({ limit: '10mb' }));
 // app.use(mongoSanitize());
 app.use(passport.initialize());
@@ -41,7 +46,7 @@ app.use(compression());
 
 // Routes
 app.use('/api/v1/orders', orderRouter);
-app.use('/api/v1/auth', authRouter);
+app.use('/api/v1/auth', authLimiter, authRouter);
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/products', productRouter);
 app.use('/api/v1/reviews', reviewRouter);
