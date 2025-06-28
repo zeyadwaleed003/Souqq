@@ -39,7 +39,7 @@ export const sendEmailVerifyEmail = async (
   await sendEmail(
     name,
     email,
-    `${env.BASE_URL}api/v1/auth/verify-email/${token}`,
+    `${env.BASE_URL}/auth/verify-email/${token}`,
     'emailVerify',
     'Your email verification token (valid for 10 minutes)'
   );
@@ -53,7 +53,7 @@ export const sendPasswordResetEmail = async (
   await sendEmail(
     name,
     email,
-    `${env.BASE_URL}api/v1/auth/reset-password/${token}`,
+    `${env.BASE_URL}/auth/reset-password/${token}`,
     'passwordReset',
     `Your password reset token (valid for 10 minutes)`
   );

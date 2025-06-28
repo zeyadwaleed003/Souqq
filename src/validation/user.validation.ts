@@ -13,14 +13,21 @@ const userFieldsSchema = z
       .string()
       .min(8, 'Password must be at least 8 characters long')
       .trim(),
-    passwordChangedAt: z.date().optional(),
     role: z.enum(['admin', 'user', 'seller']).default('user'),
-    passwordResetToken: z.string().optional(),
-    passwordResetExpiresAt: z.date().optional(),
-    emailVerificationToken: z.string().optional(),
-    emailVerificationTokenExpiresAt: z.date().optional(),
-    emailVerified: z.boolean().default(true),
-    active: z.boolean().default(true),
+    emailVerified: z
+      .union([z.boolean(), z.string()])
+      .transform((val) => {
+        if (typeof val === 'string') return val.toLowerCase() === 'true';
+        return val;
+      })
+      .default(true),
+    active: z
+      .union([z.boolean(), z.string()])
+      .transform((val) => {
+        if (typeof val === 'string') return val.toLowerCase() === 'true';
+        return val;
+      })
+      .default(true),
   })
   .strict();
 

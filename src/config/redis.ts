@@ -15,7 +15,7 @@ const client = createClient({
 client.on('error', (err) => logger.error('Redis Client Error', err));
 client
   .connect()
-  .then(() => logger.info('Redis Connected Successfully'))
+  .then(() => logger.info('Redis connected successfully'))
   .catch((err) => logger.error('Redis Connection Failed', err));
 
 export default client;

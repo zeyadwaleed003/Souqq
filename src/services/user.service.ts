@@ -58,8 +58,6 @@ class UserService {
   }
 
   async createUser(data: CreateUserBody): Promise<TResponse> {
-    data.emailVerified = true;
-
     const user = await User.create(data);
     if (!user) ResponseFormatter.internalError('Failed to create the document');
 
