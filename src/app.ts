@@ -1,25 +1,40 @@
-import express, { NextFunction, Request, Response } from 'express';
+import express from 'express';
 import cors from 'cors';
 import morgan from 'morgan';
 import helmet from 'helmet';
 import compression from 'compression';
 import rateLimit from 'express-rate-limit';
 
+// Configs & Utils
 import env from './config/env';
 import passport from './config/passport';
-import APIError from './utils/APIError';
+
+// Middlewares
+import notFound from './middlewares/notFound';
 import globalErrorHandler from './middlewares/globalErrorHandler';
+
+// Routers
 import { userRouter } from './routes/user.routes';
 import { authRouter } from './routes/auth.routes';
-import { productRouter } from './routes/product.routes';
-import { categoryRouter } from './routes/category.routes';
-import { variantRouter } from './routes/variant.routes';
-import { reviewRouter } from './routes/review.routes';
 import { cartRouter } from './routes/cart.routes';
 import { orderRouter } from './routes/order.routes';
+import { reviewRouter } from './routes/review.routes';
+import { productRouter } from './routes/product.routes';
+import { variantRouter } from './routes/variant.routes';
+import { categoryRouter } from './routes/category.routes';
+
+// Swagger Setup
+import swaggerJsDocs from 'swagger-jsdoc';
+import swaggerUi from 'swagger-ui-express';
+import { swaggerOptions } from './config/swagger';
 
 const app = express();
 
+// Swagger Docs
+const swaggerSpec = swaggerJsDocs(swaggerOptions);
+app.use('/api/v1/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
+// Rate Limiters
 const apiLimiter = rateLimit({
   max: 1000,
   windowMs: 60 * 60 * 1000,
@@ -34,6 +49,7 @@ const authLimiter = rateLimit({
   message: 'Too many attempts, please try again later',
 });
 
+// Middlewares
 app.use(cors());
 app.use(helmet());
 app.use(morgan(env.NODE_ENV === 'development' ? 'dev' : 'combined'));
@@ -52,11 +68,8 @@ app.use('/api/v1/variants', variantRouter);
 app.use('/api/v1/carts', cartRouter);
 app.use('/api/v1/categories', categoryRouter);
 
-// Handle Unhandled Routes
-app.all(/(.*)/, (req: Request, res: Response, next: NextFunction) => {
-  next(new APIError(`Can't find ${req.originalUrl} on this server`, 404));
-});
-
+// Error Handling
+app.all(/(.*)/, notFound);
 app.use(globalErrorHandler);
 
 export default app;

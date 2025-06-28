@@ -19,6 +19,7 @@ mongoose.connect(DB).then(() => {
 
 const server = app.listen(PORT, () => {
   logger.info(`Server running on port: ${PORT}`);
+  logger.info(`Docs available at ${env.BASE_URL}/api-docs`);
 });
 
 process.on('unhandledRejection', (reason) => {

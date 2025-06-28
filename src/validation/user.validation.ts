@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { stringOrBoolSchema } from './base.validation';
 
 const userFieldsSchema = z
   .object({
@@ -13,14 +14,9 @@ const userFieldsSchema = z
       .string()
       .min(8, 'Password must be at least 8 characters long')
       .trim(),
-    passwordChangedAt: z.date().optional(),
     role: z.enum(['admin', 'user', 'seller']).default('user'),
-    passwordResetToken: z.string().optional(),
-    passwordResetExpiresAt: z.date().optional(),
-    emailVerificationToken: z.string().optional(),
-    emailVerificationTokenExpiresAt: z.date().optional(),
-    emailVerified: z.boolean().default(true),
-    active: z.boolean().default(true),
+    emailVerified: stringOrBoolSchema,
+    active: stringOrBoolSchema,
   })
   .strict();
 

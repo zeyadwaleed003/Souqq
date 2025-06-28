@@ -76,3 +76,11 @@ export const querySchema = z.object({
 export const imagesSchema = z.object({
   body: z.object({ images: z.array(z.string()) }).strict(),
 });
+
+export const stringOrBoolSchema = z
+  .union([z.boolean(), z.string()])
+  .transform((val) => {
+    if (typeof val === 'string') return val.toLowerCase() === 'true';
+    return val;
+  })
+  .default(true);

@@ -46,8 +46,8 @@ class StripeService {
       payment_method_types: ['card'],
       customer_email: user.email,
       mode: 'payment',
-      success_url: `${env.BASE_URL}api/v1/orders/success?q=true`,
-      cancel_url: `${env.BASE_URL}api/v1/orders/success?q=false`,
+      success_url: `${env.BASE_URL}/orders/success?q=true`,
+      cancel_url: `${env.BASE_URL}/orders/success?q=false`,
       client_reference_id: userId,
       line_items,
     });

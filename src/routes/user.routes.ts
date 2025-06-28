@@ -23,9 +23,9 @@ import { uploadUserPhoto } from '../middlewares/upload';
 
 const router = Router();
 
-router.use('/:userId/reviews', validate(userIdSchema), reviewRouter);
-
 router.use(isAuthenticated);
+
+router.use('/:userId/reviews', validate(userIdSchema), reviewRouter);
 
 router
   .route('/me')
