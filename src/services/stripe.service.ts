@@ -32,7 +32,7 @@ class StripeService {
         quantity: item.quantity,
         price_data: {
           currency: 'usd',
-          unit_amount: item.price * 100,
+          unit_amount: Math.round(item.price * 100),
           product_data: {
             name: product.name,
             description: product.description,
@@ -46,8 +46,8 @@ class StripeService {
       payment_method_types: ['card'],
       customer_email: user.email,
       mode: 'payment',
-      success_url: `${env.BASE_URL}/orders/success?q=true`,
-      cancel_url: `${env.BASE_URL}/orders/success?q=false`,
+      success_url: `${env.BASE_URL}/orders/success?q=true&userId=${userId}`,
+      cancel_url: `${env.BASE_URL}/orders/success?q=false&userId=${userId}`,
       client_reference_id: userId,
       line_items,
     });

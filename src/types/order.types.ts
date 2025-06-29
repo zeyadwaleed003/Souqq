@@ -12,7 +12,6 @@ export type OrderDocument = Document & {
     postalCode: string;
     country: string;
   };
-  paymentMethod: 'card' | 'apple_pay' | 'google_pay';
   totalPrice: number;
   status: 'pending' | 'paid' | 'shipped' | 'delivered' | 'cancelled';
   paidAt?: Date;

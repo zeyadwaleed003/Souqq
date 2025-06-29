@@ -9,7 +9,7 @@ import {
   UpdateUserBody,
 } from '../types/user.types';
 
-export const getAllUsers: RequestHandler<{}> = async (req, res, next) => {
+export const getAllUsers: RequestHandler = async (req, res, next) => {
   const result = await UserService.getAllUsers(req.query);
   sendResponse(result, res);
 };
@@ -48,7 +48,7 @@ export const deleteUser: RequestHandler<IdParams> = async (req, res, next) => {
   sendResponse(result, res);
 };
 
-export const getMe: RequestHandler<{}> = async (req, res, next) => {
+export const getMe: RequestHandler = async (req, res, next) => {
   if (req.user) {
     const result = await UserService.getMe(req.user);
     sendResponse(result, res);
@@ -68,9 +68,16 @@ export const updateMe: RequestHandler<{}, {}, UpdateMeBody> = async (
   sendResponse(result, res);
 };
 
-export const deleteMe: RequestHandler<{}> = async (req, res, next) => {
+export const deleteMe: RequestHandler = async (req, res, next) => {
   if (!req.user) throw new APIError('Authentication failed', 401);
 
   const result = await UserService.deleteMe(req.user._id);
+  sendResponse(result, res);
+};
+
+export const saveShippingAddress: RequestHandler = async (req, res, next) => {
+  if (!req.user) throw new APIError('Authentication failed', 401);
+
+  const result = await UserService.saveShippingAddress(req.user._id, req.body);
   sendResponse(result, res);
 };

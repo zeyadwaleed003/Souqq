@@ -8,12 +8,14 @@ import {
   updateUser,
   updateMe,
   deleteMe,
+  saveShippingAddress,
 } from '../controllers/user.controller';
 import isAuthenticated from '../middlewares/isAuthenticated';
 import isAuthorized from '../middlewares/isAuthorized';
 import validate from '../middlewares/validate';
 import { idSchema, userIdSchema } from '../validation/base.validation';
 import {
+  addressSchema,
   createUserSchema,
   updateMeSchema,
   updateUserSchema,
@@ -24,6 +26,8 @@ import { uploadUserPhoto } from '../middlewares/upload';
 const router = Router();
 
 router.use(isAuthenticated);
+
+router.post('/shipping-address', validate(addressSchema), saveShippingAddress);
 
 router.use('/:userId/reviews', validate(userIdSchema), reviewRouter);
 

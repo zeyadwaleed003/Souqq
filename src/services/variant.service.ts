@@ -46,7 +46,7 @@ class VariantService {
     filter = {}
   ): Promise<TResponse> {
     const cacheKey = `variants:${stringify(queryString)}:${stringify(filter)}`;
-    const cachedData = await RedisService.getJSON(cacheKey);
+    const cachedData = await RedisService.getJSON<TResponse>(cacheKey);
 
     if (cachedData) return cachedData;
 
@@ -88,7 +88,7 @@ class VariantService {
 
   async getVariantById(id: string): Promise<TResponse> {
     const cacheKey = `variants:${id}`;
-    const cachedData = await RedisService.getJSON(cacheKey);
+    const cachedData = await RedisService.getJSON<TResponse>(cacheKey);
 
     if (cachedData) return cachedData;
 
@@ -164,7 +164,7 @@ class VariantService {
 
   async getCheapestVariantPerProduct(): Promise<TResponse> {
     const cacheKey = `variants:cheapest`;
-    const cachedData = await RedisService.getJSON(cacheKey);
+    const cachedData = await RedisService.getJSON<TResponse>(cacheKey);
 
     if (cachedData) return cachedData;
 

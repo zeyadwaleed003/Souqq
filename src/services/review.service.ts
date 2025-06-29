@@ -65,7 +65,7 @@ class ReviewService {
     else if (params.userId) filter = { user: params.userId };
 
     const cacheKey = `reviews:${stringify(queryString)}:${stringify(filter)}`;
-    const cachedData = await RedisService.getJSON(cacheKey);
+    const cachedData = await RedisService.getJSON<TResponse>(cacheKey);
 
     if (cachedData) return cachedData;
 
@@ -232,7 +232,7 @@ class ReviewService {
 
   async getAiReviewsSummary(productId: string): Promise<TResponse> {
     const cacheKey = `reviews:${productId}:summary`;
-    const cachedData = await RedisService.getJSON(cacheKey);
+    const cachedData = await RedisService.getJSON<TResponse>(cacheKey);
 
     if (cachedData) return cachedData;
 
