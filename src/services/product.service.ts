@@ -63,7 +63,7 @@ class ProductService {
     filter = {}
   ): Promise<TResponse> {
     const cacheKey = `products:${stringify(queryString)}:${stringify(filter)}`;
-    const cachedResponse = await RedisService.getJSON(cacheKey);
+    const cachedResponse = await RedisService.getJSON<TResponse>(cacheKey);
 
     if (cachedResponse) return cachedResponse;
 
@@ -90,7 +90,7 @@ class ProductService {
 
   async getProductById(id: string): Promise<TResponse> {
     const cacheKey = `products:${id}`;
-    const cachedResponse = await RedisService.getJSON(cacheKey);
+    const cachedResponse = await RedisService.getJSON<TResponse>(cacheKey);
 
     if (cachedResponse) return cachedResponse;
 

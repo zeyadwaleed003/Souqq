@@ -70,7 +70,7 @@ class CategoryService {
 
   async getCategoryById(id: string): Promise<TResponse> {
     const cacheKey = `categories:${id}`;
-    const cachedData = await RedisService.getJSON(cacheKey);
+    const cachedData = await RedisService.getJSON<TResponse>(cacheKey);
 
     if (cachedData) return cachedData;
 
@@ -96,7 +96,7 @@ class CategoryService {
     filter = {}
   ): Promise<TResponse> {
     const cacheKey = `categories:${stringify(queryString)}:${stringify(filter)}`;
-    const cachedData = await RedisService.getJSON(cacheKey);
+    const cachedData = await RedisService.getJSON<TResponse>(cacheKey);
 
     if (cachedData) return cachedData;
 

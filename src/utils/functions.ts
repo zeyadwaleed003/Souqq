@@ -9,5 +9,6 @@ export const cleanUserData = (user: UserDocument) => {
     role: user.role,
     emailVerified: user.emailVerified,
     createdAt: user.createdAt,
+    address: user.address,
   };
 };

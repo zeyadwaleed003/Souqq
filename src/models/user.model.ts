@@ -1,7 +1,29 @@
-import { model, Schema } from 'mongoose';
 import bcrypt from 'bcrypt';
+import { model, Schema } from 'mongoose';
 
 import { UserDocument, UserModel } from '../types/user.types';
+
+const addressSchema = new Schema(
+  {
+    address: {
+      type: String,
+      required: [true, 'A user must have an address'],
+    },
+    city: {
+      type: String,
+      required: [true, 'An address must have a city'],
+    },
+    postalCode: {
+      type: String,
+      required: [true, 'An address must have a postal code'],
+    },
+    country: {
+      type: String,
+      required: [true, 'An address must have a county'],
+    },
+  },
+  { _id: false }
+);
 
 const userSchema = new Schema<UserDocument>(
   {
@@ -34,6 +56,11 @@ const userSchema = new Schema<UserDocument>(
       type: String,
       enum: ['admin', 'user', 'seller'],
       default: 'user',
+    },
+    address: {
+      type: addressSchema,
+      required: false,
+      default: undefined,
     },
     passwordResetToken: String,
     passwordResetExpiresAt: Date,

@@ -1,19 +1,28 @@
 import { Router } from 'express';
 
-import isAuthenticated from '../middlewares/isAuthenticated';
 import {
-  createCheckoutSession,
+  getOrders,
   verifyOrder,
+  getCurrentUserOrders,
+  createCheckoutSession,
+  getOrderById,
 } from '../controllers/order.controller';
+import validate from '../middlewares/validate';
+import isAuthorized from '../middlewares/isAuthorized';
+import { idSchema } from '../validation/base.validation';
+import isAuthenticated from '../middlewares/isAuthenticated';
 
 const router = Router();
 
-router.post('/checkout-session', isAuthenticated, createCheckoutSession);
 router.get('/success', verifyOrder);
 
-/*
-  TODO: 
-    - Add Stripe Webhook - Make a new order if successfull - Empty the cart if new order
-*/
+router.use(isAuthenticated);
+router.post('/checkout-session', createCheckoutSession);
+
+router.get('/me', getCurrentUserOrders);
+
+router.use(isAuthorized('admin'));
+router.get('/', getOrders);
+router.get('/:id', validate(idSchema), getOrderById);
 
 export const orderRouter = router;

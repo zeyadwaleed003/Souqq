@@ -2,6 +2,7 @@ import { Types } from 'mongoose';
 import { User } from '../models/user.model';
 import { TQueryString, TResponse } from '../types/api.types';
 import {
+  AddressBody,
   CreateUserBody,
   UpdateMeBody,
   UpdateUserBody,
@@ -11,6 +12,7 @@ import { cleanUserData } from '../utils/functions';
 import CartService from './cart.service';
 import APIFeatures from '../utils/APIFeatures';
 import ResponseFormatter from '../utils/responseFormatter';
+import RedisService from './redis.service';
 
 class UserService {
   async doesUserExist(id: string) {
@@ -145,6 +147,20 @@ class UserService {
   async checkIfSeller(id: string): Promise<boolean> {
     const user = await User.findById(id).lean();
     return Boolean(user && user.role === 'seller');
+  }
+
+  async saveShippingAddress(
+    userId: Types.ObjectId,
+    shippingData: AddressBody
+  ): Promise<TResponse> {
+    const cacheKey = `shipping-address:${userId}`;
+    await RedisService.setJSON(cacheKey, 86400, shippingData);
+
+    return {
+      statusCode: 200,
+      status: 'success',
+      message: 'Shipping address saved successfully.',
+    };
   }
 }
 

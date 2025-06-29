@@ -1,13 +1,12 @@
 import redis from '../config/redis';
-import { TResponse } from '../types/api.types';
 
 class RedisService {
-  async getJSON(key: string): Promise<TResponse | null> {
+  async getJSON<T>(key: string): Promise<T | null> {
     const cachedData = await redis.GET(key);
     return cachedData ? JSON.parse(cachedData) : null;
   }
 
-  async setJSON(key: string, ttl: number, value: TResponse) {
+  async setJSON<T>(key: string, ttl: number, value: T) {
     await redis.SETEX(key, ttl, JSON.stringify(value));
   }
 

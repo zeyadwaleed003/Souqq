@@ -129,7 +129,7 @@ class CartService {
     };
   }
 
-  async clearCart(userId: Types.ObjectId): Promise<TResponse> {
+  async clearCart(userId: Types.ObjectId | string): Promise<TResponse> {
     const cart = await Cart.findOne({ user: userId });
     if (!cart) ResponseFormatter.notFound('Failed to load cart');
 

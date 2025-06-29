@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { addressFieldsSchema } from './user.validation';
 
 export const signupSchema = z.object({
   body: z
@@ -15,6 +16,7 @@ export const signupSchema = z.object({
         .min(8, 'Password must be at least 8 characters long')
         .trim(),
       confirmPassword: z.string().trim(),
+      address: addressFieldsSchema.optional(),
     })
     .strict()
     .refine((data) => data.password === data.confirmPassword, {

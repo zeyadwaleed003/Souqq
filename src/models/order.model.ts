@@ -1,11 +1,12 @@
 import { model, Schema } from 'mongoose';
-import { OrderDocument, OrderModel } from '../types/order.types';
+
 import { cartItemSchema } from './cart.model';
+import { OrderDocument, OrderModel } from '../types/order.types';
 
 const orderSchema = new Schema<OrderDocument>(
   {
     user: {
-      types: Schema.Types.ObjectId,
+      type: Schema.Types.ObjectId,
       ref: 'User',
       required: [true, 'An order must belong to a user'],
     },
@@ -23,15 +24,10 @@ const orderSchema = new Schema<OrderDocument>(
         type: String,
         required: [true, 'A shipping address must have a postal code'],
       },
-      county: {
+      country: {
         type: String,
         required: [true, 'A shipping address must have a county'],
       },
-    },
-    paymentMethod: {
-      type: String,
-      enum: ['card', 'apple_pay', 'google_pay'],
-      required: [true, 'An order must have a payment method'],
     },
     totalPrice: { type: Number, required: true },
     status: {
