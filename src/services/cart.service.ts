@@ -79,6 +79,12 @@ class CartService {
     if (!cart) ResponseFormatter.notFound('Failed to load cart');
 
     const variantDetails = await VariantService.getVariantDetails(data.variant);
+
+    if (variantDetails.status !== 'active')
+      ResponseFormatter.badRequest(
+        'This product variant is currently unavailable'
+      );
+
     this.checkQuantityAvailable(data.quantity, variantDetails.stock);
 
     const cartItem = {

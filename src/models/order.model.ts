@@ -2,6 +2,7 @@ import { model, Schema } from 'mongoose';
 
 import { cartItemSchema } from './cart.model';
 import { OrderDocument, OrderModel } from '../types/order.types';
+import VariantService from '../services/variant.service';
 
 const orderSchema = new Schema<OrderDocument>(
   {
@@ -40,5 +41,11 @@ const orderSchema = new Schema<OrderDocument>(
   },
   { timestamps: true }
 );
+
+orderSchema.post('save', async function () {
+  for (const item of this.items) {
+    await VariantService.decreaseVariantStock(item.variant, item.quantity);
+  }
+});
 
 export const Order = model<OrderDocument, OrderModel>('Order', orderSchema);
