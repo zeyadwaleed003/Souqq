@@ -11,6 +11,7 @@ import APIFeatures from '../utils/APIFeatures';
 import ResponseFormatter from '../utils/responseFormatter';
 import RedisService from './redis.service';
 import APIError from '../utils/APIError';
+import { Types } from 'mongoose';
 
 class VariantService {
   readonly CACHE_PATTERN = 'variants:*';
@@ -256,6 +257,18 @@ class VariantService {
         variant: updatedVariant,
       },
     };
+  }
+
+  async decreaseVariantStock(variantId: Types.ObjectId, quantity: number) {
+    const variant = await Variant.findById(variantId);
+
+    const newStock = (variant?.stock as number) - quantity;
+    const updateObj: any = { $inc: { stock: -quantity } };
+
+    if (newStock === 0) updateObj.$set = { status: 'out-of-stock' };
+
+    await Variant.updateOne({ _id: variantId }, updateObj);
+    await RedisService.deleteKeys(this.CACHE_PATTERN);
   }
 }
 
