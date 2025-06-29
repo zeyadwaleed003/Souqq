@@ -1,12 +1,11 @@
-import { Types } from 'mongoose';
-
-import { TResponse } from '../types/api.types';
-import StripeService from './stripe.service';
-import { Address, UserDocument } from '../types/user.types';
 import CartService from './cart.service';
 import RedisService from './redis.service';
-import ResponseFormatter from '../utils/responseFormatter';
+import StripeService from './stripe.service';
 import { Order } from '../models/order.model';
+import APIFeatures from '../utils/APIFeatures';
+import ResponseFormatter from '../utils/responseFormatter';
+import { Address, UserDocument } from '../types/user.types';
+import { TQueryString, TResponse } from '../types/api.types';
 
 class OrderService {
   async createCheckoutSession(user: UserDocument): Promise<TResponse> {
@@ -55,6 +54,65 @@ class OrderService {
       status: 'success',
       statusCode: 200,
       message: 'Checkout completed successfully. Your order has been placed.',
+      data: {
+        order,
+      },
+    };
+  }
+
+  async getCurrentUserOrders(
+    userId: string,
+    queryString: TQueryString
+  ): Promise<TResponse> {
+    const features = new APIFeatures(
+      Order.find({
+        user: userId,
+      }),
+      queryString
+    )
+      .filter()
+      .sort()
+      .limitFields()
+      .paginate();
+
+    const orders = await features.query.lean();
+
+    return {
+      status: 'success',
+      statusCode: 200,
+      size: orders.length,
+      data: {
+        orders,
+      },
+    };
+  }
+
+  async getOrders(queryString: TQueryString): Promise<TResponse> {
+    const features = new APIFeatures(Order.find(), queryString)
+      .filter()
+      .sort()
+      .limitFields()
+      .paginate();
+
+    const orders = await features.query.lean();
+
+    return {
+      status: 'success',
+      statusCode: 200,
+      size: orders.length,
+      data: {
+        orders,
+      },
+    };
+  }
+
+  async getOrderById(id: string): Promise<TResponse> {
+    const order = await Order.findById(id);
+    if (!order) ResponseFormatter.notFound('No document found with that id');
+
+    return {
+      status: 'success',
+      statusCode: 200,
       data: {
         order,
       },

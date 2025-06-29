@@ -1,8 +1,9 @@
 import { RequestHandler } from 'express';
 
-import OrderService from '../services/order.service';
-import sendResponse from '../utils/sendResponse';
 import APIError from '../utils/APIError';
+import { IdParams } from '../types/api.types';
+import sendResponse from '../utils/sendResponse';
+import OrderService from '../services/order.service';
 
 export const createCheckoutSession: RequestHandler = async (req, res, next) => {
   if (!req.user) throw new APIError('Authentication failed', 401);
@@ -28,5 +29,29 @@ export const verifyOrder: RequestHandler<
     );
 
   const result = await OrderService.verifyOrder(req.query.userId);
+  sendResponse(result, res);
+};
+
+export const getCurrentUserOrders: RequestHandler = async (req, res, next) => {
+  if (!req.user) throw new APIError('Authentication failed', 401);
+
+  const result = await OrderService.getCurrentUserOrders(
+    req.user.id,
+    req.query
+  );
+  sendResponse(result, res);
+};
+
+export const getOrders: RequestHandler = async (req, res, next) => {
+  const result = await OrderService.getOrders(req.query);
+  sendResponse(result, res);
+};
+
+export const getOrderById: RequestHandler<IdParams> = async (
+  req,
+  res,
+  next
+) => {
+  const result = await OrderService.getOrderById(req.params.id);
   sendResponse(result, res);
 };
