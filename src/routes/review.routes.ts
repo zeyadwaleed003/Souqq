@@ -15,8 +15,6 @@ import {
   deleteReview,
   updateReview,
   getCurrentUserReviews,
-  markAsHelpful,
-  unmarkAsHelpful,
   getAiReviewsSummary,
 } from '../controllers/review.controller';
 import { idSchema, productIdBodySchema } from '../validation/base.validation';
@@ -24,12 +22,6 @@ import { idSchema, productIdBodySchema } from '../validation/base.validation';
 const router = Router({ mergeParams: true });
 
 router.get('/summary', validate(productIdBodySchema), getAiReviewsSummary);
-
-router
-  .route('/:id/helpful')
-  .all(isAuthenticated, isAuthorized('admin', 'user'))
-  .patch(markAsHelpful)
-  .delete(unmarkAsHelpful);
 
 router.get(
   '/me',

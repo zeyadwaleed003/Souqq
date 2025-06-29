@@ -24,8 +24,6 @@ const reviewSchema = new Schema<ReviewDocument>(
     },
     comment: { type: String, required: [true, 'A review must have a comment'] },
     isVerifiedPurchase: { type: Boolean, default: false },
-    helpfulCount: { type: Number, default: 0 },
-    helpfulBy: [{ type: Schema.Types.ObjectId, ref: 'User', default: [] }],
   },
   { timestamps: true }
 );

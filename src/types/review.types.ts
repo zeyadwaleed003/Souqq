@@ -1,5 +1,5 @@
-import { Document, Model, Types } from 'mongoose';
 import { z } from 'zod';
+import { Document, Model, Types } from 'mongoose';
 
 import {
   createReviewSchema,
@@ -15,8 +15,6 @@ export type ReviewDocument = Document & {
   createdAt: Date;
   updatedAt: Date;
   isVerifiedPurchase?: boolean;
-  helpfulCount: number;
-  helpfulBy: Types.ObjectId[];
 };
 
 export type ReviewModel = Model<ReviewDocument> & {

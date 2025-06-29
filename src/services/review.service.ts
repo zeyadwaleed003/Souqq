@@ -13,31 +13,17 @@ import APIFeatures from '../utils/APIFeatures';
 import RedisService from './redis.service';
 import stringify from 'fast-json-stable-stringify';
 import GeminiService from './gemini.service';
+import OrderService from './order.service';
 
 class ReviewService {
   readonly CACHE_PATTERN = 'reviews:*';
 
-  private validateHelpfulAction(
-    review: ReviewDocument,
-    userId: Types.ObjectId,
-    marking: boolean
-  ) {
-    if (marking && review.helpfulBy.includes(userId))
-      ResponseFormatter.conflict(
-        'You have already marked this review as helpful before'
-      );
-    else if (!marking && !review.helpfulBy.includes(userId))
-      ResponseFormatter.conflict(
-        'You have not marked this review as helpful before'
-      );
-
-    if (review.user._id.equals(userId))
-      ResponseFormatter.forbidden(
-        `You can't mark/unmark your own review as helpful`
-      );
-  }
-
   async createReview(data: CreateReviewBody): Promise<TResponse> {
+    if (!(await OrderService.didUserOrderProduct(data.user, data.product)))
+      ResponseFormatter.badRequest(
+        `You can't review a product you never ordered.`
+      );
+
     const review = await Review.create(data);
     if (!review)
       ResponseFormatter.internalError('Failed to create the document');
@@ -179,53 +165,6 @@ class ReviewService {
       size: Reviews.length,
       data: {
         Reviews,
-      },
-    };
-  }
-
-  async markAsHelpful(id: string, userId: Types.ObjectId): Promise<TResponse> {
-    const review = await Review.findById(id);
-    if (!review) ResponseFormatter.notFound('No document found with that id');
-
-    this.validateHelpfulAction(review, userId, true);
-
-    review.helpfulCount = review.helpfulCount + 1;
-    review.helpfulBy.push(userId);
-    await review.save();
-
-    await RedisService.deleteKeys(this.CACHE_PATTERN);
-
-    return {
-      status: 'success',
-      statusCode: 200,
-      data: {
-        review,
-      },
-    };
-  }
-
-  async unmarkAsHelpful(
-    id: string,
-    userId: Types.ObjectId
-  ): Promise<TResponse> {
-    const review = await Review.findById(id);
-    if (!review) ResponseFormatter.notFound('No document found with that id');
-
-    this.validateHelpfulAction(review, userId, false);
-
-    const index = review.helpfulBy.indexOf(userId);
-
-    review.helpfulBy.splice(index, 1);
-    review.helpfulCount = review.helpfulCount - 1;
-    await review.save();
-
-    await RedisService.deleteKeys(this.CACHE_PATTERN);
-
-    return {
-      status: 'success',
-      statusCode: 200,
-      data: {
-        review,
       },
     };
   }
