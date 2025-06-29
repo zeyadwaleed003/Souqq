@@ -26,11 +26,11 @@ export const addressFieldsSchema = z
     country: z
       .string()
       .trim()
-      .min(2, 'County must be at least 2 characters long')
-      .max(50, 'County must not exceed 50 characters')
+      .min(2, 'Country must be at least 2 characters long')
+      .max(50, 'Country must not exceed 50 characters')
       .regex(
         /^[a-zA-Z\s-']+$/,
-        'County can only contain letters, spaces, hyphens, and apostrophes'
+        'Country can only contain letters, spaces, hyphens, and apostrophes'
       ),
   })
   .strict();
