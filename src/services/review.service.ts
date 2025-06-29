@@ -13,6 +13,7 @@ import APIFeatures from '../utils/APIFeatures';
 import RedisService from './redis.service';
 import stringify from 'fast-json-stable-stringify';
 import GeminiService from './gemini.service';
+import OrderService from './order.service';
 
 class ReviewService {
   readonly CACHE_PATTERN = 'reviews:*';
@@ -38,6 +39,11 @@ class ReviewService {
   }
 
   async createReview(data: CreateReviewBody): Promise<TResponse> {
+    if (!(await OrderService.didUserOrderProduct(data.user, data.product)))
+      ResponseFormatter.badRequest(
+        `You can't review a product you never ordered.`
+      );
+
     const review = await Review.create(data);
     if (!review)
       ResponseFormatter.internalError('Failed to create the document');

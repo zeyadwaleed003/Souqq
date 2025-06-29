@@ -118,6 +118,15 @@ class OrderService {
       },
     };
   }
+
+  async didUserOrderProduct(
+    userId: string,
+    productId: string
+  ): Promise<boolean> {
+    return Boolean(
+      await Order.exists({ user: userId, 'items.product': productId })
+    );
+  }
 }
 
 export default new OrderService();
