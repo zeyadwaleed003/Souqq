@@ -79,31 +79,6 @@ export const getCurrentUserReviews: RequestHandler = async (req, res, next) => {
   sendResponse(result, res);
 };
 
-export const markAsHelpful: RequestHandler<IdParams> = async (
-  req,
-  res,
-  next
-) => {
-  if (!req.user) throw new APIError('Authentication failed', 401);
-
-  const result = await ReviewService.markAsHelpful(req.params.id, req.user._id);
-  sendResponse(result, res);
-};
-
-export const unmarkAsHelpful: RequestHandler<IdParams> = async (
-  req,
-  res,
-  next
-) => {
-  if (!req.user) throw new APIError('Authentication failed', 401);
-
-  const result = await ReviewService.unmarkAsHelpful(
-    req.params.id,
-    req.user._id
-  );
-  sendResponse(result, res);
-};
-
 export const getAiReviewsSummary: RequestHandler<
   { productId: string },
   {},

@@ -1,7 +1,8 @@
 import { z } from 'zod';
+
 import { objectIdSchema } from './base.validation';
-import ProductService from '../services/product.service';
 import UserService from '../services/user.service';
+import ProductService from '../services/product.service';
 
 export const reviewFieldsSchema = z
   .object({
