@@ -1,4 +1,5 @@
 import express from 'express';
+import qs from 'qs';
 import cors from 'cors';
 import morgan from 'morgan';
 import helmet from 'helmet';
@@ -30,6 +31,9 @@ import { swaggerOptions } from './config/swagger';
 
 const app = express();
 
+// Set the query parser to use qs
+app.set('query parser', (str: string) => qs.parse(str));
+
 // Swagger Docs
 const swaggerSpec = swaggerJsDocs(swaggerOptions);
 app.use('/api/v1/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
@@ -55,6 +59,7 @@ app.use(helmet());
 app.use(morgan(env.NODE_ENV === 'development' ? 'dev' : 'combined'));
 app.use(apiLimiter);
 app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true }));
 app.use(passport.initialize());
 app.use(compression());
 
