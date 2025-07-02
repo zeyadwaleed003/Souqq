@@ -2,192 +2,149 @@
  * @swagger
  * components:
  *   schemas:
- *     Address:
- *       type: object
- *       required:
- *         - address
- *         - city
- *         - postalCode
- *         - country
- *       properties:
- *         address:
- *           type: string
- *           description: The street address
- *         city:
- *           type: string
- *           description: The city name
- *         postalCode:
- *           type: string
- *           description: The postal code
- *         country:
- *           type: string
- *           description: The country name
- *       example:
- *         address: 123 Main St
- *         city: New York
- *         postalCode: 10001
- *         country: USA
- *
- *     User:
+ *     Product:
  *       type: object
  *       properties:
  *         _id:
  *           type: string
- *           description: The auto-generated ID of the user
+ *           description: The auto-generated ID of the product
  *         name:
  *           type: string
- *           description: The user's name
- *         email:
+ *           description: The name of the product
+ *         slug:
  *           type: string
- *           format: email
- *           description: The user's email
- *         photo:
+ *           description: URL-friendly version of the product name
+ *         description:
  *           type: string
- *           description: The user's profile photo URL
- *         role:
+ *           description: Detailed description of the product
+ *         categories:
+ *           type: array
+ *           description: Categories this product belongs to
+ *           items:
+ *             type: string
+ *         images:
+ *           type: array
+ *           description: Product images
+ *           items:
+ *             type: string
+ *         sellerId:
  *           type: string
- *           enum: [admin, user, seller]
- *           description: The user's role
- *         emailVerified:
- *           type: boolean
- *           description: Whether the user's email is verified
- *         address:
- *           $ref: '#/components/schemas/Address'
+ *           description: ID of the seller (user) who created this product
+ *         ratingsAverage:
+ *           type: number
+ *           description: Average rating of the product
+ *           minimum: 1
+ *           maximum: 5
+ *         ratingsQuantity:
+ *           type: number
+ *           description: Number of ratings received
  *         createdAt:
  *           type: string
  *           format: date-time
- *           description: When the user was created
+ *           description: When the product was created
  *         updatedAt:
  *           type: string
  *           format: date-time
- *           description: When the user was last updated
+ *           description: When the product was last updated
  *       example:
  *         _id: 60d21b4667d0d8992e610c85
- *         name: John Doe
- *         email: john@example.com
- *         photo: user-photo-1.jpg
- *         role: user
- *         emailVerified: true
+ *         name: iPhone 13 Pro
+ *         slug: iphone-13-pro
+ *         description: Apple's flagship smartphone with advanced camera system
+ *         categories: [60d21b4667d0d8992e610c80, 60d21b4667d0d8992e610c81]
+ *         images: [iphone-13-pro-1.jpg, iphone-13-pro-2.jpg]
+ *         sellerId: 60d21b4667d0d8992e610c90
+ *         ratingsAverage: 4.5
+ *         ratingsQuantity: 12
  *         createdAt: 2023-01-01T00:00:00.000Z
  *         updatedAt: 2023-01-01T00:00:00.000Z
  *
- *     CreateUserInput:
+ *     CreateProductInput:
  *       type: object
  *       required:
  *         - name
- *         - email
- *         - password
+ *         - description
+ *         - categories
  *       properties:
  *         name:
  *           type: string
- *           description: The user's name
+ *           description: The name of the product
  *           minLength: 3
- *           maxLength: 30
- *         email:
+ *           maxLength: 100
+ *         description:
  *           type: string
- *           format: email
- *           description: The user's email
- *         password:
+ *           description: Detailed description of the product
+ *           minLength: 10
+ *         categories:
+ *           type: array
+ *           description: Categories this product belongs to (IDs)
+ *           items:
+ *             type: string
+ *         sellerId:
  *           type: string
- *           format: password
- *           description: The user's password
- *           minLength: 8
- *         role:
- *           type: string
- *           enum: [admin, user, seller]
- *           description: The user's role
- *           default: user
- *         address:
- *           $ref: '#/components/schemas/Address'
+ *           description: ID of the seller (only for admin users)
  *       example:
- *         name: John Doe
- *         email: john@example.com
- *         password: password123
- *         role: user
+ *         name: iPhone 13 Pro
+ *         description: Apple's flagship smartphone with advanced camera system
+ *         categories: [60d21b4667d0d8992e610c80, 60d21b4667d0d8992e610c81]
  *
- *     UpdateUserInput:
+ *     UpdateProductInput:
  *       type: object
  *       properties:
  *         name:
  *           type: string
- *           description: The user's name
+ *           description: The name of the product
  *           minLength: 3
- *           maxLength: 30
- *         email:
+ *           maxLength: 100
+ *         description:
  *           type: string
- *           format: email
- *           description: The user's email
- *         role:
- *           type: string
- *           enum: [admin, user, seller]
- *           description: The user's role
- *         emailVerified:
- *           type: boolean
- *           description: Whether the user's email is verified
- *         active:
- *           type: boolean
- *           description: Whether the user account is active
- *         address:
- *           $ref: '#/components/schemas/Address'
+ *           description: Detailed description of the product
+ *           minLength: 10
+ *         categories:
+ *           type: array
+ *           description: Categories this product belongs to (IDs)
+ *           items:
+ *             type: string
  *       example:
- *         name: John Doe
- *         role: seller
+ *         name: iPhone 13 Pro Max
+ *         description: Updated description for Apple's flagship smartphone
+ *         categories: [60d21b4667d0d8992e610c80, 60d21b4667d0d8992e610c81]
  *
- *     UpdateMeInput:
+ *     ProductImagesInput:
  *       type: object
+ *       required:
+ *         - images
  *       properties:
- *         name:
- *           type: string
- *           description: The user's name
- *           minLength: 3
- *           maxLength: 30
- *         address:
- *           $ref: '#/components/schemas/Address'
+ *         images:
+ *           type: array
+ *           description: Array of image filenames
+ *           items:
+ *             type: string
  *       example:
- *         name: John Doe
- *         address:
- *           address: 456 Park Ave
- *           city: Chicago
- *           postalCode: 60601
- *           country: USA
- *
- *     Error:
- *       type: object
- *       properties:
- *         status:
- *           type: string
- *           description: The error status
- *         message:
- *           type: string
- *           description: The error message
- *       example:
- *         status: error
- *         message: Authentication failed
+ *         images: [iphone-13-pro-3.jpg, iphone-13-pro-4.jpg]
  *
  * @swagger
  * tags:
- *   name: Users
- *   description: User management operations
+ *   name: Products
+ *   description: Product management
  *
  * @swagger
- * /api/v1/users:
+ * /api/v1/products:
  *   get:
- *     summary: Get all users
- *     description: Retrieve a list of all users. Available only to admins.
- *     tags: [Users]
- *     security:
- *       - bearerAuth: []
+ *     summary: Get all products
+ *     description: Retrieve a list of all products with filtering, sorting, and pagination
+ *     tags: [Products]
  *     parameters:
  *       - in: query
  *         name: sort
  *         schema:
  *           type: string
- *         description: Sort fields (e.g. name,-createdAt)
+ *         description: Sort fields (e.g. price,-createdAt)
  *       - in: query
  *         name: limit
  *         schema:
  *           type: integer
- *         description: Maximum number of users to return
+ *         description: Maximum number of products to return
  *       - in: query
  *         name: page
  *         schema:
@@ -197,10 +154,20 @@
  *         name: fields
  *         schema:
  *           type: string
- *         description: Fields to include (e.g. name,email)
+ *         description: Fields to include (e.g. name,price)
+ *       - in: query
+ *         name: name
+ *         schema:
+ *           type: string
+ *         description: Filter by product name
+ *       - in: query
+ *         name: ratingsAverage[gte]
+ *         schema:
+ *           type: number
+ *         description: Filter by minimum rating
  *     responses:
  *       200:
- *         description: A list of users
+ *         description: A list of products
  *         content:
  *           application/json:
  *             schema:
@@ -218,27 +185,15 @@
  *                 data:
  *                   type: object
  *                   properties:
- *                     users:
+ *                     products:
  *                       type: array
  *                       items:
- *                         $ref: '#/components/schemas/User'
- *       401:
- *         description: Unauthorized - Not logged in
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Error'
- *       403:
- *         description: Forbidden - Not an admin
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Error'
+ *                         $ref: '#/components/schemas/Product'
  *
  *   post:
- *     summary: Create a new user
- *     description: Create a new user account. Available only to admins.
- *     tags: [Users]
+ *     summary: Create a new product
+ *     description: Create a new product. Admin and seller access required.
+ *     tags: [Products]
  *     security:
  *       - bearerAuth: []
  *     requestBody:
@@ -247,16 +202,18 @@
  *         multipart/form-data:
  *           schema:
  *             allOf:
- *               - $ref: '#/components/schemas/CreateUserInput'
+ *               - $ref: '#/components/schemas/CreateProductInput'
  *               - type: object
  *                 properties:
- *                   photo:
- *                     type: string
- *                     format: binary
- *                     description: User profile photo
+ *                   images:
+ *                     type: array
+ *                     items:
+ *                       type: string
+ *                       format: binary
+ *                     description: Product images
  *     responses:
  *       201:
- *         description: User created successfully
+ *         description: Product created successfully
  *         content:
  *           application/json:
  *             schema:
@@ -271,8 +228,8 @@
  *                 data:
  *                   type: object
  *                   properties:
- *                     user:
- *                       $ref: '#/components/schemas/User'
+ *                     product:
+ *                       $ref: '#/components/schemas/Product'
  *       400:
  *         description: Bad request - Invalid input
  *         content:
@@ -286,23 +243,28 @@
  *             schema:
  *               $ref: '#/components/schemas/Error'
  *       403:
- *         description: Forbidden - Not an admin
+ *         description: Forbidden - Not an admin or seller
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Error'
  *
  * @swagger
- * /api/v1/users/me:
+ * /api/v1/products/{id}:
  *   get:
- *     summary: Get current user profile
- *     description: Retrieve the profile of the currently logged-in user
- *     tags: [Users]
- *     security:
- *       - bearerAuth: []
+ *     summary: Get a product by ID
+ *     description: Retrieve details of a specific product by its ID
+ *     tags: [Products]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Product ID
  *     responses:
  *       200:
- *         description: User profile retrieved successfully
+ *         description: Product details retrieved successfully
  *         content:
  *           application/json:
  *             schema:
@@ -317,37 +279,46 @@
  *                 data:
  *                   type: object
  *                   properties:
- *                     user:
- *                       $ref: '#/components/schemas/User'
- *       401:
- *         description: Unauthorized - Not logged in
+ *                     product:
+ *                       $ref: '#/components/schemas/Product'
+ *       404:
+ *         description: Product not found
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Error'
  *
  *   patch:
- *     summary: Update current user profile
- *     description: Update the profile of the currently logged-in user
- *     tags: [Users]
+ *     summary: Update a product
+ *     description: Update a specific product. Admin and seller access required. Sellers can only update their own products.
+ *     tags: [Products]
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Product ID
  *     requestBody:
  *       required: true
  *       content:
  *         multipart/form-data:
  *           schema:
  *             allOf:
- *               - $ref: '#/components/schemas/UpdateMeInput'
+ *               - $ref: '#/components/schemas/UpdateProductInput'
  *               - type: object
  *                 properties:
- *                   photo:
- *                     type: string
- *                     format: binary
- *                     description: User profile photo
+ *                   images:
+ *                     type: array
+ *                     items:
+ *                       type: string
+ *                       format: binary
+ *                     description: Product images to add or replace
  *     responses:
  *       200:
- *         description: User profile updated successfully
+ *         description: Product updated successfully
  *         content:
  *           application/json:
  *             schema:
@@ -362,8 +333,8 @@
  *                 data:
  *                   type: object
  *                   properties:
- *                     user:
- *                       $ref: '#/components/schemas/User'
+ *                     product:
+ *                       $ref: '#/components/schemas/Product'
  *       400:
  *         description: Bad request - Invalid input
  *         content:
@@ -376,16 +347,99 @@
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Error'
+ *       403:
+ *         description: Forbidden - Not an admin or not the product seller
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       404:
+ *         description: Product not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  *
  *   delete:
- *     summary: Delete current user
- *     description: Delete the account of the currently logged-in user
- *     tags: [Users]
+ *     summary: Delete a product
+ *     description: Delete a specific product. Admin access required.
+ *     tags: [Products]
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Product ID
+ *     responses:
+ *       204:
+ *         description: Product deleted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: success
+ *                 statusCode:
+ *                   type: number
+ *                   example: 204
+ *                 message:
+ *                   type: string
+ *                   example: Document deleted successfully
+ *       401:
+ *         description: Unauthorized - Not logged in
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       403:
+ *         description: Forbidden - Not an admin
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       404:
+ *         description: Product not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *
+ * @swagger
+ * /api/v1/products/{id}/images:
+ *   post:
+ *     summary: Add images to a product
+ *     description: Add new images to a specific product. Admin and seller access required. Sellers can only update their own products.
+ *     tags: [Products]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Product ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               images:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                   format: binary
+ *                 description: Product images to add
  *     responses:
  *       200:
- *         description: User account deleted successfully
+ *         description: Images added successfully
  *         content:
  *           application/json:
  *             schema:
@@ -397,32 +451,61 @@
  *                 statusCode:
  *                   type: number
  *                   example: 200
+ *                 message:
+ *                   type: string
+ *                   example: Images added successfully
  *                 data:
- *                   type: null
+ *                   type: object
+ *                   properties:
+ *                     product:
+ *                       $ref: '#/components/schemas/Product'
+ *       400:
+ *         description: Bad request - No images provided
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  *       401:
  *         description: Unauthorized - Not logged in
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Error'
+ *       403:
+ *         description: Forbidden - Not an admin or not the product seller
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       404:
+ *         description: Product not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  *
- * @swagger
- * /api/v1/users/shipping-address:
- *   post:
- *     summary: Save shipping address
- *     description: Save a shipping address for the currently logged-in user
- *     tags: [Users]
+ *   delete:
+ *     summary: Delete images from a product
+ *     description: Delete specific images from a product. Admin and seller access required. Sellers can only update their own products.
+ *     tags: [Products]
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Product ID
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/Address'
+ *             $ref: '#/components/schemas/ProductImagesInput'
  *     responses:
  *       200:
- *         description: Shipping address saved successfully
+ *         description: Images deleted successfully
  *         content:
  *           application/json:
  *             schema:
@@ -434,118 +517,16 @@
  *                 statusCode:
  *                   type: number
  *                   example: 200
+ *                 message:
+ *                   type: string
+ *                   example: Images deleted successfully
  *                 data:
  *                   type: object
  *                   properties:
- *                     user:
- *                       $ref: '#/components/schemas/User'
+ *                     product:
+ *                       $ref: '#/components/schemas/Product'
  *       400:
- *         description: Bad request - Invalid input
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Error'
- *       401:
- *         description: Unauthorized - Not logged in
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Error'
- *
- * @swagger
- * /api/v1/users/{id}:
- *   get:
- *     summary: Get a user by ID
- *     description: Retrieve a specific user by their ID
- *     tags: [Users]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *         description: User ID
- *     responses:
- *       200:
- *         description: User retrieved successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 status:
- *                   type: string
- *                   example: success
- *                 statusCode:
- *                   type: number
- *                   example: 200
- *                 data:
- *                   type: object
- *                   properties:
- *                     user:
- *                       $ref: '#/components/schemas/User'
- *       401:
- *         description: Unauthorized - Not logged in
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Error'
- *       404:
- *         description: User not found
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Error'
- *
- *   patch:
- *     summary: Update a user
- *     description: Update a specific user. Available only to admins.
- *     tags: [Users]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *         description: User ID
- *     requestBody:
- *       required: true
- *       content:
- *         multipart/form-data:
- *           schema:
- *             allOf:
- *               - $ref: '#/components/schemas/UpdateUserInput'
- *               - type: object
- *                 properties:
- *                   photo:
- *                     type: string
- *                     format: binary
- *                     description: User profile photo
- *     responses:
- *       200:
- *         description: User updated successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 status:
- *                   type: string
- *                   example: success
- *                 statusCode:
- *                   type: number
- *                   example: 200
- *                 data:
- *                   type: object
- *                   properties:
- *                     user:
- *                       $ref: '#/components/schemas/User'
- *       400:
- *         description: Bad request - Invalid input
+ *         description: Bad request - Cannot delete all images
  *         content:
  *           application/json:
  *             schema:
@@ -557,79 +538,31 @@
  *             schema:
  *               $ref: '#/components/schemas/Error'
  *       403:
- *         description: Forbidden - Not an admin
+ *         description: Forbidden - Not an admin or not the product seller
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Error'
  *       404:
- *         description: User not found
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Error'
- *
- *   delete:
- *     summary: Delete a user
- *     description: Delete a specific user. Available only to admins.
- *     tags: [Users]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *         description: User ID
- *     responses:
- *       200:
- *         description: User deleted successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 status:
- *                   type: string
- *                   example: success
- *                 statusCode:
- *                   type: number
- *                   example: 200
- *                 data:
- *                   type: null
- *       401:
- *         description: Unauthorized - Not logged in
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Error'
- *       403:
- *         description: Forbidden - Not an admin
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Error'
- *       404:
- *         description: User not found
+ *         description: Product not found
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Error'
  *
  * @swagger
- * /api/v1/users/{userId}/reviews:
+ * /api/v1/products/{productId}/reviews:
  *   get:
- *     summary: Get user reviews
- *     description: Retrieve all reviews written by a specific user
- *     tags: [Users]
+ *     summary: Get product reviews
+ *     description: Retrieve all reviews for a specific product
+ *     tags: [Products]
  *     parameters:
  *       - in: path
- *         name: userId
+ *         name: productId
  *         required: true
  *         schema:
  *           type: string
- *         description: User ID
+ *         description: Product ID
  *       - in: query
  *         name: sort
  *         schema:
@@ -652,7 +585,7 @@
  *         description: Fields to include (e.g. rating,comment)
  *     responses:
  *       200:
- *         description: A list of user reviews
+ *         description: A list of product reviews
  *         content:
  *           application/json:
  *             schema:
@@ -689,7 +622,7 @@
  *                             type: string
  *                             format: date-time
  *       404:
- *         description: User not found
+ *         description: Product not found
  *         content:
  *           application/json:
  *             schema:
