@@ -1,0 +1,8 @@
+services:
+  app:
+    build:
+      context: .
+      target: production
+    container_name: ecommerce-api-app-prod
+    environment:
+      - NODE_ENV=production

@@ -1,0 +1,10 @@
+services:
+  app:
+    build:
+      context: .
+      target: development
+    container_name: ecommerce-api-app-dev
+    volumes:
+      - ./src:/app/src:ro
+    environment:
+      - NODE_ENV=development
