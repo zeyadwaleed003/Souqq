@@ -1,5 +1,6 @@
 import express from 'express';
 import qs from 'qs';
+import hpp from 'hpp';
 import cors from 'cors';
 import morgan from 'morgan';
 import helmet from 'helmet';
@@ -60,6 +61,7 @@ app.use(morgan(env.NODE_ENV === 'development' ? 'dev' : 'combined'));
 app.use(apiLimiter);
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
+app.use(hpp());
 app.use(passport.initialize());
 app.use(compression());
 
