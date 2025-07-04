@@ -190,7 +190,7 @@ For detailed API documentation with request/response examples, visit `/api/v1/ap
 
 All API responses follow a consistent format:
 
-```json
+```ts
 {
   "status": "success" | "fail" | "error",
   "statusCode": 200 | 201 | 400 | 401 | 403 | 404 | 500,
