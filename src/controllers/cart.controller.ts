@@ -3,7 +3,6 @@ import { RequestHandler } from 'express';
 import CartService from '../services/cart.service';
 import sendResponse from '../utils/sendResponse';
 import { IdParams } from '../types/api.types';
-import APIError from '../utils/APIError';
 import { UpdateItemCartBody } from '../types/cart.types';
 
 export const setVariantUserIds: RequestHandler<
@@ -11,10 +10,9 @@ export const setVariantUserIds: RequestHandler<
   {},
   UpdateItemCartBody
 > = async (req, res, next) => {
-  if (!req.user) throw new APIError('Authentication failed', 401);
   if (!req.body.variant) req.body.variant = req.params.variantId;
 
-  req.body.user = req.user._id.toString();
+  req.body.user = req.user!._id.toString();
   next();
 };
 
@@ -29,9 +27,7 @@ export const getCartById: RequestHandler<IdParams> = async (req, res, next) => {
 };
 
 export const getCurrentUserCart: RequestHandler = async (req, res, next) => {
-  if (!req.user) throw new APIError('Authentication failed', 401);
-
-  const result = await CartService.getCurrentUserCart(req.user._id);
+  const result = await CartService.getCurrentUserCart(req.user!._id);
   sendResponse(result, res);
 };
 
@@ -46,9 +42,7 @@ export const removeItemFromCart: RequestHandler = async (req, res, next) => {
 };
 
 export const clearCart: RequestHandler = async (req, res, next) => {
-  if (!req.user) throw new APIError('Authentication failed', 401);
-
-  const result = await CartService.clearCart(req.user._id);
+  const result = await CartService.clearCart(req.user!._id);
   sendResponse(result, res);
 };
 

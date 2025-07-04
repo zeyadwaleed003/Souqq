@@ -48,9 +48,7 @@ export const deleteReview: RequestHandler<IdParams> = async (
   res,
   next
 ) => {
-  if (!req.user) throw new APIError('Authentication failed', 401);
-
-  const result = await ReviewService.deleteReview(req.params.id, req.user);
+  const result = await ReviewService.deleteReview(req.params.id, req.user!);
   sendResponse(result, res);
 };
 
@@ -59,21 +57,17 @@ export const updateReview: RequestHandler<
   {},
   UpdateReviewBody
 > = async (req, res, next) => {
-  if (!req.user) throw new APIError('Authentication failed', 401);
-
   const result = await ReviewService.updateReview(
     req.params.id,
     req.body,
-    req.user
+    req.user!
   );
   sendResponse(result, res);
 };
 
 export const getCurrentUserReviews: RequestHandler = async (req, res, next) => {
-  if (!req.user) throw new APIError('Authentication failed', 401);
-
   const result = await ReviewService.getCurrentUserReviews(
-    req.user._id.toString(),
+    req.user!._id.toString(),
     req.query
   );
   sendResponse(result, res);

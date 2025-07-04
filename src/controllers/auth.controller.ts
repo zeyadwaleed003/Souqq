@@ -12,7 +12,6 @@ import {
   updatePasswordBody,
 } from '../types/auth.types';
 import sendResponse from '../utils/sendResponse';
-import APIError from '../utils/APIError';
 
 export const signup: RequestHandler<{}, {}, SignupBody> = async (
   req,
@@ -76,10 +75,8 @@ export const resetPassword: RequestHandler<
 };
 
 export const callbackHandler: RequestHandler<{}> = async (req, res, next) => {
-  if (req.user) {
-    const result = await AuthService.handleCallback(req.user);
-    sendResponse(result, res);
-  } else throw new APIError('Authentication failed', 401);
+  const result = await AuthService.handleCallback(req.user!);
+  sendResponse(result, res);
 };
 
 export const updatePassword: RequestHandler<
@@ -87,13 +84,11 @@ export const updatePassword: RequestHandler<
   {},
   updatePasswordBody
 > = async (req, res, next) => {
-  if (req.user) {
-    const data = {
-      user: req.user,
-      body: req.body,
-    };
+  const data = {
+    user: req.user!,
+    body: req.body,
+  };
 
-    const result = await AuthService.updatePassword(data);
-    sendResponse(result, res);
-  } else throw new APIError('Authentication failed', 401);
+  const result = await AuthService.updatePassword(data);
+  sendResponse(result, res);
 };

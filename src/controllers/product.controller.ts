@@ -25,9 +25,7 @@ export const defineProductSeller: RequestHandler<{}, {}, TSellerId> = (
   res,
   next
 ) => {
-  if (!req.user) throw new APIError('Authentication failed', 401);
-
-  if (req.user.role === 'seller') req.body.sellerId = req.user._id;
+  if (req.user!.role === 'seller') req.body.sellerId = req.user!._id;
   next();
 };
 
@@ -36,9 +34,7 @@ export const restrictSellerProductPermissions: RequestHandler<
   {},
   TSellerId
 > = async (req, res, next) => {
-  if (!req.user) throw new APIError('Authentication failed', 401);
-
-  if (req.user.role === 'seller' && req.body.sellerId)
+  if (req.user!.role === 'seller' && req.body.sellerId)
     throw new APIError('Seller Not allowed to set product sellerId', 403);
   next();
 };
@@ -48,9 +44,7 @@ export const checkProductSeller: RequestHandler<IdParams> = async (
   res,
   next
 ) => {
-  if (!req.user) throw new APIError('Authentication failed', 401);
-
-  await ProductService.isProductSeller(req.params.id, req.user);
+  await ProductService.isProductSeller(req.params.id, req.user!);
   next();
 };
 

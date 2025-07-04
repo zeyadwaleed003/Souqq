@@ -15,9 +15,7 @@ export const getAllUsers: RequestHandler = async (req, res, next) => {
 };
 
 export const getUser: RequestHandler<IdParams> = async (req, res, next) => {
-  if (!req.user) throw new APIError('Authentication failed', 401);
-
-  const result = await UserService.getUser(req.params.id, req.user);
+  const result = await UserService.getUser(req.params.id, req.user!);
   sendResponse(result, res);
 };
 
@@ -49,10 +47,8 @@ export const deleteUser: RequestHandler<IdParams> = async (req, res, next) => {
 };
 
 export const getMe: RequestHandler = async (req, res, next) => {
-  if (req.user) {
-    const result = await UserService.getMe(req.user);
-    sendResponse(result, res);
-  } else throw new APIError('Authentication failed', 401);
+  const result = await UserService.getMe(req.user!);
+  sendResponse(result, res);
 };
 
 export const updateMe: RequestHandler<{}, {}, UpdateMeBody> = async (
@@ -60,24 +56,18 @@ export const updateMe: RequestHandler<{}, {}, UpdateMeBody> = async (
   res,
   next
 ) => {
-  if (!req.user) throw new APIError('Authentication failed', 401);
-
   if (req.file) req.body.photo = req.file.filename;
 
-  const result = await UserService.updateMe(req.user._id, req.body);
+  const result = await UserService.updateMe(req.user!._id, req.body);
   sendResponse(result, res);
 };
 
 export const deleteMe: RequestHandler = async (req, res, next) => {
-  if (!req.user) throw new APIError('Authentication failed', 401);
-
-  const result = await UserService.deleteMe(req.user._id);
+  const result = await UserService.deleteMe(req.user!._id);
   sendResponse(result, res);
 };
 
 export const saveShippingAddress: RequestHandler = async (req, res, next) => {
-  if (!req.user) throw new APIError('Authentication failed', 401);
-
-  const result = await UserService.saveShippingAddress(req.user._id, req.body);
+  const result = await UserService.saveShippingAddress(req.user!._id, req.body);
   sendResponse(result, res);
 };

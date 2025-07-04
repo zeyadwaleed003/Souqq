@@ -16,9 +16,7 @@ export const restrictSellerVariantPermissions: RequestHandler<
   {},
   CreateVariantBody | UpdateVariantBody
 > = async (req, res, next) => {
-  if (!req.user) throw new APIError('Authentication failed', 401);
-
-  if (req.user.role === 'seller' && req.body.status)
+  if (req.user!.role === 'seller' && req.body.status)
     throw new APIError('Seller Not allowed to set variant status', 403);
   next();
 };
@@ -28,9 +26,7 @@ export const checkProductSellerV: RequestHandler<
   {},
   CreateVariantBody
 > = async (req, res, next) => {
-  if (!req.user) throw new APIError('Authentication failed', 401);
-
-  await ProductService.isProductSeller(req.body.product, req.user);
+  await ProductService.isProductSeller(req.body.product, req.user!);
   next();
 };
 
