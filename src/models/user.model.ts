@@ -2,6 +2,7 @@ import bcrypt from 'bcrypt';
 import { model, Schema } from 'mongoose';
 
 import { UserDocument, UserModel } from '../types/user.types';
+import env from '../config/env';
 
 const addressSchema = new Schema(
   {
@@ -41,11 +42,11 @@ const userSchema = new Schema<UserDocument>(
     googleId: String,
     photo: {
       type: String,
-      default: undefined,
+      default: env.DEFAULT_USER_PHOTO_URL,
     },
     photoPublicId: {
       type: String,
-      default: undefined,
+      default: env.DEFAULT_USER_PHOTO_PUBLIC_ID,
     },
     password: {
       type: String,

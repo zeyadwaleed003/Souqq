@@ -54,4 +54,13 @@ export default {
   CLOUD_SECRET: env.get('CLOUD_SECRET').required().asString(),
 
   GOOGLE_AI_API_KEY: env.get('GOOGLE_AI_API_KEY').required().asString(),
+
+  DEFAULT_USER_PHOTO_URL: env
+    .get('DEFAULT_USER_PHOTO_URL')
+    .required()
+    .asString(),
+  DEFAULT_USER_PHOTO_PUBLIC_ID: env
+    .get('DEFAULT_USER_PHOTO_PUBLIC_ID')
+    .required()
+    .asString(),
 };
