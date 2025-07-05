@@ -1,15 +1,19 @@
-import { RequestHandler } from 'express';
+import { Request, RequestHandler } from 'express';
 
 import { IdParams, SlugParams } from '../types/api.types';
 import sendResponse from '../utils/sendResponse';
 import CategoryService from '../services/category.service';
-import {
-  CreateCategoryBody,
-  UpdateCategoryBody,
-} from '../types/category.types';
+import { CoverImage } from '../types/category.types';
+
+const assignCategoryCoverImage = (req: Request<{}, {}, CoverImage>) => {
+  if (req.file) {
+    req.body.coverImage = req.file.secure_url;
+    req.body.coverImagePublicId = req.file.public_id;
+  }
+};
 
 export const createCategory: RequestHandler = async (req, res, next) => {
-  if (req.file) req.body.coverImage = req.file.filename;
+  assignCategoryCoverImage(req);
 
   const result = await CategoryService.createCategory(req.body);
   sendResponse(result, res);
@@ -20,7 +24,7 @@ export const updateCategory: RequestHandler<IdParams> = async (
   res,
   next
 ) => {
-  if (req.file) req.body.coverImage = req.file.filename;
+  assignCategoryCoverImage(req);
 
   const result = await CategoryService.updateCategory(req.params.id, req.body);
   sendResponse(result, res);

@@ -9,17 +9,31 @@ import APIFeatures from '../utils/APIFeatures';
 import ResponseFormatter from '../utils/responseFormatter';
 import ProductService from './product.service';
 import RedisService from './redis.service';
+import CloudinaryService from './cloudinary.service';
 
 class CategoryService {
   readonly CACHE_PATTERN = 'categories:*';
 
-  private async getAllSubcategoryIds(categoryId: string): Promise<string[]> {
+  private async getAllSubcategoryIds(
+    categoryId: string
+  ): Promise<{ ids: string[]; coverImagePublicIds: (string | undefined)[] }> {
     const subCategories = await Category.find({ parent: categoryId }).lean();
-    let ids = subCategories.map((cat) => cat._id.toString());
-    for (const sub of subCategories)
-      ids = ids.concat(await this.getAllSubcategoryIds(sub._id.toString()));
 
-    return ids;
+    let ids = subCategories.map((cat) => cat._id.toString());
+    let coverImagePublicIds = subCategories.map(
+      (cat) => cat.coverImagePublicId
+    );
+
+    for (const sub of subCategories) {
+      const neededIds = await this.getAllSubcategoryIds(sub._id.toString());
+
+      ids = ids.concat(neededIds.ids);
+      coverImagePublicIds = coverImagePublicIds.concat(
+        neededIds.coverImagePublicIds
+      );
+    }
+
+    return { ids, coverImagePublicIds };
   }
 
   async doesCategoryExist(id: string) {
@@ -51,8 +65,10 @@ class CategoryService {
     data: UpdateCategoryBody
   ): Promise<TResponse> {
     const category = await Category.findById(id);
-
     if (!category) ResponseFormatter.notFound('No category found with that id');
+
+    if (data.coverImage)
+      CloudinaryService.deleteFromCloud(category.coverImagePublicId);
 
     category.set(data);
     const newCategory = await category.save();
@@ -128,10 +144,19 @@ class CategoryService {
   }
 
   async deleteCategory(id: string): Promise<TResponse> {
+    const category = await Category.findById(id)
+      .lean()
+      .select('coverImagePublicId');
     const subCategoriesIds = await this.getAllSubcategoryIds(id);
 
-    const allCategoryIds = [id, ...subCategoriesIds];
+    const allCategoryIds = [id, ...subCategoriesIds.ids];
     await Category.deleteMany({ _id: { $in: allCategoryIds } });
+
+    const allCategoriesPublicIds = [
+      category!.coverImagePublicId,
+      ...subCategoriesIds.coverImagePublicIds,
+    ];
+    CloudinaryService.deleteMultipleImages(allCategoriesPublicIds);
 
     await ProductService.removeDeletedCategoriesFromProduct(allCategoryIds);
     await ProductService.deleteProductsWithNoCategories();

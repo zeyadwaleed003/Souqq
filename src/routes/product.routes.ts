@@ -26,7 +26,7 @@ import {
   productIdSchema,
 } from '../validation/base.validation';
 import { reviewRouter } from './review.routes';
-import { uploadMultipleImages } from '../middlewares/upload';
+import { uploadProductImages } from '../middlewares/upload';
 
 const router = Router();
 
@@ -38,7 +38,7 @@ router
   .post(
     isAuthenticated,
     isAuthorized('admin', 'seller'),
-    uploadMultipleImages,
+    uploadProductImages,
     normalizeCategoriesToArray,
     restrictSellerProductPermissions,
     validate(createProductSchema),
@@ -53,7 +53,7 @@ router
   .patch(
     isAuthenticated,
     isAuthorized('admin', 'seller'),
-    uploadMultipleImages,
+    uploadProductImages,
     normalizeCategoriesToArray,
     restrictSellerProductPermissions,
     validate(updateProductSchema),
@@ -65,7 +65,7 @@ router
 router
   .route('/:id/images')
   .all(validate(idSchema), isAuthenticated, isAuthorized('admin', 'seller'))
-  .post(uploadMultipleImages, checkProductSeller, addImagesToProduct)
+  .post(uploadProductImages, checkProductSeller, addImagesToProduct)
   .delete(validate(imagesSchema), checkProductSeller, deleteProductImages);
 
 export const productRouter = router;

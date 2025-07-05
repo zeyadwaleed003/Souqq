@@ -9,6 +9,7 @@ export type VariantDocument = Document & {
   stock: number;
   sku?: string;
   images?: string[];
+  imagesPublicIds?: string[];
   status: string;
   size: string;
   color: string;
@@ -19,6 +20,7 @@ export type VariantModel = Model<VariantDocument>;
 
 export type VariantImages = {
   images: string[];
+  imagesPublicIds: string[];
 };
 
 export type CreateVariantBody = z.output<typeof createVariantSchema>['body'] &

@@ -13,6 +13,7 @@ import CartService from './cart.service';
 import APIFeatures from '../utils/APIFeatures';
 import ResponseFormatter from '../utils/responseFormatter';
 import RedisService from './redis.service';
+import CloudinaryService from './cloudinary.service';
 
 class UserService {
   async doesUserExist(id: string) {
@@ -76,8 +77,9 @@ class UserService {
 
   async updateUser(id: string, data: UpdateUserBody): Promise<TResponse> {
     const user = await User.findById(id);
-
     if (!user) ResponseFormatter.notFound('No user found with that id');
+
+    if (data.photo) CloudinaryService.deleteFromCloud(user.photoPublicId);
 
     user.set(data);
     const newUser = await user.save();
@@ -94,6 +96,8 @@ class UserService {
   async deleteUser(id: string): Promise<TResponse> {
     const user = await User.findByIdAndDelete(id).lean();
     if (!user) ResponseFormatter.notFound('No document found with that id');
+
+    CloudinaryService.deleteFromCloud(user.photoPublicId);
 
     CartService.deleteCart(id);
 
@@ -115,14 +119,19 @@ class UserService {
     };
   }
 
-  async updateMe(id: Types.ObjectId, data: UpdateMeBody): Promise<TResponse> {
-    const userData = await User.findByIdAndUpdate(id, data, {
+  async updateMe(
+    userDoc: UserDocument,
+    data: UpdateMeBody
+  ): Promise<TResponse> {
+    const userData = await User.findByIdAndUpdate(userDoc._id, data, {
       new: true,
       runValidators: true,
     });
 
     if (!userData)
       ResponseFormatter.internalError('Failed to update user data');
+
+    if (data.photo) CloudinaryService.deleteFromCloud(userDoc.photoPublicId);
 
     const user = cleanUserData(userData);
     return {

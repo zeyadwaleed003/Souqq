@@ -1,4 +1,4 @@
-import { RequestHandler } from 'express';
+import { Request, RequestHandler } from 'express';
 import ProductService from '../services/product.service';
 import {
   CreateProductBody,
@@ -8,6 +8,20 @@ import {
 import sendResponse from '../utils/sendResponse';
 import { IdParams } from '../types/api.types';
 import APIError from '../utils/APIError';
+
+const assignProductImages = (req: Request<{}, {}, ProductImages>) => {
+  if (req.files && Array.isArray(req.files)) {
+    const images = [],
+      imagesPublicIds = [];
+    for (const file of req.files) {
+      images.push(file.secure_url);
+      imagesPublicIds.push(file.public_id);
+    }
+
+    req.body.images = images;
+    req.body.imagesPublicIds = imagesPublicIds;
+  }
+};
 
 export const normalizeCategoriesToArray: RequestHandler<
   {},
@@ -53,8 +67,7 @@ export const createProduct: RequestHandler<{}, {}, CreateProductBody> = async (
   res,
   next
 ) => {
-  if (req.files && Array.isArray(req.files))
-    req.body.images = req.files.map((file) => file.originalname);
+  assignProductImages(req);
 
   const result = await ProductService.createProduct(req.body);
   sendResponse(result, res);
@@ -88,8 +101,7 @@ export const updateProduct: RequestHandler<IdParams> = async (
   res,
   next
 ) => {
-  if (req.files && Array.isArray(req.files))
-    req.body.images = req.files.map((file) => file.originalname);
+  assignProductImages(req);
 
   const result = await ProductService.updateProduct(req.params.id, req.body);
   sendResponse(result, res);
@@ -112,12 +124,12 @@ export const addImagesToProduct: RequestHandler<
   {},
   ProductImages
 > = async (req, res, next) => {
-  if (req.files && Array.isArray(req.files))
-    req.body.images = req.files.map((file) => file.originalname);
+  assignProductImages(req);
 
   const result = await ProductService.addImagesToProduct(
     req.params.id,
-    req.body.images
+    req.body.images,
+    req.body.imagesPublicIds
   );
   sendResponse(result, res);
 };

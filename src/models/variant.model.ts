@@ -37,6 +37,7 @@ const variantSchema = new Schema<VariantDocument>(
       required: [true, 'A variant must belong to a product'],
     },
     images: [String],
+    imagesPublicIds: [String],
   },
   { timestamps: true }
 );

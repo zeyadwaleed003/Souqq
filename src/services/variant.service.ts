@@ -12,6 +12,7 @@ import ResponseFormatter from '../utils/responseFormatter';
 import RedisService from './redis.service';
 import APIError from '../utils/APIError';
 import { Types } from 'mongoose';
+import CloudinaryService from './cloudinary.service';
 
 class VariantService {
   readonly CACHE_PATTERN = 'variants:*';
@@ -75,8 +76,9 @@ class VariantService {
 
   async deleteVariant(id: string): Promise<TResponse> {
     const variant = await Variant.findByIdAndDelete(id).lean();
-
     if (!variant) ResponseFormatter.notFound('No variant found with that id');
+
+    CloudinaryService.deleteMultipleImages(variant.imagesPublicIds);
 
     await RedisService.deleteKeys(this.CACHE_PATTERN);
 
@@ -112,8 +114,10 @@ class VariantService {
 
   async updateVariant(id: string, data: UpdateVariantBody): Promise<TResponse> {
     const variant = await Variant.findById(id);
-
     if (!variant) ResponseFormatter.notFound('No variant found with that id');
+
+    if (data.images)
+      CloudinaryService.deleteMultipleImages(variant.imagesPublicIds);
 
     variant.set(data);
     const newVariant = await variant.save();
@@ -130,14 +134,20 @@ class VariantService {
   }
 
   async deleteVariantsWithNoProduct(productId: string) {
-    await Variant.deleteMany({ product: productId });
+    const filter = { product: productId };
+    const variants = await Variant.find(filter)
+      .lean()
+      .select('imagesPublicIds');
 
+    const publicIds = variants.flatMap((variant) => variant.imagesPublicIds);
+    CloudinaryService.deleteMultipleImages(publicIds);
+
+    await Variant.deleteMany(filter);
     await RedisService.deleteKeys(this.CACHE_PATTERN);
   }
 
   async deactivateVariant(id: string): Promise<TResponse> {
     const variant = await Variant.findById(id);
-
     if (!variant) ResponseFormatter.notFound('No variant found with that id');
 
     variant.set({
@@ -210,9 +220,26 @@ class VariantService {
         400
       );
 
+    const imagePublicIdsToDelete: string[] = [];
+
+    imagesToDelete.forEach((imageUrl) => {
+      const index = variant.images!.indexOf(imageUrl);
+      if (index !== -1 && variant.imagesPublicIds![index]) {
+        imagePublicIdsToDelete.push(variant.imagesPublicIds![index]);
+      }
+    });
+
+    if (imagePublicIdsToDelete.length)
+      CloudinaryService.deleteMultipleImages(imagePublicIdsToDelete);
+
     const updatedVariant = await Variant.findByIdAndUpdate(
       id,
-      { $pullAll: { images: imagesToDelete } },
+      {
+        $pullAll: {
+          images: imagesToDelete,
+          imagesPublicIds: imagePublicIdsToDelete,
+        },
+      },
       { new: true, runValidators: true }
     );
 
@@ -233,14 +260,20 @@ class VariantService {
 
   async addImagesToVariant(
     id: string,
-    imagesToAdd: string[]
+    imagesToAdd: string[],
+    imagesPublicIds: string[]
   ): Promise<TResponse> {
     const variant = await Variant.findById(id);
     if (!variant) ResponseFormatter.notFound('No variant found with that id');
 
     const updatedVariant = await Variant.findByIdAndUpdate(
       id,
-      { $addToSet: { images: { $each: imagesToAdd } } },
+      {
+        $addToSet: {
+          images: { $each: imagesToAdd },
+          imagesPublicIds: { $each: imagesPublicIds },
+        },
+      },
       { new: true, runValidators: true }
     );
 
