@@ -8,6 +8,7 @@ import APIFeatures from '../utils/APIFeatures';
 import VariantService from './variant.service';
 import RedisService from './redis.service';
 import ResponseFormatter from '../utils/responseFormatter';
+import CloudinaryService from './cloudinary.service';
 
 class ProductService {
   readonly CACHE_PATTERN = 'products:*';
@@ -153,7 +154,15 @@ class ProductService {
   }
 
   async deleteProductsWithNoCategories() {
-    await Product.deleteMany({ categories: { $size: 0 } });
+    const filter = { categories: { $size: 0 } };
+    const products = await Product.find(filter)
+      .lean()
+      .select('imagesPublicIds');
+
+    await Product.deleteMany(filter);
+
+    const publicIds = products.flatMap((product) => product.imagesPublicIds);
+    CloudinaryService.deleteMultipleImages(publicIds);
 
     await RedisService.deleteKeys(this.CACHE_PATTERN);
   }

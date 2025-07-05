@@ -19,20 +19,23 @@ import {
   updateCategorySchema,
 } from '../validation/category.validation';
 import { idSchema, querySchema } from '../validation/base.validation';
-// import { uploadCoverImage } from '../middlewares/upload';
+import { uploadCoverImage } from '../middlewares/upload';
 
 const router = Router();
 
 router.get('/top-level', validate(querySchema), getTopLevelCategories);
 router.get('/slug/:slug', getCategoryBySlug);
 
-router.route('/').get(validate(querySchema), getAllCategories).post(
-  isAuthenticated,
-  isAuthorized('admin'),
-  // uploadCoverImage,
-  validate(createCategorySchema),
-  createCategory
-);
+router
+  .route('/')
+  .get(validate(querySchema), getAllCategories)
+  .post(
+    isAuthenticated,
+    isAuthorized('admin'),
+    uploadCoverImage,
+    validate(createCategorySchema),
+    createCategory
+  );
 
 router
   .route('/:id')
@@ -41,7 +44,7 @@ router
   .patch(
     isAuthenticated,
     isAuthorized('admin'),
-    // uploadCoverImage,
+    uploadCoverImage,
     validate(updateCategorySchema),
     updateCategory
   )

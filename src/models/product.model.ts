@@ -43,6 +43,7 @@ const productSchema = new Schema<ProductDocument>(
         message: 'A product must have at least one image',
       },
     },
+    imagesPublicIds: [String],
   },
   { timestamps: true }
 );

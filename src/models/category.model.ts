@@ -1,5 +1,5 @@
-import { Schema, Types, model } from 'mongoose';
 import slugify from 'slugify';
+import { Schema, Types, model } from 'mongoose';
 
 import { CategoryDocument, CategoryModel } from '../types/category.types';
 
@@ -21,7 +21,14 @@ const categorySchema = new Schema<CategoryDocument>(
       default: null,
     },
     description: String,
-    coverImage: String,
+    coverImage: {
+      type: String,
+      default: undefined,
+    },
+    coverImagePublicId: {
+      type: String,
+      default: undefined,
+    },
   },
   { timestamps: true }
 );

@@ -94,3 +94,8 @@ export const uploadUserPhoto = uploadToCloud({
   folder: 'users',
   mutliple: false,
 });
+
+export const uploadCoverImage = uploadToCloud({
+  folder: 'categories',
+  mutliple: false,
+});

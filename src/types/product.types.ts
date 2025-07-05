@@ -16,6 +16,7 @@ export type ProductDocument = Document & {
   ratingsAverage: number;
   ratingsQuantity: number;
   images: string[];
+  imagesPublicIds: string[];
 };
 
 export type ProductModel = Model<ProductDocument>;

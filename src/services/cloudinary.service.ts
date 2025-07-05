@@ -15,12 +15,14 @@ class CloudinaryService {
     }
   }
 
-  async deleteMultipleImages(publicIds: string[]): Promise<void> {
-    try {
-      const result = await cloudinary.api.delete_resources(publicIds);
-      console.log(result);
-    } catch (error) {
-      logger.error('Cloudinary batch delete error:', error);
+  async deleteMultipleImages(publicIds: (string | undefined)[]): Promise<void> {
+    const validPublicIds = publicIds.filter((id) => id !== undefined);
+    if (validPublicIds.length) {
+      try {
+        await cloudinary.api.delete_resources(validPublicIds);
+      } catch (error) {
+        logger.error('Cloudinary batch delete error:', error);
+      }
     }
   }
 }
