@@ -41,7 +41,11 @@ const userSchema = new Schema<UserDocument>(
     googleId: String,
     photo: {
       type: String,
-      default: 'default.png',
+      default: undefined,
+    },
+    photoPublicId: {
+      type: String,
+      default: undefined,
     },
     password: {
       type: String,

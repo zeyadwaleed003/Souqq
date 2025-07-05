@@ -53,8 +53,8 @@ export const createProduct: RequestHandler<{}, {}, CreateProductBody> = async (
   res,
   next
 ) => {
-  if (req.files && Array.isArray(req.files))
-    req.body.images = req.files.map((file) => file.originalname);
+  // if (req.files && Array.isArray(req.files))
+  //   req.body.images = req.files.map((file) => file.originalname);
 
   const result = await ProductService.createProduct(req.body);
   sendResponse(result, res);
@@ -88,8 +88,8 @@ export const updateProduct: RequestHandler<IdParams> = async (
   res,
   next
 ) => {
-  if (req.files && Array.isArray(req.files))
-    req.body.images = req.files.map((file) => file.originalname);
+  // if (req.files && Array.isArray(req.files))
+  //   req.body.images = req.files.map((file) => file.originalname);
 
   const result = await ProductService.updateProduct(req.params.id, req.body);
   sendResponse(result, res);
@@ -112,8 +112,8 @@ export const addImagesToProduct: RequestHandler<
   {},
   ProductImages
 > = async (req, res, next) => {
-  if (req.files && Array.isArray(req.files))
-    req.body.images = req.files.map((file) => file.originalname);
+  // if (req.files && Array.isArray(req.files))
+  //   req.body.images = req.files.map((file) => file.originalname);
 
   const result = await ProductService.addImagesToProduct(
     req.params.id,

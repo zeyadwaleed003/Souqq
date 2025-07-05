@@ -22,6 +22,7 @@ export type UserDocument = Document & {
   email: string;
   active: boolean;
   photo?: string;
+  photoPublicId?: string;
   password?: string;
   passwordChangedAt?: Date;
   role: string;
@@ -49,7 +50,7 @@ export type AccessTokenPayload = Pick<
   'name' | 'email' | 'photo' | 'role' | 'emailVerified' | '_id' | 'createdAt'
 >;
 
-export type UserPhoto = { photo?: string };
+export type UserPhoto = { photo?: string; photoPublicId?: string };
 
 export type CreateUserBody = z.output<typeof createUserSchema>['body'] &
   UserPhoto;

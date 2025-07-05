@@ -1,3 +1,4 @@
+import { CloudinaryFile } from './cloudinary.types';
 import { UserDocument } from './user.types';
 
 declare global {
@@ -5,6 +6,8 @@ declare global {
     export interface User extends UserDocument {}
     interface Request {
       user?: UserDocument;
+      file?: CloudinaryFile;
+      files?: CloudinaryFile[];
     }
   }
 }

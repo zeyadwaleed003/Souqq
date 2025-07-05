@@ -35,8 +35,8 @@ export const createVariant: RequestHandler<{}, {}, CreateVariantBody> = async (
   res,
   next
 ) => {
-  if (req.files && Array.isArray(req.files))
-    req.body.images = req.files.map((file) => file.originalname);
+  // if (req.files && Array.isArray(req.files))
+  //   req.body.images = req.files.map((file) => file.originalname);
 
   const result = await VariantService.createVariant(req.body);
   sendResponse(result, res);
@@ -70,8 +70,8 @@ export const updateVariant: RequestHandler<
   {},
   UpdateVariantBody
 > = async (req, res, next) => {
-  if (req.files && Array.isArray(req.files))
-    req.body.images = req.files.map((file) => file.originalname);
+  // if (req.files && Array.isArray(req.files))
+  //   req.body.images = req.files.map((file) => file.originalname);
 
   const result = await VariantService.updateVariant(req.params.id, req.body);
   sendResponse(result, res);
@@ -117,8 +117,8 @@ export const addImagesToVariant: RequestHandler<
   {},
   VariantImages
 > = async (req, res, next) => {
-  if (req.files && Array.isArray(req.files))
-    req.body.images = req.files.map((file) => file.originalname);
+  // if (req.files && Array.isArray(req.files))
+  //   req.body.images = req.files.map((file) => file.originalname);
 
   const result = await VariantService.addImagesToVariant(
     req.params.id,

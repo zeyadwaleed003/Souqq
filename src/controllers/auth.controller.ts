@@ -18,7 +18,7 @@ export const signup: RequestHandler<{}, {}, SignupBody> = async (
   res,
   next
 ) => {
-  if (req.file) req.body.photo = req.file.filename;
+  // if (req.file) req.body.photo = req.file.filename;
 
   const result = await AuthService.signup(req.body);
   sendResponse(result, res);
