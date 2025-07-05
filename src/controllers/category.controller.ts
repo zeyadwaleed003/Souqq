@@ -15,7 +15,6 @@ const assignCategoryCoverImage = (req: Request<{}, {}, CoverImage>) => {
 export const createCategory: RequestHandler = async (req, res, next) => {
   assignCategoryCoverImage(req);
 
-  console.log(req.body.coverImage);
   const result = await CategoryService.createCategory(req.body);
   sendResponse(result, res);
 };
