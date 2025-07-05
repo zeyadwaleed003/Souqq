@@ -108,3 +108,8 @@ export const uploadProductImages = uploadToCloud({
   folder: 'products',
   mutliple: true,
 });
+
+export const uploadVariantImages = uploadToCloud({
+  folder: 'variants',
+  mutliple: true,
+});

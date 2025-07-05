@@ -1,4 +1,4 @@
-import { RequestHandler } from 'express';
+import { Request, RequestHandler } from 'express';
 
 import {
   CreateVariantBody,
@@ -10,6 +10,13 @@ import VariantService from '../services/variant.service';
 import APIError from '../utils/APIError';
 import ProductService from '../services/product.service';
 import { IdParams } from '../types/api.types';
+
+const assignVariantImages = (req: Request<{}, {}, VariantImages>) => {
+  if (req.files && Array.isArray(req.files)) {
+    req.body.images = req.files.map((file) => file.secure_url);
+    req.body.imagesPublicIds = req.files.map((file) => file.public_id);
+  }
+};
 
 export const restrictSellerVariantPermissions: RequestHandler<
   {},
@@ -35,8 +42,7 @@ export const createVariant: RequestHandler<{}, {}, CreateVariantBody> = async (
   res,
   next
 ) => {
-  // if (req.files && Array.isArray(req.files))
-  //   req.body.images = req.files.map((file) => file.originalname);
+  assignVariantImages(req);
 
   const result = await VariantService.createVariant(req.body);
   sendResponse(result, res);
@@ -70,8 +76,7 @@ export const updateVariant: RequestHandler<
   {},
   UpdateVariantBody
 > = async (req, res, next) => {
-  // if (req.files && Array.isArray(req.files))
-  //   req.body.images = req.files.map((file) => file.originalname);
+  assignVariantImages(req);
 
   const result = await VariantService.updateVariant(req.params.id, req.body);
   sendResponse(result, res);
@@ -117,12 +122,12 @@ export const addImagesToVariant: RequestHandler<
   {},
   VariantImages
 > = async (req, res, next) => {
-  // if (req.files && Array.isArray(req.files))
-  //   req.body.images = req.files.map((file) => file.originalname);
+  assignVariantImages(req);
 
   const result = await VariantService.addImagesToVariant(
     req.params.id,
-    req.body.images
+    req.body.images,
+    req.body.imagesPublicIds
   );
   sendResponse(result, res);
 };
