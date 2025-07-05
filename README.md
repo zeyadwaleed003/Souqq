@@ -43,161 +43,155 @@ This is a RESTful API for an e-commerce platform. It provides endpoints for mana
    npm run build
    ```
 
-2. Start the development server:
+2. Start the server:
 
    ```bash
-   npm run dev
+   npm start
    ```
 
 3. Access the API at `http://127.0.0.1:3000/api/v1` (default development URL).
 
-## Scripts
-
-- `npm run dev`: Start the development server
-- `npm run build`: Build the project for production
-- `npm start`: Start the production server
-
-## Technologies Used
-
-- Node.js
-- Express.js
-- MongoDB
-- Redis
-- Stripe
-- Google OAuth
-- Gemini AI
-
-## API Documentation
-
-### Base URL
-
-All API endpoints are prefixed with `/api/v1`
-
-### Authentication
-
-Most endpoints require authentication using JWT Bearer tokens:
-
-```bash
-Authorization: Bearer <your_access_token>
-```
-
-#### Auth Endpoints
-
-| Method | Endpoint                      | Description                  |
-| ------ | ----------------------------- | ---------------------------- |
-| POST   | `/auth/signup`                | Register a new user          |
-| POST   | `/auth/login`                 | Login and get access token   |
-| POST   | `/auth/refresh-token`         | Refresh expired access token |
-| POST   | `/auth/forgot-password`       | Request password reset email |
-| PATCH  | `/auth/reset-password/:token` | Reset password with token    |
-| PATCH  | `/auth/update-password`       | Update current user password |
-| GET    | `/auth/google`                | Google OAuth login           |
-| GET    | `/auth/google/callback`       | Google OAuth callback        |
-
-### Users
-
-| Method | Endpoint                  | Description                    |
-| ------ | ------------------------- | ------------------------------ |
-| GET    | `/users`                  | Get all users (admin only)     |
-| POST   | `/users`                  | Create a new user (admin only) |
-| GET    | `/users/me`               | Get current user profile       |
-| PATCH  | `/users/me`               | Update current user profile    |
-| DELETE | `/users/me`               | Delete current user            |
-| POST   | `/users/shipping-address` | Save shipping address          |
-| GET    | `/users/:id`              | Get user by ID                 |
-| PATCH  | `/users/:id`              | Update user (admin only)       |
-| DELETE | `/users/:id`              | Delete user (admin only)       |
-| GET    | `/users/:userId/reviews`  | Get reviews by a user          |
-
-### Products
-
-| Method | Endpoint                               | Description                         |
-| ------ | -------------------------------------- | ----------------------------------- |
-| GET    | `/products`                            | Get all products                    |
-| POST   | `/products`                            | Create a new product (admin/seller) |
-| GET    | `/products/:id`                        | Get product by ID                   |
-| PATCH  | `/products/:id`                        | Update product (admin/seller)       |
-| DELETE | `/products/:id`                        | Delete product (admin only)         |
-| POST   | `/products/:id/images`                 | Add images to product               |
-| DELETE | `/products/:id/images`                 | Delete images from product          |
-| GET    | `/products/:productId/reviews`         | Get product reviews                 |
-| POST   | `/products/:productId/reviews`         | Create product review               |
-| GET    | `/products/:productId/reviews/summary` | Get AI-generated review summary     |
-
-### Categories
-
-| Method | Endpoint                        | Description                    |
-| ------ | ------------------------------- | ------------------------------ |
-| GET    | `/categories`                   | Get all categories             |
-| POST   | `/categories`                   | Create a category (admin only) |
-| GET    | `/categories/top-level`         | Get top-level categories       |
-| GET    | `/categories/slug/:slug`        | Get category by slug           |
-| GET    | `/categories/:id`               | Get category by ID             |
-| PATCH  | `/categories/:id`               | Update category (admin only)   |
-| DELETE | `/categories/:id`               | Delete category (admin only)   |
-| GET    | `/categories/:id/subcategories` | Get subcategories              |
-| GET    | `/categories/:id/products`      | Get category products          |
-
-### Variants
-
-| Method | Endpoint                     | Description                      |
-| ------ | ---------------------------- | -------------------------------- |
-| GET    | `/variants`                  | Get all variants                 |
-| POST   | `/variants`                  | Create a variant (admin/seller)  |
-| GET    | `/variants/active`           | Get active variants              |
-| GET    | `/variants/cheapest`         | Get cheapest variant per product |
-| GET    | `/variants/:id`              | Get variant by ID                |
-| PATCH  | `/variants/:id`              | Update variant (admin/seller)    |
-| DELETE | `/variants/:id`              | Delete variant (admin only)      |
-| PATCH  | `/variants/:id/deactivate`   | Deactivate a variant             |
-| POST   | `/variants/:id/images`       | Add images to variant            |
-| DELETE | `/variants/:id/images`       | Delete images from variant       |
-| PATCH  | `/variants/:variantId/carts` | Add variant to cart              |
-
-### Orders
-
-| Method | Endpoint                   | Description                 |
-| ------ | -------------------------- | --------------------------- |
-| GET    | `/orders`                  | Get all orders (admin only) |
-| GET    | `/orders/me`               | Get current user's orders   |
-| POST   | `/orders/checkout-session` | Create checkout session     |
-| GET    | `/orders/success`          | Verify order after checkout |
-| GET    | `/orders/:id`              | Get order by ID             |
-
-### Reviews
-
-| Method | Endpoint       | Description                |
-| ------ | -------------- | -------------------------- |
-| GET    | `/reviews/me`  | Get current user's reviews |
-| GET    | `/reviews/:id` | Get review by ID           |
-| PATCH  | `/reviews/:id` | Update review              |
-| DELETE | `/reviews/:id` | Delete review              |
-
-### Carts
-
-| Method | Endpoint                 | Description                |
-| ------ | ------------------------ | -------------------------- |
-| GET    | `/carts`                 | Get all carts (admin only) |
-| GET    | `/carts/me`              | Get current user's cart    |
-| PATCH  | `/carts/add-item`        | Add item to cart           |
-| PATCH  | `/carts/remove-item`     | Remove item from cart      |
-| PATCH  | `/carts/clear`           | Clear cart                 |
-| PATCH  | `/carts/update-quantity` | Update item quantity       |
-
 For detailed API documentation with request/response examples, visit `/api/v1/api-docs` after starting the server.
 
-## Response Format
+## Tech Stack
 
-All API responses follow a consistent format:
+### Core Technologies
 
-```ts
-{
-  "status": "success" | "fail" | "error",
-  "statusCode": 200 | 201 | 400 | 401 | 403 | 404 | 500,
-  "size": 10,  // for list responses
-  "message": "Optional success or error message",
-  "data": {
-    // Response data varies by endpoint
-  }
-}
+- **Runtime**: Node.js
+- **Language**: TypeScript
+- **Framework**: Express.js
+- **Validation**: Zod
+- **Database**: MongoDB with Mongoose ODM
+- **Authentication**: JWT (JSON Web Tokens)
+
+### Third-Party Integrations
+
+- **Caching**: Redis
+- **AI**: Google Gemini AI
+- **OAuth**: Google OAuth 2.0
+- **Payment Processing**: Stripe
+- **Email Service**: Mailtrap (Development)
+- **Cloud Storage**: Cloudinary (Image hosting)
+
+## Project Structure
+
+```tree
+./
+├── logs/
+│   ├── app.log
+│   └── error.log
+├── src/
+│   ├── config/
+│   │   ├── cloudinary.ts
+│   │   ├── email.ts
+│   │   ├── env.ts
+│   │   ├── logger.ts
+│   │   ├── passport.ts
+│   │   ├── redis.ts
+│   │   ├── stripe.ts
+│   │   └── swagger.ts
+│   ├── controllers/
+│   │   ├── auth.controller.ts
+│   │   ├── cart.controller.ts
+│   │   ├── category.controller.ts
+│   │   ├── order.controller.ts
+│   │   ├── product.controller.ts
+│   │   ├── review.controller.ts
+│   │   ├── user.controller.ts
+│   │   └── variant.controller.ts
+│   ├── docs/
+│   │   ├── auth.swagger.ts
+│   │   ├── cart.swagger.ts
+│   │   ├── category.swagger.ts
+│   │   ├── order.swagger.ts
+│   │   ├── product.swagger.ts
+│   │   ├── review.swagger.ts
+│   │   ├── user.swagger.ts
+│   │   └── variant.swagger.ts
+│   ├── middlewares/
+│   │   ├── globalErrorHandler.ts
+│   │   ├── isAuthenticated.ts
+│   │   ├── isAuthorized.ts
+│   │   ├── notFound.ts
+│   │   ├── upload.ts
+│   │   └── validate.ts
+│   ├── models/
+│   │   ├── cart.model.ts
+│   │   ├── category.model.ts
+│   │   ├── order.model.ts
+│   │   ├── product.model.ts
+│   │   ├── review.model.ts
+│   │   ├── user.model.ts
+│   │   └── variant.model.ts
+│   ├── routes/
+│   │   ├── auth.routes.ts
+│   │   ├── cart.routes.ts
+│   │   ├── category.routes.ts
+│   │   ├── order.routes.ts
+│   │   ├── product.routes.ts
+│   │   ├── review.routes.ts
+│   │   ├── user.routes.ts
+│   │   └── variant.routes.ts
+│   ├── services/
+│   │   ├── auth.service.ts
+│   │   ├── cart.service.ts
+│   │   ├── category.service.ts
+│   │   ├── cloudinary.service.ts
+│   │   ├── gemini.service.ts
+│   │   ├── order.service.ts
+│   │   ├── product.service.ts
+│   │   ├── redis.service.ts
+│   │   ├── review.service.ts
+│   │   ├── stripe.service.ts
+│   │   ├── user.service.ts
+│   │   └── variant.service.ts
+│   ├── templates/
+│   │   ├── emailVerify.pug
+│   │   └── passwordReset.pug
+│   ├── types/
+│   │   ├── api.types.ts
+│   │   ├── auth.types.ts
+│   │   ├── cart.types.ts
+│   │   ├── category.types.ts
+│   │   ├── cloudinary.types.ts
+│   │   ├── express.d.ts
+│   │   ├── multer.d.ts
+│   │   ├── order.types.ts
+│   │   ├── product.types.ts
+│   │   ├── review.types.ts
+│   │   ├── user.types.ts
+│   │   └── variant.types.ts
+│   ├── utils/
+│   │   ├── APIError.ts
+│   │   ├── APIFeatures.ts
+│   │   ├── functions.ts
+│   │   ├── responseFormatter.ts
+│   │   ├── sendEmail.ts
+│   │   ├── sendResponse.ts
+│   │   └── token.ts
+│   ├── validation/
+│   |   ├── auth.validation.ts
+│   |   ├── base.validation.ts
+│   |   ├── cart.validation.ts
+│   |   ├── category.validation.ts
+│   |   ├── product.validation.ts
+│   |   ├── review.validation.ts
+│   |   ├── user.validation.ts
+│   |   └── variant.validation.ts
+|   ├── app.ts
+|   └── server.ts
+|
+├── .dockerignore
+├── .env
+├── .env.example
+├── .gitignore
+├── docker-compose.dev.yml
+├── docker-compose.prod.yml
+├── docker-compose.yml
+├── Dockerfile
+├── package-lock.json
+├── package.json
+├── README.md
+├── tsconfig.json
+└── tsconfig.tsbuildinfo
 ```
