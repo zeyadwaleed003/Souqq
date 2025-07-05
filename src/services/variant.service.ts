@@ -116,7 +116,8 @@ class VariantService {
     const variant = await Variant.findById(id);
     if (!variant) ResponseFormatter.notFound('No variant found with that id');
 
-    if (data.images) CloudinaryService.deleteMultipleImages(variant.images);
+    if (data.images)
+      CloudinaryService.deleteMultipleImages(variant.imagesPublicIds);
 
     variant.set(data);
     const newVariant = await variant.save();
