@@ -27,6 +27,7 @@ export type TSellerId = {
 
 export type ProductImages = {
   images: string[];
+  imagesPublicIds: string[];
 };
 
 export type CreateProductBody = z.output<typeof createProductSchema>['body'] &

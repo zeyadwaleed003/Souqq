@@ -22,8 +22,12 @@ const uploadToCloud = (options: UploadOptions) => {
     const formFields: Record<string, any> = {};
 
     bb.on('field', (name, value) => {
-      if (formFields[name]) formFields[name].push(value);
-      else formFields[name] = value;
+      if (formFields[name]) {
+        if (!Array.isArray(formFields[name]))
+          formFields[name] = [formFields[name], value];
+
+        formFields[name].push(value);
+      } else formFields[name] = value;
     });
 
     bb.on('file', (name, stream, info) => {
@@ -98,4 +102,9 @@ export const uploadUserPhoto = uploadToCloud({
 export const uploadCoverImage = uploadToCloud({
   folder: 'categories',
   mutliple: false,
+});
+
+export const uploadProductImages = uploadToCloud({
+  folder: 'products',
+  mutliple: true,
 });

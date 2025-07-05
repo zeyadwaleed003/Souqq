@@ -12,6 +12,7 @@ import ResponseFormatter from '../utils/responseFormatter';
 import RedisService from './redis.service';
 import APIError from '../utils/APIError';
 import { Types } from 'mongoose';
+import CloudinaryService from './cloudinary.service';
 
 class VariantService {
   readonly CACHE_PATTERN = 'variants:*';
@@ -130,8 +131,15 @@ class VariantService {
   }
 
   async deleteVariantsWithNoProduct(productId: string) {
-    await Variant.deleteMany({ product: productId });
+    const filter = { product: productId };
+    const variants = await Variant.find(filter)
+      .lean()
+      .select('imagesPublicIds');
 
+    const publicIds = variants.flatMap((variant) => variant.imagesPublicIds);
+    CloudinaryService.deleteMultipleImages(publicIds);
+
+    await Variant.deleteMany(filter);
     await RedisService.deleteKeys(this.CACHE_PATTERN);
   }
 

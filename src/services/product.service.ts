@@ -117,6 +117,8 @@ class ProductService {
     const product = await Product.findByIdAndDelete(id).lean();
     if (!product) ResponseFormatter.notFound('No product found with that id');
 
+    CloudinaryService.deleteMultipleImages(product.imagesPublicIds);
+
     await RedisService.deleteKeys(this.CACHE_PATTERN);
 
     return {
@@ -129,6 +131,9 @@ class ProductService {
   async updateProduct(id: string, data: UpdateProductBody): Promise<TResponse> {
     const product = await Product.findById(id);
     if (!product) ResponseFormatter.notFound('No product found with that id');
+
+    if (data.images)
+      CloudinaryService.deleteMultipleImages(product.imagesPublicIds);
 
     product.set(data);
     const newProduct = await product.save();
@@ -174,15 +179,29 @@ class ProductService {
     const product = await Product.findById(id);
     if (!product) ResponseFormatter.notFound('No product found with that id');
 
-    const remainingImages = product.images.filter(
-      (img) => !imagesToDelete.includes(img)
-    );
+    const remainingIdx: number[] = [];
+    const remainingImages = product.images.filter((img, idx) => {
+      const keep = !imagesToDelete.includes(img);
+      if (keep) remainingIdx.push(idx);
+
+      return keep;
+    });
     if (!remainingImages.length)
       ResponseFormatter.badRequest(
         'Cannot delete all images. A product must have at least one image'
       );
 
+    const remainingPublicIds = remainingIdx.map(
+      (idx) => product.imagesPublicIds[idx]
+    );
+    const deletedPublicIds = product.imagesPublicIds.filter(
+      (publicId) => !remainingPublicIds.includes(publicId)
+    );
+
+    CloudinaryService.deleteMultipleImages(deletedPublicIds);
+
     product.images = remainingImages;
+    product.imagesPublicIds = remainingPublicIds;
     await product.save();
 
     await RedisService.deleteKeys(this.CACHE_PATTERN);
@@ -199,14 +218,20 @@ class ProductService {
 
   async addImagesToProduct(
     id: string,
-    imagesToAdd: string[]
+    imagesToAdd: string[],
+    publicIdsToAdd: string[]
   ): Promise<TResponse> {
     const product = await Product.findById(id);
     if (!product) ResponseFormatter.notFound('No product found with that id');
 
     const updatedProduct = await Product.findByIdAndUpdate(
       id,
-      { $addToSet: { images: { $each: imagesToAdd } } },
+      {
+        $addToSet: {
+          images: { $each: imagesToAdd },
+          imagesPublicIds: { $each: publicIdsToAdd },
+        },
+      },
       { new: true, runValidators: true }
     );
 
