@@ -38,7 +38,14 @@ const uploadToCloud = (options: UploadOptions) => {
         return next(new APIError('Unsupported file format', 400));
       }
 
+      let uploadStarted = false;
+
       const uploadPromise = new Promise<CloudinaryFile>((resolve, reject) => {
+        stream.on('limit', () => {
+          if (uploadStarted) uploadStream.destroy();
+          return next(new APIError('File size exceeds the 30MB limit', 400));
+        });
+
         const uploadStream = cloudinary.uploader.upload_stream(
           {
             folder: options.folder,
@@ -59,6 +66,7 @@ const uploadToCloud = (options: UploadOptions) => {
           }
         );
 
+        uploadStarted = true;
         stream.pipe(uploadStream);
       });
 
