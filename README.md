@@ -1,4 +1,4 @@
-# E-Commerce API
+# Souqq
 
 ## Description
 
@@ -18,7 +18,7 @@ This is a RESTful API for an e-commerce platform. It provides endpoints for mana
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/zeyadwaleed003/E-Commerce-API.git
+   git clone https://github.com/zeyadwaleed003/Souqq.git
    ```
 
 2. Navigate to the project directory:
