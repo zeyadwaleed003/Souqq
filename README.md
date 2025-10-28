@@ -24,7 +24,7 @@ This is a RESTful API for an e-commerce platform. It provides endpoints for mana
 2. Navigate to the project directory:
 
    ```bash
-   cd e-commerce-api
+   cd Souqq
    ```
 
 3. Install dependencies:
